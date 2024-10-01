@@ -370,4 +370,9 @@
     return [_savingTrackHelper hasDataToSave];
 }
 
+- (BOOL) isEnableByDefault
+{
+	return YES;
+}
+
 @end
