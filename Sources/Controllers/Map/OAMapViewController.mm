@@ -1345,7 +1345,8 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
                 OsmAnd::PointI secondTouchLocation31 = [OANativeUtilities convertFromPoint31:touchLocations[1].touchLocation31];
                 float secondTouchLocationHeight = touchLocations[1].touchLocationHeight;
 
-                [_mapView setMapTarget:OsmAnd::PointI((int)firstTouchPoint.x, (int)firstTouchPoint.y) location31:firstTouchLocation31];
+				if (_app.mapMode != OAMapModePositionTrack)
+					[_mapView setMapTarget:OsmAnd::PointI((int)firstTouchPoint.x, (int)firstTouchPoint.y) location31:firstTouchLocation31];
 
                 OsmAnd::PointI firstPosition((int)firstTouchPoint.x, (int)firstTouchPoint.y);
                 OsmAnd::PointI secondPosition((int)secondTouchPoint.x, (int)secondTouchPoint.y);
