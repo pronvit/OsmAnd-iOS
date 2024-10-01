@@ -4914,7 +4914,7 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
         _isCarPlayModeDefault = [[[OACommonBoolean withKey:carPlayModeIsDefaultKey defValue:YES] makeGlobal] makeShared];
         [_globalPreferences setObject:_carPlayMode forKey:@"carplay_mode_is_default_string"];
 
-        _availableApplicationModes = [[[OACommonString withKey:availableApplicationModesKey defValue:@"car,bicycle,pedestrian,public_transport,"] makeGlobal] makeShared];
+        _availableApplicationModes = [[[OACommonString withKey:availableApplicationModesKey defValue:@"car,"] makeGlobal] makeShared];
         [_globalPreferences setObject:_availableApplicationModes forKey:@"available_application_modes"];
 
         _customAppModes = [[OACommonString withKey:customAppModesKey defValue:@""] makeGlobal];
