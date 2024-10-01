@@ -628,7 +628,7 @@ static const NSInteger kDBVersion = 1;
                     if (fillCurrentTrack) {
                         gpx = _currentTrack;
                     } else {
-                        gpx = dataTracks[date];
+                        gpx = [dataTracks.allValues firstObject];
                     }
                     
                     if (!gpx)
@@ -707,7 +707,7 @@ static const NSInteger kDBVersion = 1;
                         [segment.points addObject:pt];
                         
                     }
-                    else if (track && [OAAppSettings sharedManager].autoSplitRecording.get && currentInterval < 2 * 60 * 60)
+                    else if (track && [OAAppSettings sharedManager].autoSplitRecording.get)
                     {
                         // 2 hour - same track
                         segment = [[OASTrkSegment alloc] init];
@@ -720,7 +720,6 @@ static const NSInteger kDBVersion = 1;
                     }
                     else
                     {
-                        // check if date the same - new track otherwise new file
                         track = [[OASTrack alloc] init];
                         track.segments = [NSMutableArray array];
                         
@@ -732,8 +731,8 @@ static const NSInteger kDBVersion = 1;
                         if (fillCurrentTrack)
                             gpx = _currentTrack;
                         else
-                            gpx = dataTracks[date];
-                        
+							gpx = [dataTracks.allValues firstObject];
+
                         if (!gpx)
                         {
                             gpx = [[OASGpxFile alloc] initWithAuthor:[OAAppVersion getFullVersionWithAppName]];
@@ -893,7 +892,7 @@ static const NSInteger kDBVersion = 1;
     [self doUpdateTrackLat:lat lon:lon alt:alt speed:speed hdop:hdop time:time heading:heading pluginsInfo:pluginsInfo];
     
     BOOL newSegment = NO;
-    if ((lastPoint.latitude == 0.0 && lastPoint.longitude == 0.0) || (time - lastTimeUpdated) > 180)
+    if ((lastPoint.latitude == 0.0 && lastPoint.longitude == 0.0))
     {
         lastPoint = CLLocationCoordinate2DMake(lat, lon);
         newSegment = YES;
