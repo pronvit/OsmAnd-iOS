@@ -147,11 +147,11 @@ final class TimeToNavigationPointWidget: OASimpleWidget {
             dateFormatter.dateFormat = "HH:mm"
             setText(dateFormatter.string(from: toFindDate), subtext: nil)
         } else {
-            dateFormatter.dateFormat = "h:mm"
+            dateFormatter.dateFormat = "h:mm a"
             let timeStr = dateFormatter.string(from: toFindDate)
-            dateFormatter.dateFormat = "a"
-            let aStr = dateFormatter.string(from: toFindDate)
-            setText(timeStr, subtext: aStr)
+//            dateFormatter.dateFormat = "a"
+//            let aStr = dateFormatter.string(from: toFindDate)
+            setText(timeStr, subtext: nil)
         }
         return true
     }
