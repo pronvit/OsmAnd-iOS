@@ -352,7 +352,7 @@
         {
             if (disabled)
             {
-                [_iapHelper enableProduct:product.productIdentifier];
+//                [_iapHelper enableProduct:product.productIdentifier];
                 OAPlugin *plugin = [OAPluginsHelper getPluginById:product.productIdentifier];
                 [plugin showInstalledScreen];
                 [OAPluginPopupViewController showProductAlert:product afterPurchase:NO];
