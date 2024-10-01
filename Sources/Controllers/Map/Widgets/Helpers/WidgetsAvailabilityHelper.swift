@@ -55,12 +55,10 @@ class WidgetsAvailabilityHelper: NSObject {
         regWidgetAvailability(widgetType: .secondNextTurn, appModes: exceptDefault)
         
         // right
+		regWidgetVisibility(widgetType: .sunPosition)
+		regWidgetVisibility(widgetType: .altitudeMyLocation)
         regWidgetVisibility(widgetType: .routeInfo, appModes: exceptDefault)
         
-        regWidgetVisibility(widgetType: .currentSpeed, appModes: [.bicycle(), .boat(), .ski(), .public_TRANSPORT(), .aircraft(), .horse(), .train()])
-        regWidgetVisibility(widgetType: .maxSpeed, appModes: [])
-        regWidgetVisibility(widgetType: .altitudeMapCenter, appModes: [.pedestrian(), .bicycle()])
-        regWidgetVisibility(widgetType: .altitudeMyLocation, appModes: [.pedestrian(), .bicycle()])
         
         regWidgetAvailability(widgetType: .intermediateDestination)
         regWidgetAvailability(widgetType: .distanceToDestination)
