@@ -5283,7 +5283,7 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
         _gpxCalculateRtept = [[[OACommonBoolean withKey:gpxCalculateRteptKey defValue:YES] makeGlobal] makeShared];
         _gpxRouteCalc = [[[OACommonBoolean withKey:gpxRouteCalcKey defValue:NO] makeGlobal] makeShared];
         _gpxRouteSegment = [[[OACommonInteger withKey:gpxRouteSegmentKey defValue:-1] makeGlobal] makeShared];
-        _showStartFinishIcons = [[[OACommonBoolean withKey:showStartFinishIconsKey defValue:YES] makeGlobal] makeShared];
+        _showStartFinishIcons = [[[OACommonBoolean withKey:showStartFinishIconsKey defValue:NO] makeGlobal] makeShared];
 
         [_globalPreferences setObject:_gpxRouteCalcOsmandParts forKey:@"gpx_routing_calculate_osmand_route"];
         [_globalPreferences setObject:_gpxCalculateRtept forKey:@"gpx_routing_calculate_rtept"];
@@ -5556,11 +5556,11 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
         _currentTrackSpeedGradientPalette = [[[OACommonString withKey:currentTrackSpeedGradientPaletteKey defValue:nil] makeGlobal] makeShared];
         _currentTrackAltitudeGradientPalette = [[[OACommonString withKey:currentTrackAltitudeGradientPaletteKey defValue:nil] makeGlobal] makeShared];
         _currentTrackSlopeGradientPalette = [[[OACommonString withKey:currentTrackSlopeGradientPaletteKey defValue:nil] makeGlobal] makeShared];
-        _currentTrackWidth = [[[OACommonString withKey:currentTrackWidthKey defValue:@""] makeGlobal] makeShared];
+        _currentTrackWidth = [[[OACommonString withKey:currentTrackWidthKey defValue:@"medium"] makeGlobal] makeShared];
         
         _currentTrackShowArrows = [[[OACommonBoolean withKey:currentTrackShowArrowsKey defValue:NO] makeGlobal] makeShared];
         
-        _currentTrackShowStartFinish = [[[OACommonBoolean withKey:currentTrackShowStartFinishKey defValue:YES] makeGlobal] makeShared];
+        _currentTrackShowStartFinish = [[[OACommonBoolean withKey:currentTrackShowStartFinishKey defValue:NO] makeGlobal] makeShared];
         
         _currentTrackIsJoinSegments = [[[OACommonBoolean withKey:currentTrackIsJoinSegmentsKey defValue:NO] makeGlobal] makeShared];
         
