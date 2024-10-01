@@ -227,11 +227,11 @@ extension WidgetType {
     static let lanes = WidgetType(ordinal: 8, id: "lanes", title: localizedString("show_lanes"), descr: localizedString("lanes_widgets_desc"), iconName: "widget_lanes", docsUrl: docs_widget_lanes, verticalGroup: .routeGuidance, defaultPanel: .topPanel, special: true)
 
     // Right panel
-    static let distanceToDestination = WidgetType(ordinal: 9, id: "distance", title: localizedString("map_widget_distance_to_destination"), descr: localizedString("distance_to_destination_widget_desc"), iconName: "widget_target", group: .navigationPoints, defaultPanel: .rightPanel)
+	static let distanceToDestination = WidgetType(ordinal: 9, id: "distance", title: localizedString("map_widget_distance_to_destination"), descr: localizedString("distance_to_destination_widget_desc"), iconName: "widget_target", group: .navigationPoints, defaultPanel: .bottomPanel)
     static let intermediateDestination = WidgetType(ordinal: 10, id: "intermediate_distance", title: localizedString("map_widget_distance_to_intermediate"), descr: localizedString("distance_to_intermediate_widget_desc"), iconName: "widget_intermediate", group: .navigationPoints, defaultPanel: .rightPanel)
     static let routeInfo = WidgetType(ordinal: 11, id: "route_info", title: localizedString("map_widget_route_information"), descr: localizedString("map_widget_route_information_desc"), iconName: "widget_route_info", verticalGroup: .navigationPoints, defaultPanel: .bottomPanel)
-    static let timeToIntermediate = WidgetType(ordinal: 12, id: "time_to_intermediate", title: localizedString("map_widget_time_to_intermediate"), descr: localizedString("time_to_intermediate_widget_desc"), iconName: "widget_intermediate_time", group: .navigationPoints, defaultPanel: .rightPanel)
-    static let timeToDestination = WidgetType(ordinal: 13, id: "time_to_destination", title: localizedString("map_widget_time_to_destination"), descr: localizedString("time_to_destination_widget_desc"), iconName: "widget_time_to_distance", group: .navigationPoints, defaultPanel: .rightPanel)
+    static let timeToIntermediate = WidgetType(ordinal: 11, id: "time_to_intermediate", title: localizedString("map_widget_time_to_intermediate"), descr: localizedString("time_to_intermediate_widget_desc"), iconName: "widget_intermediate_time", group: .navigationPoints, defaultPanel: .rightPanel)
+    static let timeToDestination = WidgetType(ordinal: 12, id: "time_to_destination", title: localizedString("map_widget_time_to_destination"), descr: localizedString("time_to_destination_widget_desc"), iconName: "widget_time_to_distance", group: .navigationPoints, defaultPanel: .bottomPanel)
 
     static let sideMarker1 = WidgetType(ordinal: 14, id: "map_marker_1st", title: localizedString("map_marker_1st"), descr: localizedString("first_marker_widget_desc"), iconName: "widget_marker", group: .mapMarkers, defaultPanel: .rightPanel)
     static let sideMarker2 = WidgetType(ordinal: 15, id: "map_marker_2nd", title: localizedString("map_marker_2nd"), descr: localizedString("second_marker_widget_desc"), iconName: "widget_marker", group: .mapMarkers, defaultPanel: .rightPanel)
@@ -246,7 +246,7 @@ extension WidgetType {
     static let altitudeMapCenter = WidgetType(ordinal: 23, id: "altitude_map_center", title: localizedString("map_widget_altitude_map_center"), descr: localizedString("map_widget_altitude_map_center_desc"), iconName: "widget_altitude_map_center", group: .altitude, defaultPanel: .rightPanel)
     static let gpsInfo = WidgetType(ordinal: 24, id: "gps_info", title: localizedString("map_widget_gps_info"), descr: localizedString("gps_info_widget_desc"), iconName: "widget_gps_info", docsUrl: docs_widget_gps_info, defaultPanel: .rightPanel)
 
-    static let tripRecordingDistance = WidgetType(ordinal: 25, id: "monitoring", title: localizedString("map_widget_trip_recording_distance"), descr: localizedString("trip_recording_distance_widget_desc"), iconName: "widget_trip_recording", group: .tripRecording, defaultPanel: .rightPanel)
+    static let tripRecordingDistance = WidgetType(ordinal: 25, id: "monitoring", title: localizedString("map_widget_trip_recording_distance"), descr: localizedString("trip_recording_distance_widget_desc"), iconName: "widget_trip_recording", group: .tripRecording, defaultPanel: .bottomPanel)
     static let tripRecordingTime = WidgetType(ordinal: 26, id: "trip_recording_time", title: localizedString("map_widget_trip_recording_duration"), descr: localizedString("trip_recording_duration_widget_desc"), iconName: "widget_track_recording_duration", group: .tripRecording, defaultPanel: .rightPanel)
     static let tripRecordingUphill = WidgetType(ordinal: 27, id: "trip_recording_uphill", title: localizedString("map_widget_trip_recording_uphill"), descr: localizedString("trip_recording_uphill_widget_desc"), iconName: "widget_track_recording_uphill", group: .tripRecording, defaultPanel: .rightPanel)
     static let tripRecordingDownhill = WidgetType(ordinal: 28, id: "trip_recording_downhill", title: localizedString("map_widget_trip_recording_downhill"), descr: localizedString("trip_recording_downhill_widget_desc"), iconName: "widget_track_recording_downhill", group: .tripRecording, defaultPanel: .rightPanel)
@@ -323,11 +323,7 @@ extension WidgetType {
                          streetName,
                          markersTopBar,
                          lanes,
-                         distanceToDestination,
-                         intermediateDestination,
-                         routeInfo,
-                         timeToIntermediate,
-                         timeToDestination,
+						 routeInfo,
                          sideMarker1,
                          sideMarker2,
                          relativeBearing,
@@ -336,13 +332,15 @@ extension WidgetType {
                          currentSpeed,
                          averageSpeed,
                          maxSpeed,
-                         altitudeMyLocation,
-                         altitudeMapCenter,
                          gpsInfo,
+						 tripRecordingTime,
                          tripRecordingDistance,
-                         tripRecordingTime,
                          tripRecordingUphill,
                          tripRecordingDownhill,
+						 distanceToDestination,
+						 intermediateDestination,
+						 timeToIntermediate,
+						 timeToDestination,
                          currentTime,
                          battery,
                          radiusRuler,
@@ -374,6 +372,8 @@ extension WidgetType {
                          sunPosition,
                          sunrise,
                          sunset,
+						 altitudeMyLocation,
+						 altitudeMapCenter,
                          // Bottom panel
                          elevationProfile,
                          // External sensors

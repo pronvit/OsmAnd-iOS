@@ -51,20 +51,18 @@ class WidgetsAvailabilityHelper: NSObject {
         regWidgetAvailability(widgetType: .secondNextTurn, appModes: exceptDefault)
         
         // right
-        regWidgetVisibility(widgetType: .intermediateDestination)
-        regWidgetVisibility(widgetType: .distanceToDestination)
-        regWidgetVisibility(widgetType: .timeToIntermediate)
-        regWidgetVisibility(widgetType: .timeToDestination)
-        
-        if installDate >= Self.routeWidgetsV2IntroTimeInSeconds {
-            regWidgetVisibility(widgetType: .routeInfo, appModes: exceptDefault)
-        }
-        
-        regWidgetVisibility(widgetType: .currentSpeed, appModes: [.bicycle(), .boat(), .ski(), .public_TRANSPORT(), .aircraft(), .horse(), .train()])
-        regWidgetVisibility(widgetType: .maxSpeed, appModes: [])
-        regWidgetVisibility(widgetType: .altitudeMapCenter, appModes: [.pedestrian(), .bicycle()])
-        regWidgetVisibility(widgetType: .altitudeMyLocation, appModes: [.pedestrian(), .bicycle()])
-        
+		regWidgetVisibility(widgetType: .sunPosition)
+		regWidgetVisibility(widgetType: .altitudeMyLocation)
+
+		//if installDate >= Self.routeWidgetsV2IntroTimeInSeconds {
+        //    regWidgetVisibility(widgetType: .routeInfo, appModes: exceptDefault)
+        //}
+
+
+		// bottom
+		regWidgetVisibility(widgetType: .timeToDestination)
+		regWidgetVisibility(widgetType: .distanceToDestination)
+
         regWidgetAvailability(widgetType: .intermediateDestination)
         regWidgetAvailability(widgetType: .distanceToDestination)
         regWidgetAvailability(widgetType: .routeInfo)

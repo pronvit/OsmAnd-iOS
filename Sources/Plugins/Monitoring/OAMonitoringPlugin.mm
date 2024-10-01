@@ -91,7 +91,7 @@
 {
     for (OAWidgetType *widget in OAWidgetGroup.tripRecording.getWidgets)
     {
-        NSArray<OAApplicationMode *> *appModes = widget == OAWidgetType.tripRecordingDistance ? nil : @[];
+		NSArray<OAApplicationMode *> *appModes = (widget == OAWidgetType.tripRecordingTime || widget == OAWidgetType.tripRecordingDistance) ? nil : @[];
         [OAWidgetsAvailabilityHelper regWidgetVisibilityWithWidgetType:widget appModes:appModes];
     }
 }

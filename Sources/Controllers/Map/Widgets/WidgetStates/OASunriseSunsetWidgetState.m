@@ -160,7 +160,7 @@
     if (customId && customId.length > 0)
         prefId = [prefId stringByAppendingString:customId];
     
-    OACommonInteger *preference = [[[OAAppSettings sharedManager] registerIntPreference:prefId defValue:EOASunriseSunsetTimeLeft] makeProfile];
+    OACommonInteger *preference = [[[OAAppSettings sharedManager] registerIntPreference:prefId defValue:EOASunriseSunsetNext] makeProfile];
     
     if (widgetParams)
     {

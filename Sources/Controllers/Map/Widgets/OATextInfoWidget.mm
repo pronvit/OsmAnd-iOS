@@ -652,7 +652,7 @@ static NSString * _Nonnull const kSizeStylePref = @"simple_widget_size";
         if (self.widgetSizeStyle == EOAWidgetSizeStyleSmall)
         {
             self.unitView.hidden = YES;
-            self.titleOrEmptyLabel.text = [_contentTitle upperCase];
+//            self.titleOrEmptyLabel.text = [_contentTitle upperCase];
             self.unitOrEmptyLabel.text = [_subtext upperCase];
         }
         else
@@ -1018,7 +1018,7 @@ static NSString * _Nonnull const kSizeStylePref = @"simple_widget_size";
     NSString *prefId = [kSizeStylePref stringByAppendingString:self.widgetType.id];
     if (customId && customId.length > 0)
         prefId = [prefId stringByAppendingString:customId];
-    return [[OAAppSettings sharedManager] registerWidgetSizeStylePreference:prefId defValue:[[self getWidgetPanel] isPanelVertical] || self.widgetType.getPanel.isPanelVertical ? EOAWidgetSizeStyleMedium : EOAWidgetSizeStyleSmall];
+    return [[OAAppSettings sharedManager] registerWidgetSizeStylePreference:prefId defValue:EOAWidgetSizeStyleSmall];
 }
 
 - (OACommonBoolean *)registerShowIconPref:(NSString *)customId
