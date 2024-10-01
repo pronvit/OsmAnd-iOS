@@ -227,6 +227,8 @@
         _mapSourceUpdatedObserver = [[OAAutoObserverProxy alloc] initWith:self
                                                      withHandler:@selector(onMapSourceUpdated)
                                                       andObserve:[OARootViewController instance].mapPanel.mapViewController.mapSourceUpdatedObservable];
+
+		[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(refreshWidgets) userInfo:nil repeats:YES];
     }
     return self;
 }
@@ -246,14 +248,22 @@
     });
 }
 
+- (void) refreshWidgets
+{
+	if (CACurrentMediaTime() - _lastUpdateTime > 1.0)
+	{
+		[_mapWidgetRegistry updateInfo:[_settings.applicationMode get] expanded:_expanded];
+	}
+}
+
 - (void) onMapRendererFramePrepared
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (_framePreparedTimer)
-            [_framePreparedTimer invalidate];
-        
-        _framePreparedTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(execOnDraw) userInfo:nil repeats:NO];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        if (_framePreparedTimer)
+//            [_framePreparedTimer invalidate];
+//        
+//        _framePreparedTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(execOnDraw) userInfo:nil repeats:NO];
+//    });
     if (CACurrentMediaTime() - _lastUpdateTime > 1.0)
         [self execOnDraw];
 
