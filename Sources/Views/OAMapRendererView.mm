@@ -553,7 +553,7 @@ forcedUpdate:(BOOL)forcedUpdate
 
 - (BOOL)suspendSymbolsUpdate
 {
-    return _renderer->suspendSymbolsUpdate();
+	return YES;//_renderer->suspendSymbolsUpdate();
 }
 
 - (BOOL)isIdle
@@ -563,7 +563,7 @@ forcedUpdate:(BOOL)forcedUpdate
 
 - (BOOL)resumeSymbolsUpdate
 {
-    return _renderer->resumeSymbolsUpdate();
+	return YES;//_renderer->resumeSymbolsUpdate();
 }
 
 - (void) setVisualZoomShift:(double)shift
