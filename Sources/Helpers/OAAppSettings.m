@@ -4855,7 +4855,7 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
         // TODO: redesign alert as in android to show/hide recorded trip on map
         _mapSettingShowRecordingTrack = [[[OACommonBoolean withKey:mapSettingShowRecordingTrackKey defValue:YES] makeGlobal] makeShared];
         _mapSettingShowTripRecordingStartDialog = [[[OACommonBoolean withKey:mapSettingShowTripRecordingStartDialogKey defValue:YES] makeGlobal] makeShared];
-        _saveHeadingToGpx = [OACommonBoolean withKey:saveHeadingToGpxKey defValue:NO];
+		_saveHeadingToGpx = [[[OACommonBoolean withKey:saveHeadingToGpxKey defValue:NO] makeGlobal] makeShared];
 
         [_globalPreferences setObject:_mapSettingSaveGlobalTrackToGpx forKey:@"save_global_track_to_gpx"];
         [_profilePreferences setObject:_mapSettingSaveTrackIntervalGlobal forKey:@"save_global_track_interval"];
@@ -5091,24 +5091,24 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
         _firstMapIsDownloaded = [[NSUserDefaults standardUserDefaults] objectForKey:firstMapIsDownloadedKey] ? [[NSUserDefaults standardUserDefaults] boolForKey:firstMapIsDownloadedKey] : NO;
 
         // trip recording settings
-        _saveTrackToGPX = [OACommonBoolean withKey:saveTrackToGPXKey defValue:NO];
-        [_profilePreferences setObject:_saveTrackToGPX forKey:@"save_track_to_gpx"];
+		_saveTrackToGPX = [[[OACommonBoolean withKey:saveTrackToGPXKey defValue:NO] makeGlobal] makeShared];
+        [_globalPreferences setObject:_saveTrackToGPX forKey:@"save_track_to_gpx"];
 
-        _mapSettingSaveTrackInterval = [OACommonInteger withKey:mapSettingSaveTrackIntervalKey defValue:SAVE_TRACK_INTERVAL_DEFAULT];
-        [_mapSettingSaveTrackInterval setModeDefaultValue:@3 mode:[OAApplicationMode CAR]];
-        [_mapSettingSaveTrackInterval setModeDefaultValue:@5 mode:[OAApplicationMode BICYCLE]];
-        [_mapSettingSaveTrackInterval setModeDefaultValue:@10 mode:[OAApplicationMode PEDESTRIAN]];
-        [_profilePreferences setObject:_mapSettingSaveTrackInterval forKey:@"save_track_interval"];
+		_mapSettingSaveTrackInterval = [[[OACommonInteger withKey:mapSettingSaveTrackIntervalKey defValue:SAVE_TRACK_INTERVAL_DEFAULT] makeGlobal] makeShared];
+//        [_mapSettingSaveTrackInterval setModeDefaultValue:@3 mode:[OAApplicationMode CAR]];
+//        [_mapSettingSaveTrackInterval setModeDefaultValue:@5 mode:[OAApplicationMode BICYCLE]];
+//        [_mapSettingSaveTrackInterval setModeDefaultValue:@10 mode:[OAApplicationMode PEDESTRIAN]];
+        [_globalPreferences setObject:_mapSettingSaveTrackInterval forKey:@"save_track_interval"];
 
-        _saveTrackMinDistance = [OACommonDouble withKey:saveTrackMinDistanceKey defValue:REC_FILTER_DEFAULT];
-        _saveTrackPrecision = [OACommonDouble withKey:saveTrackPrecisionKey defValue:REC_TRACK_PRECISION_DEFAULT];
-        _saveTrackMinSpeed = [OACommonDouble withKey:saveTrackMinSpeedKey defValue:REC_FILTER_DEFAULT];
-        _autoSplitRecording = [OACommonBoolean withKey:autoSplitRecordingKey defValue:YES];
+		_saveTrackMinDistance = [[[OACommonDouble withKey:saveTrackMinDistanceKey defValue:REC_FILTER_DEFAULT] makeGlobal] makeShared];
+		_saveTrackPrecision = [[[OACommonDouble withKey:saveTrackPrecisionKey defValue:REC_FILTER_DEFAULT] makeGlobal] makeShared];
+		_saveTrackMinSpeed = [[[OACommonDouble withKey:saveTrackMinSpeedKey defValue:REC_FILTER_DEFAULT] makeGlobal] makeShared];
+		_autoSplitRecording = [[[OACommonBoolean withKey:autoSplitRecordingKey defValue:NO] makeGlobal] makeShared];
 
-        [_profilePreferences setObject:_saveTrackMinDistance forKey:@"save_track_min_distance"];
-        [_profilePreferences setObject:_saveTrackPrecision forKey:@"save_track_precision"];
-        [_profilePreferences setObject:_saveTrackMinSpeed forKey:@"save_track_min_speed"];
-        [_profilePreferences setObject:_autoSplitRecording forKey:@"auto_split_recording"];
+		[_globalPreferences setObject:_saveTrackMinDistance forKey:@"save_track_min_distance"];
+        [_globalPreferences setObject:_saveTrackPrecision forKey:@"save_track_precision"];
+        [_globalPreferences setObject:_saveTrackMinSpeed forKey:@"save_track_min_speed"];
+        [_globalPreferences setObject:_autoSplitRecording forKey:@"auto_split_recording"];
 
         // navigation settings
         _useFastRecalculation = [[NSUserDefaults standardUserDefaults] objectForKey:useFastRecalculationKey] ? [[NSUserDefaults standardUserDefaults] boolForKey:useFastRecalculationKey] : YES;

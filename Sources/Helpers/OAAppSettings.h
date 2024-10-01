@@ -29,7 +29,7 @@ static const double kSimMinSpeed = 5 / 3.6f;
 static const NSInteger MAP_ARROWS_LOCATION = 0;
 static const NSInteger MAP_ARROWS_MAP_CENTER = 1;
 
-static const NSInteger SAVE_TRACK_INTERVAL_DEFAULT = 5; //5000 in Android
+static const NSInteger SAVE_TRACK_INTERVAL_DEFAULT = 3; //5000 in Android
 static const double REC_FILTER_DEFAULT = 0.f;
 static const double REC_TRACK_PRECISION_DEFAULT = 50.f;
 static const double MPS_TO_KMH_MULTIPLIER = 3.6;
