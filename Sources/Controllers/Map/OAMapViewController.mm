@@ -1457,7 +1457,7 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
 //                                                  kZoomDeceleration,
 //                                                  kUserInteractionAnimationKey);
         _mapView.mapAnimator->resume();
-        if (rotationRecognizer)
+        if (rotationRecognizer && _startRotating)
             [OAMapViewTrackingUtilities.instance setRotationNoneToManual];
     }
 
