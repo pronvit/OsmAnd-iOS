@@ -444,16 +444,17 @@
     if (_settings.mapSettingTrackRecording)
         return kCLLocationAccuracyBest;
 
-    // If just tracking position while browsing, it's safe to use medium accuracy
-    if (_app.mapMode == OAMapModePositionTrack)
-        return kCLLocationAccuracyNearestTenMeters;
-
-    // If user is just browsing map, 100 meter accuracy should be ok
-    if (_app.mapMode == OAMapModeFree)
-        return kCLLocationAccuracyHundredMeters;
-
-    // By default set minimal accuracy
-    return kCLLocationAccuracyThreeKilometers;
+	return kCLLocationAccuracyBest;
+//    // If just tracking position while browsing, it's safe to use medium accuracy
+//    if (_app.mapMode == OAMapModePositionTrack)
+//        return kCLLocationAccuracyNearestTenMeters;
+//
+//    // If user is just browsing map, 100 meter accuracy should be ok
+//    if (_app.mapMode == OAMapModeFree)
+//        return kCLLocationAccuracyHundredMeters;
+//
+//    // By default set minimal accuracy
+//    return kCLLocationAccuracyThreeKilometers;
 }
 
 - (void) updateRequestedAccuracy
