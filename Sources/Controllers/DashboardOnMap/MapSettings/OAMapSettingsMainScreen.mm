@@ -53,7 +53,7 @@
 #define kUIHiddenCategory @"ui_hidden"
 #define kOSMAssistantCategory @"osm_assistant"
 
-#define kMaxCountRoutesWithoutGroup 5
+#define kMaxCountRoutesWithoutGroup 4 // Including 'Show all' row
 
 #define kOSMGroupOpen @"osm_group_open"
 #define kRoutesGroupOpen @"routes_group_open"
@@ -202,12 +202,12 @@
         @"key": @"tracks"
     }];
     
-    [showSectionData addObject:@{
-            @"name": OALocalizedString(@"show_borders_of_downloaded_maps"),
-            @"image": @"ic_custom_download_map",
-            @"type": [OASwitchTableViewCell getCellIdentifier],
-            @"key": @"show_borders_of_downloaded_maps"
-    }];
+    //[showSectionData addObject:@{
+    //        @"name": OALocalizedString(@"show_borders_of_downloaded_maps"),
+    //        @"image": @"ic_custom_download_map",
+    //        @"type": [OASwitchTableViewCell getCellIdentifier],
+    //        @"key": @"show_borders_of_downloaded_maps"
+    //}];
     
     [showSectionData addObject:@{
         @"name": OALocalizedString(@"layer_coordinates_grid"),
@@ -591,7 +591,7 @@
 
     if (_routesParameters.count > 0)
     {
-        NSArray<NSString *> *orderedNames = @[SHOW_CYCLE_ROUTES_ATTR, SHOW_MTB_ROUTES, SHOW_ALPINE_HIKING_SCALE_SCHEME_ROUTES, HIKING_ROUTES_OSMC_ATTR,
+        NSArray<NSString *> *orderedNames = @[HIKING_ROUTES_OSMC_ATTR, SHOW_CYCLE_ROUTES_ATTR, SHOW_MTB_ROUTES, SHOW_ALPINE_HIKING_SCALE_SCHEME_ROUTES,
                 ALPINE_HIKING_ATTR, PISTE_ROUTES_ATTR, HORSE_ROUTES_ATTR, WHITE_WATER_SPORTS_ATTR];
         _routesParameters = [_routesParameters sortedArrayUsingComparator:^NSComparisonResult(OAMapStyleParameter *obj1, OAMapStyleParameter *obj2) {
             return [@([orderedNames indexOfObject:obj1.name]) compare:@([orderedNames indexOfObject:obj2.name])];
