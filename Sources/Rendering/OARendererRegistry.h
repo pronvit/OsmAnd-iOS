@@ -10,7 +10,7 @@
 
 #define DEFAULT_RENDER @"OsmAnd"
 #define DEFAULT_RENDER_FILE_PATH @"default.render.xml"
-#define TOURING_VIEW @"Touring view (contrast and details)"
+#define TOURING_VIEW @"Touring view"
 #define WINTER_SKI_RENDER @"Winter and ski"
 #define NAUTICAL_RENDER @"Nautical"
 #define TOPO_RENDER @"Topo"
