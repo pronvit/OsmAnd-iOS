@@ -19,6 +19,7 @@
 @interface OAGPXLayer : OABaseVectorLinesLayer<OAContextMenuProvider, OAMoveObjectProvider>
 
 @property (nonatomic) std::shared_ptr<OsmAnd::VectorLinesCollection> linesCollection;
+@property (nonatomic) NSString* selectedGpxPath;
 
 - (void)refreshGpxTracks:(NSDictionary<NSString *, OASGpxFile *> *)gpxFiles reset:(BOOL)reset;
 - (void)refreshGpxWaypoints;
