@@ -5853,9 +5853,9 @@ static NSString *kOfflineKey = @"OFFLINE";
         
         _settingShowAltInDriveMode = [[NSUserDefaults standardUserDefaults] objectForKey:settingMapShowAltInDriveModeKey] ? [[NSUserDefaults standardUserDefaults] boolForKey:settingMapShowAltInDriveModeKey] : NO;
         
-        _settingDoNotShowPromotions = [[[OACommonBoolean withKey:settingDoNotShowPromotionsKey defValue:NO] makeGlobal] makeShared];
-        _settingUseAnalytics = [[[OACommonBoolean withKey:settingUseFirebaseKey defValue:YES] makeGlobal] makeShared];
         
+        _settingDoNotShowPromotions = [[[OACommonBoolean withKey:settingDoNotShowPromotionsKey defValue:YES] makeGlobal] makeShared];
+        _settingUseAnalytics = [[[OACommonBoolean withKey:settingUseFirebaseKey defValue:NO] makeGlobal] makeShared];
         [_globalPreferences setObject:_settingDoNotShowPromotions forKey:@"do_not_show_promotions"];
         [_globalPreferences setObject:_settingUseAnalytics forKey:@"use_analytics"];
         [_globalPreferences setObject:_showDownloadMapDialog forKey:@"show_download_map_dialog"];
@@ -5939,7 +5939,7 @@ static NSString *kOfflineKey = @"OFFLINE";
         // Map Settings
         _mapSettingShowFavorites = [OACommonBoolean withKey:mapSettingShowFavoritesKey defValue:YES];
         _mapSettingShowPoiLabel = [OACommonBoolean withKey:mapSettingShowPoiLabelKey defValue:NO];
-        _mapSettingShowBordersOfDownloadedMaps = [OACommonBoolean withKey:mapSettingShowBordersOfDownloadedMapsKey defValue:YES];
+        _mapSettingShowBordersOfDownloadedMaps = [OACommonBoolean withKey:mapSettingShowBordersOfDownloadedMapsKey defValue:NO];
         _mapSettingShowOfflineEdits = [OACommonBoolean withKey:mapSettingShowOfflineEditsKey defValue:YES];
         _mapSettingShowOnlineNotes = [OACommonBoolean withKey:mapSettingShowOnlineNotesKey defValue:NO];
         _mapSettingShowCoordinatesGrid = [[OACommonBoolean withKey:mapSettingShowCoordinatesGridKey defValue:NO] makeProfile];
@@ -6620,7 +6620,7 @@ static NSString *kOfflineKey = @"OFFLINE";
         [_globalPreferences setObject:_onlineRoutingEngines forKey:@"online_routing_engines"];
 
         _doNotShowStartupMessages = [[[OACommonBoolean withKey:doNotShowStartupMessagesKey defValue:NO] makeGlobal] makeShared];
-        _showDownloadMapDialog = [[[OACommonBoolean withKey:showDownloadMapDialogKey defValue:YES] makeGlobal] makeShared];
+        _showDownloadMapDialog = [[[OACommonBoolean withKey:showDownloadMapDialogKey defValue:NO] makeGlobal] makeShared];
 
         [_globalPreferences setObject:_doNotShowStartupMessages forKey:@"do_not_show_startup_messages"];
         [_globalPreferences setObject:_showDownloadMapDialog forKey:@"show_download_map_dialog"];
