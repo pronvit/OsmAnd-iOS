@@ -1940,8 +1940,8 @@ includeHidden:(BOOL)includeHidden
                 OAOnlineTilesResourceItem *tilesItem = (OAOnlineTilesResourceItem *) item;
                 [[NSFileManager defaultManager] removeItemAtPath:tilesItem.path error:nil];
                 app.resourcesManager->uninstallTilesResource(QString::fromNSString(item.title));
-                if ([tilesItem.title isEqualToString:@"OsmAnd (online tiles)"])
-                    app.resourcesManager->installBuiltInTileSources();
+//                if ([tilesItem.title isEqualToString:@"OsmAnd (online tiles)"])
+//                    app.resourcesManager->installBuiltInTileSources();
 
                 [app.localResourcesChangedObservable notifyEvent];
             }

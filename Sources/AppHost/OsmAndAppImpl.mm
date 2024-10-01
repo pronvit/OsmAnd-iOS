@@ -552,7 +552,7 @@ NSString *const kXmlColon = @"_-_";
     if (_firstLaunch)
     {
         [[NSUserDefaults standardUserDefaults] setFloat:currentVersion forKey:@"appVersion"];
-        _resourcesManager->installBuiltInTileSources();
+        //_resourcesManager->installBuiltInTileSources();
         LogStartup(@"first launch - built-in tile sources installed");
         [OAAppSettings sharedManager].shouldShowWhatsNewScreen = YES;
     }
