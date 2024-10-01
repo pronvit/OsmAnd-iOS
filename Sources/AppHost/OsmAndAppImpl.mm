@@ -190,7 +190,7 @@ NSString *const kXmlColon = @"_-_";
         _legacyFavoritesFilePrefix = @"favourites";
 
         [self buildFolders];
-        [self createLogFile];
+//        [self createLogFile];
 
         [self initOpeningHoursParser];
 
