@@ -597,7 +597,7 @@ static const float kDistanceMeters = 100.0;
     {
         switch (_app.mapMode)
         {
-            case OAMapModeFree: // Free mode
+			case OAMapModePositionTrack: // Trace point
             {
                 [_mapModeButton setImage:[UIImage templateImageNamed:@"ic_custom_map_location_position"] forState:UIControlStateNormal];
                 _mapModeButton.unpressedColorDay = UIColorFromRGB(color_on_map_icon_background_color_active);
@@ -609,13 +609,15 @@ static const float kDistanceMeters = 100.0;
                 break;
             }
                 
-            case OAMapModePositionTrack: // Trace point
+			case OAMapModeFree: // Free mode
             {
                 [_mapModeButton setImage:[UIImage templateImageNamed:@"ic_custom_map_location_position"] forState:UIControlStateNormal];
                 _mapModeButton.unpressedColorDay = UIColorFromRGB(color_on_map_icon_background_color_light);
                 _mapModeButton.unpressedColorNight = UIColorFromRGB(color_on_map_icon_background_color_dark);
-                _mapModeButton.tintColorDay = UIColorFromRGB(color_primary_purple);
-                _mapModeButton.tintColorNight = UIColorFromRGB(color_primary_light_blue);
+//                _mapModeButton.tintColorDay = UIColorFromRGB(color_primary_purple);
+//                _mapModeButton.tintColorNight = UIColorFromRGB(color_primary_light_blue);
+				_mapModeButton.tintColorDay = UIColorFromRGB(color_on_map_icon_tint_color_light);
+				_mapModeButton.tintColorNight = UIColorFromRGB(color_on_map_icon_tint_color_dark);
                 _mapModeButton.accessibilityHint = nil;
                 _mapModeButton.borderWidthNight = 2;
                 break;
