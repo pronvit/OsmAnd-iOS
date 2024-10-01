@@ -97,10 +97,12 @@ static NSDictionary *platformCompatibilityKeysDictionary = @{
     [super readFromJson:json error:error];
     NSDictionary *appModeJson = json[@"appMode"];
     _modeBean = [OAApplicationModeBean fromJson:appModeJson];
-    _builder = [OAApplicationMode fromModeBean:_modeBean];
-    OAApplicationMode *am = _builder.am;
-    if (![am isCustomProfile])
-        am = [OAApplicationMode valueOfStringKey:am.stringKey def:am];
+	OAApplicationMode *am = [OAApplicationMode valueOfStringKey:_modeBean.stringKey def:nil];
+    if (!am || [am isCustomProfile])
+	{
+		_builder = [OAApplicationMode fromModeBean:_modeBean];
+		am = _builder.am;
+	}
     _appMode = am;
 }
 
