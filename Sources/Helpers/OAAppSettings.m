@@ -5444,9 +5444,9 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
         _useLastApplicationModeByDefault = [[[OACommonBoolean withKey:useLastApplicationModeByDefaultKey defValue:NO] makeGlobal] makeShared];
         _lastUsedApplicationMode = [[[OACommonString withKey:lastUsedApplicationModeKey defValue:OAApplicationMode.DEFAULT.stringKey] makeGlobal] makeShared];
         _lastRouteApplicationMode = [[OACommonAppMode withKey:lastRouteApplicationModeBackupStringKey defValue:OAApplicationMode.DEFAULT] makeGlobal];
-        _searchHistory = [[[OACommonBoolean withKey:searchHistoryKey defValue:YES] makeGlobal] makeShared];
-        _navigationHistory = [[[OACommonBoolean withKey:navigationHistoryKey defValue:YES] makeGlobal] makeShared];
-        _mapMarkersHistory = [[[OACommonBoolean withKey:mapMarkersHistoryKey defValue:YES] makeGlobal] makeShared];
+		_searchHistory = [[[OACommonBoolean withKey:searchHistoryKey defValue:NO] makeGlobal] makeShared];
+        _navigationHistory = [[[OACommonBoolean withKey:navigationHistoryKey defValue:NO] makeGlobal] makeShared];
+        _mapMarkersHistory = [[[OACommonBoolean withKey:mapMarkersHistoryKey defValue:NO] makeGlobal] makeShared];
 
         [_globalPreferences setObject:_numberOfStartsFirstXmasShown forKey:@"number_of_starts_first_xmas_shown"];
         [_globalPreferences setObject:_lastFavCategoryEntered forKey:@"last_fav_category"];
