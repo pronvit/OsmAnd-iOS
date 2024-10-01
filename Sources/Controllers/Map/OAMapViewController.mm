@@ -1461,7 +1461,8 @@ static char kMapSourceUpdateQueueKey;
                 OsmAnd::PointI secondTouchLocation31 = [OANativeUtilities convertFromPoint31:touchLocations[1].touchLocation31];
                 float secondTouchLocationHeight = touchLocations[1].touchLocationHeight;
 
-                [_mapView setMapTarget:OsmAnd::PointI((int)firstTouchPoint.x, (int)firstTouchPoint.y) location31:firstTouchLocation31];
+				if (_app.mapMode != OAMapModePositionTrack)
+					[_mapView setMapTarget:OsmAnd::PointI((int)firstTouchPoint.x, (int)firstTouchPoint.y) location31:firstTouchLocation31];
 
                 OsmAnd::PointI firstPosition((int)firstTouchPoint.x, (int)firstTouchPoint.y);
                 OsmAnd::PointI secondPosition((int)secondTouchPoint.x, (int)secondTouchPoint.y);
@@ -1472,7 +1473,7 @@ static char kMapSourceUpdateQueueKey;
                     auto angle = zoomAndRotation.y;
                     if (!isnan(zoom) && !isnan(angle))
                     {
-                        _app.mapMode = OAMapModeFree;
+//                        _app.mapMode = OAMapModeFree;
                         [[OAMapViewTrackingUtilities instance] checkMapLinkedToLocation];
 
                         OAZoom *zoomObject = [[OAZoom alloc] initWitZoom:_mapView.zoom minZoom:_mapView.minZoom maxZoom:_mapView.maxZoom];
