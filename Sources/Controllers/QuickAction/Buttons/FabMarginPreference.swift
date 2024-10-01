@@ -171,9 +171,9 @@ final class FabMarginPreference: NSObject {
             setPositionForButton(button, x: &x, y: &y, defaultX: defaultX, defaultY: defaultY)
         } else {
             var defaultX = rightMargin - halfSmallButtonWidth
-            if isMap3DModeButton {
-                defaultX -= (Self.kHudQuickActionButtonHeight + Self.kHudButtonsOffset)
-            }
+//            if isMap3DModeButton {
+//                defaultX -= (Self.kHudQuickActionButtonHeight + Self.kHudButtonsOffset)
+//            }
             let defaultY = bottomMargin - (isQuickActionButton ? 2 : 1) * Self.kHudQuickActionButtonHeight - (isQuickActionButton ? 2 : 1) * Self.kHudButtonsOffset - halfSmallButtonWidth
             let margins = getPortraitFabMargin()
             var x = CGFloat(margins[0].floatValue)

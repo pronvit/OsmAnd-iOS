@@ -1460,10 +1460,11 @@ static const float kDistanceMeters = 100.0;
     }
 
     _optionsMenuButton.frame = CGRectMake([self getExtraScreenOffset], bottomOffset - _optionsMenuButton.bounds.size.height, _optionsMenuButton.bounds.size.width, _optionsMenuButton.bounds.size.height);
-    _driveModeButton.frame = CGRectMake([self getExtraScreenOffset] + kButtonWidth + kButtonOffset, bottomOffset - _driveModeButton.bounds.size.height, _driveModeButton.bounds.size.width, _driveModeButton.bounds.size.height);
-    _mapModeButton.frame = CGRectMake(self.view.bounds.size.width - 2 * kButtonWidth - kButtonOffset - [self getExtraScreenOffset], bottomOffset - _mapModeButton.bounds.size.height, _mapModeButton.bounds.size.width, _mapModeButton.bounds.size.height);
+	_driveModeButton.frame = CGRectMake([self getExtraScreenOffset], bottomOffset - _optionsMenuButton.bounds.size.height - kButtonOffset - _driveModeButton.bounds.size.height, _driveModeButton.bounds.size.width, _driveModeButton.bounds.size.height);
+    _mapModeButton.frame = CGRectMake(self.view.bounds.size.width - kButtonWidth - [self getExtraScreenOffset], bottomOffset - _mapModeButton.bounds.size.height, _mapModeButton.bounds.size.width, _mapModeButton.bounds.size.height);
     _zoomButtonsView.frame = CGRectMake(self.view.bounds.size.width - kButtonWidth - [self getExtraScreenOffset], bottomOffset - _zoomButtonsView.bounds.size.height, _zoomButtonsView.bounds.size.width, _zoomButtonsView.bounds.size.height);
-    
+	_zoomButtonsView.hidden =YES;
+
     [self resetToDefaultRulerLayout];
 }
 

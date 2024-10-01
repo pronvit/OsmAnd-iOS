@@ -382,6 +382,7 @@ typedef NS_ENUM(NSInteger, EOASimulationMode)
 
 - (BOOL)isSetForMode:(OAApplicationMode *)mode;
 - (nullable NSNumber *)valueFromString:(nonnull NSString *)string appMode:(nonnull OAApplicationMode *)mode;
+- (void) setModeDefaultValue:(NSObject *)defValue mode:(OAApplicationMode *)mode;
 
 @end
 

@@ -1389,7 +1389,6 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
 - (NSObject *) getValue:(OAApplicationMode *)mode;
 - (void) setValue:(NSObject *)value;
 - (void) setValue:(NSObject *)value mode:(OAApplicationMode *)mode;
-- (void)setModeDefaultValue:(NSObject *)defValue mode:(OAApplicationMode *)mode;
 
 @end
 
