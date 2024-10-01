@@ -2032,12 +2032,12 @@ static char kMapSourceUpdateQueueKey;
     float newZoomStep = zoomStep + zoomDelta;
     if (newZoomStep > 0 && ![zoom isZoomInAllowed])
     {
-        [OAUtilities showToast:nil details:OALocalizedString(@"edit_tilesource_maxzoom") duration:4 inView:self.view];
+//        [OAUtilities showToast:nil details:OALocalizedString(@"edit_tilesource_maxzoom") duration:4 inView:self.view];
         return;
     }
     else if (newZoomStep < 0 && ![zoom isZoomOutAllowed])
     {
-        [OAUtilities showToast:nil details:OALocalizedString(@"edit_tilesource_minzoom") duration:4 inView:self.view];
+//        [OAUtilities showToast:nil details:OALocalizedString(@"edit_tilesource_minzoom") duration:4 inView:self.view];
         return;
     }
     [[OAMapViewTrackingUtilities instance] backToLocationWithConditions];

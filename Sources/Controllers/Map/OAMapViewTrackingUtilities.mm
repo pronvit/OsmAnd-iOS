@@ -1033,7 +1033,7 @@ static double const TILT_ANIMATION_TIME = 0.4;
         rotMode = OALocalizedString(@"rotate_map_compass_opt");
     
     rotMode = [NSString stringWithFormat:@"%@: %@", OALocalizedString(@"rotate_map_to"), rotMode];
-    [OAUtilities showToast:nil details:rotMode duration:4 inView:OARootViewController.instance.view];
+//    [OAUtilities showToast:nil details:rotMode duration:4 inView:OARootViewController.instance.view];
 
     [self updateSettings];
     if (_mapViewController)
@@ -1065,7 +1065,7 @@ static double const TILT_ANIMATION_TIME = 0.4;
     if ([_settings.rotateMap get] == ROTATE_MAP_NONE)
     {
         [_settings.rotateMap set:ROTATE_MAP_MANUAL];
-        [OAUtilities showToast:nil details:[NSString stringWithFormat:@"%@: %@", OALocalizedString(@"rotate_map_to"), OALocalizedString(@"rotate_map_manual_opt")] duration:4 inView:OARootViewController.instance.view];
+//        [OAUtilities showToast:nil details:[NSString stringWithFormat:@"%@: %@", OALocalizedString(@"rotate_map_to"), OALocalizedString(@"rotate_map_manual_opt")] duration:4 inView:OARootViewController.instance.view];
     }
 }
 
