@@ -80,7 +80,7 @@
     self.hidden = NO;
     self.opaque = NO;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [self initDestinationLayer];
+//    [self initDestinationLayer];
 }
 
 - (void) moveMarker:(NSInteger)index
