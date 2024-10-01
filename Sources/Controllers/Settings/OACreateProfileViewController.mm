@@ -53,7 +53,7 @@
 - (void)generateData
 {
     NSMutableArray *defaultProfileList = [NSMutableArray arrayWithArray:OAApplicationMode.allPossibleValues];
-    [defaultProfileList removeObject:OAApplicationMode.DEFAULT];
+//    [defaultProfileList removeObject:OAApplicationMode.DEFAULT];
     _profileList = [NSArray arrayWithArray:defaultProfileList];
 }
 
