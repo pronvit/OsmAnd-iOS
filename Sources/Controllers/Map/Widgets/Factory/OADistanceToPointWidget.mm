@@ -80,10 +80,9 @@
     if ([self isUpdateNeeded] || [self distChanged:_cachedMeters dist:d])
     {
         _cachedMeters = d;
-        if (_cachedMeters <= 20)
+        if (_cachedMeters < 0)
         {
-            _cachedMeters = 0;
-            [self setText:[[self getWidgetPanel] isPanelVertical] ? @"-" : nil subtext:nil];
+            [self setText:nil subtext:nil];
         }
         else
         {

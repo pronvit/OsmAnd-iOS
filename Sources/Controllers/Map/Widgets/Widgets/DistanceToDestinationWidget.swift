@@ -38,6 +38,6 @@ class DistanceToDestinationWidget: OADistanceToPointWidget {
             return CLLocationDistance(routingHelper.getLeftDistance())
         }
         
-        return super.getDistance()
+        return -1
     }
 }

@@ -45,6 +45,6 @@ class DistanceToIntermediateDestinationWidget: OADistanceToPointWidget {
         if let pointToNavigate = getPointToNavigate(), routingHelper.isRouteCalculated() {
             return CLLocationDistance(routingHelper.getLeftDistanceNextIntermediate())
         }
-        return super.getDistance()
+        return -1
     }
 }
