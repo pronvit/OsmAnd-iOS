@@ -2053,7 +2053,7 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
         if (_mapInfoController.weatherToolbarVisible && !isLandscape)
             bottomOffset -= self.weatherToolbar.frame.size.height;
         else if (self.contextMenuMode ? !isScrollableHudVisible : (_mapInfoController.bottomPanelController && [_mapInfoController.bottomPanelController hasWidgets]))
-            bottomOffset -= self.contextMenuMode || isLandscape || [OAUtilities isIPad] ? [self getHudMinBottomOffset] : [self getHudBottomOffset];
+			bottomOffset -= self.contextMenuMode || isLandscape || ([OAUtilities isIPad] && ![OAUtilities isWindowed]) ? [self getHudMinBottomOffset] : [self getHudBottomOffset];
         else
             bottomOffset -= [self getHudMinBottomOffset];
     }

@@ -208,7 +208,19 @@ final class WidgetPanelViewController: UIViewController, OAWidgetListener {
         }
         return false
     }
-    
+
+	func numWidgets() -> Int {
+		var cnt: Int = 0
+		for widgetPage in widgetPages {
+			for widget in widgetPage {
+				if !widget.isHidden {
+					cnt += 1
+				}
+			}
+		}
+		return cnt
+	}
+
     func updateWidgetSizes() {
         if !isInTransition {
             updateContainerSize()
@@ -288,6 +300,7 @@ final class WidgetPanelViewController: UIViewController, OAWidgetListener {
             }
         }
         view.isHidden = !hasWidgets()
+		view.layoutSubviews()
         view.layoutIfNeeded()
     }
     
