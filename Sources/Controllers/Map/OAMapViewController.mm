@@ -124,7 +124,7 @@
 
 static const float kGestureZoomCoef = 10.0f;
 
-static const float ZONE_0_ANGLE_THRESHOLD = 5.0f;
+static const float ZONE_0_ANGLE_THRESHOLD = 7.5f;
 static const float ZONE_1_ANGLE_THRESHOLD = 20.0f;
 static const float ZONE_2_ANGLE_THRESHOLD = 30.0f;
 static const float ZONE_3_ANGLE_THRESHOLD = 60.0f;
