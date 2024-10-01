@@ -139,9 +139,9 @@ static const NSInteger kDBVersion = 1;
 {
     dbQueue = dispatch_queue_create("sth_dbQueue", DISPATCH_QUEUE_SERIAL);
     
-    NSString *dir = [NSHomeDirectory() stringByAppendingString:@"/Library/TracksDatabase"];
-    databasePath = [dir stringByAppendingString:@"/tracks.db"];
-    
+	NSString *dir = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"TracksDatabase"];
+    databasePath = [dir stringByAppendingPathComponent:@"/tracks.db"];
+
     BOOL isDir = YES;
     if (![[NSFileManager defaultManager] fileExistsAtPath:dir isDirectory:&isDir])
         [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];

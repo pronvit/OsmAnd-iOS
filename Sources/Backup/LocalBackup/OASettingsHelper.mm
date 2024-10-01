@@ -981,7 +981,7 @@ NSInteger const kSettingsHelperErrorCodeEmptyJson = 5;
         [plugin onInstall];
         NSString *pluginId = [plugin getId];
         NSString *pluginDir = [PLUGINS_DIR stringByAppendingPathComponent:pluginId];
-        NSString *fullPath = [OsmAndApp.instance.dataPath stringByAppendingPathComponent:pluginDir];
+        NSString *fullPath = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:pluginDir];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if (![fileManager fileExistsAtPath:fullPath])
             [fileManager createDirectoryAtPath:fullPath withIntermediateDirectories:YES attributes:nil error:nil];

@@ -181,7 +181,7 @@ NSString *const kXmlColon = @"_-_";
         _favoritesLegacyFilename = _documentsDir.filePath(QLatin1String("favourites.gpx")).toNSString();
         _travelGuidesPath = [_documentsPath stringByAppendingPathComponent:WIKIVOYAGE_INDEX_DIR];
         _gpxTravelPath = [_gpxPath stringByAppendingPathComponent:WIKIVOYAGE_INDEX_DIR];
-        _hiddenMapsPath = [_dataPath stringByAppendingPathComponent:HIDDEN_DIR];
+        _hiddenMapsPath = [_documentsPath stringByAppendingPathComponent:HIDDEN_DIR];
         _routingMapsCachePath = [_cachePath stringByAppendingPathComponent:@"ind_routing.cache"];
         _colorsPalettePath = [_documentsPath stringByAppendingPathComponent:COLOR_PALETTE_DIR];
 
@@ -645,9 +645,8 @@ NSString *const kXmlColon = @"_-_";
     [self applyExcludedFromBackup:ocbfPathLib];
     LogStartup(@"excludedFromBackup applied to regions.ocbf");
 
-    // Copy proj.db to Library/Application Support/proj
-    NSString *projDbPathBundle = [[NSBundle mainBundle] pathForResource:@"proj" ofType:@"db"];
-    NSString *projDbPathLib = [NSHomeDirectory() stringByAppendingString:@"/Library/Application Support/proj/proj.db"];
+    // Copy proj.db to Documents/proj
+	NSString *projDbPathLib = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"proj/proj.db"];
 
     [[NSFileManager defaultManager] removeItemAtPath:projDbPathLib error:nil];
     LogStartup(@"old proj.db removed");
@@ -655,12 +654,13 @@ NSString *const kXmlColon = @"_-_";
     if (![[NSFileManager defaultManager] fileExistsAtPath:projDbPathLib])
     {
         NSError *errorDir = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:[NSHomeDirectory() stringByAppendingString:@"/Library/Application Support/proj"]
+		[[NSFileManager defaultManager] createDirectoryAtPath:[projDbPathLib stringByDeletingLastPathComponent]
                                   withIntermediateDirectories:YES attributes:nil error:&errorDir];
         if (errorDir)
             NSLog(@"Error creating dir for proj: %@", [errorDir localizedDescription]);
 
         NSError *error = nil;
+		NSString *projDbPathBundle = [[NSBundle mainBundle] pathForResource:@"proj" ofType:@"db"];
         [[NSFileManager defaultManager] copyItemAtPath:projDbPathBundle toPath:projDbPathLib error:&error];
         if (error)
             NSLog(@"Error copying file: %@ to %@ - %@", projDbPathBundle, projDbPathLib, [error localizedDescription]);
@@ -876,7 +876,7 @@ NSString *const kXmlColon = @"_-_";
     _resourcesManager->instantiateWeatherResourcesManager(
         bandSettings,
         QString::fromNSString(_weatherForecastPath),
-        QString::fromNSString([NSHomeDirectory() stringByAppendingString:@"/Library/Application Support/proj"]),
+        QString::fromNSString([OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"proj"]),
         256,
         [UIScreen mainScreen].scale,
         std::make_shared<OAWeatherWebClient>()

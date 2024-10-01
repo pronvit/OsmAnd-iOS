@@ -16,6 +16,7 @@
 #import "OARelation.h"
 #import "OAOsmPoint.h"
 #import "OsmAnd_Maps-Swift.h"
+#import "OsmAndApp.h"
 
 #import <sqlite3.h>
 
@@ -63,11 +64,11 @@
 {
     self = [super init];
     if (self) {
-        
-        NSString *dir = [NSHomeDirectory() stringByAppendingString:@"/Library/OsmEditsData/"];
-        self.dbFilePath = [dir stringByAppendingString:kEditsDbName];
-        
-        BOOL isDir = YES;
+
+		NSString *dir = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"OsmEditsData"];
+        self.dbFilePath = [dir stringByAppendingPathComponent:kEditsDbName];
+
+		BOOL isDir = YES;
         if (![[NSFileManager defaultManager] fileExistsAtPath:dir isDirectory:&isDir])
             [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
         

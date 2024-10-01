@@ -117,7 +117,7 @@
 
 - (NSString *) getPluginDir
 {
-    return [[OsmAndApp.instance.dataPath stringByAppendingPathComponent:PLUGINS_DIR] stringByAppendingPathComponent:_pluginId];
+	return [[OsmAndApp.instance.documentsPath stringByAppendingPathComponent:PLUGINS_DIR] stringByAppendingPathComponent:_pluginId];
 }
 
 - (NSString *) getPluginItemsFile

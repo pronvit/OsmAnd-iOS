@@ -12,6 +12,7 @@
 #import "OAAppSettings.h"
 #import "OAPOIHelper.h"
 #import "OAQuickSearchTableController.h"
+#import "OsmAndApp.h"
 #import <sqlite3.h>
 #import "OALog.h"
 #import "NSData+CRC32.h"
@@ -62,9 +63,9 @@
 }
 - (void)createDb
 {
-    NSString *dir = [NSHomeDirectory() stringByAppendingString:@"/Library/History"];
-    databasePath = [dir stringByAppendingString:@"/history.db"];
-    
+	NSString *dir = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"History"];
+    databasePath = [dir stringByAppendingPathComponent:@"history.db"];
+
     BOOL isDir = YES;
     if (![[NSFileManager defaultManager] fileExistsAtPath:dir isDirectory:&isDir])
         [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
