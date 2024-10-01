@@ -4970,16 +4970,11 @@ static NSString *kDestinationFirstKey = @"DESTINATION_FIRST";
 
         [_profilePreferences setObject:_routerService forKey:@"route_service"];
         _navigationIcon = [OACommonString withKey:navigationIconKey defValue:[[OALocationIcon MOVEMENT_DEFAULT] name]];
+		[_navigationIcon setModeDefaultValue:[[OALocationIcon DEFAULT] name] mode:OAApplicationMode.DEFAULT];
         [_navigationIcon setModeDefaultValue:[[OALocationIcon MOVEMENT_NAUTICAL] name] mode:OAApplicationMode.BOAT];
         [_profilePreferences setObject:_navigationIcon forKey:@"navigation_icon"];
 
         _locationIcon = [OACommonString withKey:locationIconKey defValue:[[OALocationIcon DEFAULT] name]];
-        [_locationIcon setModeDefaultValue:[[OALocationIcon CAR] name] mode:OAApplicationMode.CAR];
-        [_locationIcon setModeDefaultValue:[[OALocationIcon BICYCLE] name] mode:OAApplicationMode.BICYCLE];
-        [_locationIcon setModeDefaultValue:[[OALocationIcon DEFAULT] name] mode:OAApplicationMode.BOAT];
-        [_locationIcon setModeDefaultValue:[[OALocationIcon CAR] name] mode:OAApplicationMode.AIRCRAFT];
-        [_locationIcon setModeDefaultValue:[[OALocationIcon BICYCLE] name] mode:OAApplicationMode.SKI];
-        [_locationIcon setModeDefaultValue:[[OALocationIcon BICYCLE] name] mode:OAApplicationMode.HORSE];
         [_profilePreferences setObject:_locationIcon forKey:@"location_icon"];
 
         _appModeOrder = [OACommonInteger withKey:appModeOrderKey defValue:0];
