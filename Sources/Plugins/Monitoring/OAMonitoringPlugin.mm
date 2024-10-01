@@ -163,7 +163,8 @@
                     }
                     case 1:
                     {
-                        [[self getMapPanelViewController] openTargetViewWithGPX:nil];
+						auto trackItem = [[OASTrackItem alloc] initWithGpxFile:_savingTrackHelper.currentTrack];
+						[[OARootViewController instance].mapPanel openTargetViewWithGPX:trackItem selectedTab:EOATrackMenuHudSegmentsTab selectedStatisticsTab:EOATrackMenuHudSegmentsStatisticsOverviewTab openedFromMap:YES];
                         break;
                     }
                     case 2:
