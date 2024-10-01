@@ -1573,7 +1573,7 @@ static char kMapSourceUpdateQueueKey;
 //                                                  kZoomDeceleration,
 //                                                  kUserInteractionAnimationKey);
         _mapView.mapAnimator->resume();
-        if (rotationRecognizer)
+        if (rotationRecognizer && _startRotating)
             [OAMapViewTrackingUtilities.instance setRotationNoneToManual];
     }
 
