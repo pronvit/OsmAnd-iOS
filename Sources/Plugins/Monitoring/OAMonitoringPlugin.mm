@@ -128,7 +128,7 @@
     if (widgetType == OAWidgetType.tripRecordingDistance) {
         return [[OATripRecordingDistanceWidget alloc] initWithPlugin:self customId:customId appMode:appMode widgetParams:widgetParams];
     } else if (widgetType == OAWidgetType.tripRecordingTime) {
-        return [[OATripRecordingTimeWidget alloc] initWithСustomId:customId appMode:appMode widgetParams:widgetParams];
+        return [[OATripRecordingTimeWidget alloc] initWithPlugin:self customId:customId appMode:appMode widgetParams:widgetParams];
     } else if (widgetType == OAWidgetType.tripRecordingUphill) {
         return [[OATripRecordingUphillWidget alloc] initWithСustomId:customId appMode:appMode widgetParams:widgetParams];
     } else if (widgetType == OAWidgetType.tripRecordingDownhill) {
