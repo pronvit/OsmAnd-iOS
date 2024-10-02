@@ -874,12 +874,14 @@
     if (_externalProviderActive)
         return;
     
-    if (!locations || ![locations lastObject] || [_locationSimulation isRouteAnimating])
+	CLLocation *loc = locations.lastObject;
+
+	if (!loc || loc.horizontalAccuracy < 0. || [_locationSimulation isRouteAnimating])
         return;
 
     BOOL wasLocationUnknown = _lastLocation == nil;
     
-    [self setLocation:[locations lastObject]];
+    [self setLocation:loc];
 
     if (wasLocationUnknown)
         [_updateFirstTimeObserver notifyEvent];
