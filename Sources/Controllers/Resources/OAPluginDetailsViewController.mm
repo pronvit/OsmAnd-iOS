@@ -204,8 +204,8 @@ typedef NS_ENUM(NSInteger, EOAPluginScreenType) {
 {
     [super viewWillAppear:animated];
 
-    if (_screenType == EOAPluginScreenTypeProduct)
-    	[[OARootViewController instance] requestProductsWithProgress:YES reload:NO];
+//    if (_screenType == EOAPluginScreenTypeProduct)
+//    	[[OARootViewController instance] requestProductsWithProgress:YES reload:NO];
 }
 
 - (void) viewWillLayoutSubviews
