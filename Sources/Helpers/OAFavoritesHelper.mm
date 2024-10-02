@@ -709,7 +709,7 @@ static NSOperationQueue *_favQueue;
 
 + (void) backup
 {
-    [self.class backup:[self.class getBackupFile]];
+//    [self.class backup:[self.class getBackupFile]];
 }
 
 + (void) backup:(NSString *)backupFileName
