@@ -231,6 +231,7 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
     BOOL _startRotating;
     BOOL _startZooming;
     float _startAzimuth;
+	float _startAzimuthThreshold;
     float _startZoom;
 
     BOOL _targetChanged;
@@ -1380,14 +1381,17 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
                         }
                         else
                         {
-                            if ([self isAngleOverThreshold:ABS(_startAzimuth - newAzimuth) deltaZoom:ABS(_startZoom - newZoom)])
-                                _startRotating = YES;
-                            else
-                                angle = 0;
+							if (ABS(_startAzimuth - newAzimuth) <= ZONE_0_ANGLE_THRESHOLD && !_startAzimuth && !_startRotating)
+								angle = 0;
+							else if (!_startRotating)
+							{
+								_startAzimuthThreshold = (_startAzimuth == 0 ? newAzimuth - _startAzimuth : 0);
+								_startRotating = YES;
+							}
 
                             if (_startRotating && angle != 0)
                             {
-                                _mapView.azimuth += angle;
+								_mapView.azimuth += angle - _startAzimuthThreshold;
                                 if ([[OAAppSettings sharedManager].rotateMap get] == ROTATE_MAP_MANUAL)
                                     [[OAAppSettings sharedManager].mapManuallyRotatingAngle set:_mapView.azimuth];
                             }
@@ -1434,6 +1438,18 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
         _startZooming = NO;
         _startRotating = NO;
 
+		if (ABS(_mapView.azimuth) < 5.)
+		{
+			_mapView.mapAnimator->animateAzimuthTo(0, kQuickAnimationTime, OsmAnd::MapAnimator::TimingFunction::Linear);
+			if ([[OAAppSettings sharedManager].rotateMap get] == ROTATE_MAP_MANUAL)
+				[[OAAppSettings sharedManager].mapManuallyRotatingAngle set:_mapView.azimuth];
+		}
+		else
+		{
+			if (rotationRecognizer)
+				[OAMapViewTrackingUtilities.instance setRotationNoneToManual];
+		}
+
         // Resume symbols update
         if (!_rotatingByGesture && !_zoomingByGesture && !_zoomingByTapGesture && !_movingByGesture)
             while (![_mapView resumeSymbolsUpdate]);
@@ -1450,15 +1466,7 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
     // If this is the end of gesture, get velocity for animation
     if (recognizer.state == UIGestureRecognizerStateEnded)
     {
-//        CGFloat recognizerVelocity = pinchRecognizer ? pinchRecognizer.velocity : 0;
-//        float velocity = qBound(-kZoomVelocityAbsLimit, (float)recognizerVelocity, kZoomVelocityAbsLimit);
-//        if (velocity != 0)
-//            _mapView.mapAnimator->animateZoomWith(velocity,
-//                                                  kZoomDeceleration,
-//                                                  kUserInteractionAnimationKey);
         _mapView.mapAnimator->resume();
-        if (rotationRecognizer && _startRotating)
-            [OAMapViewTrackingUtilities.instance setRotationNoneToManual];
     }
 
     if (rotationRecognizer)
