@@ -40,8 +40,8 @@ static NSString * const kBuildings3dColorPrefName = @"base3DBuildingsColor";
 
 NSInteger const terrainMinSupportedZoom = 4;
 NSInteger const terrainMaxSupportedZoom = 19;
-NSInteger const hillshadeDefaultTrasparency = 100;
-NSInteger const defaultTrasparency = 80;
+NSInteger const hillshadeDefaultTrasparency = 0;
+NSInteger const defaultTrasparency = 0;
 NSInteger const kDefaultBuildings3DColor = 0x666666;
 NSInteger const buildings3DViewDistanceDefValue = 1;
 double const buildings3DAlphaDefValue = 0.5;
@@ -68,7 +68,7 @@ double const buildings3DAlphaDefValue = 0.5;
 
         _terrainEnabledPref = [[self registerBooleanPreference:kTerrainEnabledPrefName defValue:YES] makeProfile];
         NSArray<TerrainMode *> *tms = TerrainMode.values;
-        _terrainModeTypePref = [[self registerStringPreference:kTerrainModePrefName defValue:tms.count == 0 ? @"" : [tms.firstObject getKeyName]] makeProfile];
+        _terrainModeTypePref = [[self registerStringPreference:kTerrainModePrefName defValue:@"slope"] makeProfile];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(onProfileSettingSet:)

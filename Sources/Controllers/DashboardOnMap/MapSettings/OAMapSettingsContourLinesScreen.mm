@@ -47,7 +47,7 @@
 #define kCellTypeInfo @"imageDescCell"
 #define kCellTypeButton @"buttonIconCell"
 
-#define kDefaultDensity @"high"
+#define kDefaultDensity @"medium"
 #define kDefaultWidth @"thin"
 #define kDefaultColorScheme @"dark_brown"
 #define kDefaultZoomLevel @"13"
