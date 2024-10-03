@@ -30,8 +30,8 @@ static NSString * const kTerrainEnabledPrefName = @"terrain_layer";
 
 NSInteger const terrainMinSupportedZoom = 4;
 NSInteger const terrainMaxSupportedZoom = 19;
-NSInteger const hillshadeDefaultTrasparency = 100;
-NSInteger const defaultTrasparency = 80;
+NSInteger const hillshadeDefaultTrasparency = 0;
+NSInteger const defaultTrasparency = 0;
 
 @implementation OASRTMPlugin
 
@@ -45,7 +45,7 @@ NSInteger const defaultTrasparency = 80;
 
         _terrainEnabledPref = [[self registerBooleanPreference:kTerrainEnabledPrefName defValue:YES] makeProfile];
         NSArray<TerrainMode *> *tms = TerrainMode.values;
-        _terrainModeTypePref = [[self registerStringPreference:kTerrainModePrefName defValue:tms.count == 0 ? @"" : [tms.firstObject getKeyName]] makeProfile];
+        _terrainModeTypePref = [[self registerStringPreference:kTerrainModePrefName defValue:@"slope"] makeProfile];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(onProfileSettingSet:)
