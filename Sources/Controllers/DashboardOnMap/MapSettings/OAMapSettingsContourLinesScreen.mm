@@ -49,7 +49,7 @@
 
 #define kDefaultDensity @"high"
 #define kDefaultWidth @"thin"
-#define kDefaultColorScheme @"light_brown"
+#define kDefaultColorScheme @"dark_brown"
 #define kDefaultZoomLevel @"13"
 
 typedef OsmAnd::ResourcesManager::ResourceType OsmAndResourceType;
