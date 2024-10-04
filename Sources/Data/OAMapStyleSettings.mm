@@ -232,11 +232,13 @@
         switch (param.dataType)
         {
             case OABoolean:
-                param.defaultValue = @"false";
+				param.defaultValue = p->getDefaultValue().isEmpty() ?
+				@"false" :
+				p->getDefaultValue().toNSString();
                 break;
                 
             default:
-                param.defaultValue = p->getDefaultValueDescription().toNSString();
+                param.defaultValue = p->getDefaultValue().toNSString();
                 break;
         }
 
@@ -353,6 +355,8 @@
             || [p.name isEqualToString:NAUTICAL_DEPTH_CONTOUR_COLOR_SCHEME_ATTR])
             && p.storedValue.length == 0 && p.possibleValuesUnsorted.count > 0)
             p.storedValue = p.possibleValuesUnsorted.firstObject.name;
+		if (p.storedValue.length == 0)
+			p.storedValue = p.defaultValue;
         p.value = [self isCategoryDisabled:p.category] ? @"" : p.storedValue;
     }
 }
