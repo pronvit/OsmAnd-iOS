@@ -58,7 +58,7 @@ static NSArray<NSString *> *minTrackSpeedNames;
 {
     if (self == [OATripRecordingSettingsViewController class])
     {
-        minTrackDistanceValues = @[@0.f, @2.f, @5.f, @10.f, @20.f, @30.f, @50.f];
+		minTrackDistanceValues = @[@0.f, @2.f, @3.f, @5.f, @10.f, @15.f, @20.f, @30.f, @50.f];
         minTrackDistanceNames = [OAUtilities arrayOfMeterValues:minTrackDistanceValues];
         
         trackPrecisionValues = @[@0.f, @1.f, @2.f, @5.f, @10.f, @15.f, @20.f, @50.f, @100.f];
@@ -820,6 +820,11 @@ static NSArray<NSString *> *minTrackSpeedNames;
             [self showModalViewController:controller];
         }
     }
+}
+
+- (NSString *)getSubtitle
+{
+	return nil;
 }
 
 @end
