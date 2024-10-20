@@ -1050,7 +1050,7 @@ static const float kDistanceMeters = 100.0;
 
 - (void)updateBottomBarViewBackgroundColor
 {
-        _bottomBarView.backgroundColor = [UIColor clearColor];
+	_bottomBarView.backgroundColor = [UIColor clearColor];
 }
 
 - (void) updateTopButtonsLayoutY
@@ -1406,15 +1406,15 @@ static const float kDistanceMeters = 100.0;
             self.mapInfoController.bottomPanelController.view.alpha = visible && isBottomPanelVisible && (!isToolbarVisible || isAllowToolbarsVisible) ? 1. : 0.;
         [self updateBottomContolMarginsForHeight];
 
-        CGFloat offsetValue = 50;
-        if (!optionsMenuButtonVisible)
-            [self addOffsetToView:_optionsMenuButton x:-offsetValue y:0.];
-        if (!driveModeButtonVisible)
-            [self addOffsetToView:_driveModeButton x:-offsetValue y:0.];
-        if (!mapModeButtonVisible)
-            [self addOffsetToView:_mapModeButton x:offsetValue y:0.];
-        if (!zoomButtonsVisible)
-            [self addOffsetToView:_zoomButtonsView x:offsetValue y:0.];
+//        CGFloat offsetValue = 50;
+//        if (!optionsMenuButtonVisible)
+//            [self addOffsetToView:_optionsMenuButton x:-offsetValue y:0.];
+//        if (!driveModeButtonVisible)
+//            [self addOffsetToView:_driveModeButton x:-offsetValue y:0.];
+//        if (!mapModeButtonVisible)
+//            [self addOffsetToView:_mapModeButton x:offsetValue y:0.];
+//        if (!zoomButtonsVisible)
+//            [self addOffsetToView:_zoomButtonsView x:offsetValue y:0.];
 
     };
 
