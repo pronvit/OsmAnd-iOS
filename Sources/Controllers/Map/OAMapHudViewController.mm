@@ -1498,10 +1498,7 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
 
 - (void)updateBottomBarViewBackgroundColor
 {
-    if ([OAUtilities isLandscape] || [OAUtilities isIPad])
         _bottomBarView.backgroundColor = [UIColor clearColor];
-    else
-        _bottomBarView.backgroundColor = [UIColor colorNamed:ACColorNameWidgetBgColor].appMapThemeColor;
 }
 
 - (void) updateTopButtonsLayoutY
@@ -2053,7 +2050,9 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
         if (_mapInfoController.weatherToolbarVisible && !isLandscape)
             bottomOffset -= self.weatherToolbar.frame.size.height;
         else if (self.contextMenuMode ? !isScrollableHudVisible : (_mapInfoController.bottomPanelController && [_mapInfoController.bottomPanelController hasWidgets]))
-			bottomOffset -= self.contextMenuMode || isLandscape || ([OAUtilities isIPad] && ![OAUtilities isWindowed]) ? [self getHudMinBottomOffset] : [self getHudBottomOffset];
+			bottomOffset -= self.contextMenuMode || (isLandscape && !([OAUtilities isIPad] && [OAUtilities isWindowed])) || ([OAUtilities isIPad] && ![OAUtilities isWindowed]) ?
+				([self getHudMinBottomOffset] ? [self getHudMinBottomOffset] - kButtonOffset : 0) :
+				[self getHudBottomOffset];
         else
             bottomOffset -= [self getHudMinBottomOffset];
     }
