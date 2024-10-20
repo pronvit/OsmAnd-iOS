@@ -2014,7 +2014,9 @@ static const double d180PI = 180.0 / M_PI_2;
 
 + (CGFloat) getBottomMargin
 {
-    return [UIApplication sharedApplication].mainWindow.safeAreaInsets.bottom ?: 0.0;
+//	if ([self isIPhone] && [UIApplication sharedApplication].mainWindow.safeAreaInsets.bottom)
+//		return 20.0;
+	return [UIApplication sharedApplication].mainWindow.safeAreaInsets.bottom;
 }
 
 + (CGFloat) getLeftMargin

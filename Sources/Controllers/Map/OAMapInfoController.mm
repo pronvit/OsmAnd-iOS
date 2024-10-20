@@ -521,7 +521,7 @@
     _mapHudViewController.bottomWidgetsViewWidthConstraint.constant =
 		[OAUtilities isLandscapeIpadAware] ?
 		max(300., min([_bottomPanelController numWidgets] * 150., DeviceScreenWidth - 2*16. - 2*50.)) :
-		max(300., min([_bottomPanelController numWidgets] * 150., DeviceScreenWidth));
+		DeviceScreenWidth - 2*16.; //max(300., min([_bottomPanelController numWidgets] * 150., DeviceScreenWidth));
     if (hasBottomWidgets)
     {
         _mapHudViewController.bottomWidgetsViewHeightConstraint.constant = [_bottomPanelController calculateContentSize].height;
