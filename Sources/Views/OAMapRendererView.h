@@ -36,7 +36,7 @@ static const int kRulerByTapSymbolSection = 1002;
 static const int kDystanceMarkersSymbolSection = 1003;
 static const int kPointMarkersSymbolSection = 1004;
 
-static const float kMinAllowedElevationAngle = 10.0f;
+static const float kMinAllowedElevationAngle = 20.0f;
 
 #define _DECLARE_ENTRY(name)                                                                                                \
     OAMapRendererViewStateEntry##name = (NSUInteger)OsmAnd::MapRendererStateChange::name
