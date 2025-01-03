@@ -4051,7 +4051,7 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
             if (!trackChartHelper.isLandscape && trackChartHelper.delegate)
                 [trackChartHelper.delegate adjustViewPort:trackChartHelper.isLandscape];
             [self goToPosition:[OANativeUtilities convertFromPointI:point]
-                      animated:YES];
+                      animated:NO];
         }
     }
 }
