@@ -765,7 +765,7 @@ colorizationScheme:(int)colorizationScheme
             .setPoints(points)
             .setFillColor(colorARGB);
         
-        if (gpx.showArrows)
+        if (gpx.showArrows || [self isSelectedGpx:gpx])
         {
             // Use black arrows for gradient colorization
             UIColor *color = gpx.coloringType.length != 0 && ![gpx.coloringType isEqualToString:@"solid"] ? UIColor.whiteColor : UIColorFromARGB(gpx.color);
@@ -1209,7 +1209,7 @@ colorizationScheme:(int)colorizationScheme
         
         OASGpxFile *gpxFile = [_gpxFiles objectForKey:key];
         GPXDataItemGPXFileWrapper *dataWrapper = [[GPXDataItemGPXFileWrapper alloc] initWithGpxDataItem:gpx gpxFile:gpxFile];
-        if ((!gpx && ![path isEqualToString:kCurrentTrack]) || gpx.showStartFinish)
+        if ((!gpx && ![path isEqualToString:kCurrentTrack]) || gpx.showStartFinish || [self isSelectedGpx:gpx])
         {
             if (!gpxFile)
                 continue;
@@ -1952,6 +1952,11 @@ colorizationScheme:(int)colorizationScheme
 - (EOAPinHorizontalAlignment) getPointIconHorizontalAlignment
 {
     return EOAPinAlignmentCenterHorizontal;
+}
+
+- (BOOL) isSelectedGpx: (OASGpxDataItem*)gpx
+{
+    return [_selectedGpxPath hasSuffix:gpx.gpxFilePath];
 }
 
 @end
