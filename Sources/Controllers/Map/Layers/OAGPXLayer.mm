@@ -315,8 +315,22 @@ static const CGFloat kTemperatureToHeightOffset = 100.0;
     {
         int baseOrder = self.baseOrder;
         int lineId = 1;
-        
-        for (NSString *key in _gpxFiles.allKeys)
+
+		NSMutableArray *allKeys = [_gpxFiles.allKeys mutableCopy];
+		NSInteger idx = [allKeys indexOfObject:kCurrentTrack];
+		if (idx != NSNotFound)
+		{
+			[allKeys addObject:allKeys[idx]];
+			[allKeys removeObjectAtIndex:idx];
+		}
+		idx = [allKeys indexOfObject:_selectedGpxPath];
+		if (idx != NSNotFound)
+		{
+			[allKeys addObject:allKeys[idx]];
+			[allKeys removeObjectAtIndex:idx];
+		}
+
+        for (NSString *key in allKeys)
         {
             OASGpxFile *gpxFile_ = _gpxFiles[key];
 

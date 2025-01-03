@@ -230,6 +230,12 @@
     _imagesCacheHelper = [OATravelGuidesImageCacheHelper sharedDatabase];
 
     [self setupUIBuilder];
+
+	if (![self.gpx.gpxFileName isEqualToString:OALocalizedString(@"shared_string_currently_recording_track")])
+	{
+		self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = [_app.gpxPath stringByAppendingPathComponent:self.gpx.gpxFilePath];
+		[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
+	}
 }
 
 - (void)viewDidLoad
@@ -411,7 +417,12 @@
 {
     __weak __typeof(self) weakSelf = self;
     [super hide:YES duration:duration onComplete:^{
-        if (weakSelf.routeKey && !_pushedNewScreen)
+		if (weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath)
+		{
+			weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = nil;
+			[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
+		}
+		if (weakSelf.routeKey && !_pushedNewScreen)
             [weakSelf.mapViewController hideTempGpxTrack];
         [weakSelf stopLocationServices];
         [weakSelf.mapViewController.mapLayers.gpxMapLayer hideCurrentStatisticsLocation];
