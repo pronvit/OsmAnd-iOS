@@ -425,6 +425,11 @@
     return _defaultLineColorItem;
 }
 
+-(OAColorItem *)getRandomLineColorItem
+{
+	return _availableColors[arc4random_uniform(_availableColors.count)];
+}
+
 - (OAColorItem *)getDefaultPointColorItem
 {
     if (!_defaultPointColorItem || ![_availableColors containsObject:_defaultPointColorItem])

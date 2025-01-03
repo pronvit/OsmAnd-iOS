@@ -58,6 +58,8 @@
 - (OAColorItem *)getDefaultLineColorItem;
 - (OAColorItem *)getDefaultPointColorItem;
 
+- (OAColorItem *)getRandomLineColorItem;
+
 - (void)changeColor:(OAColorItem *)colorItem newColor:(UIColor *)newColor;
 - (OAColorItem *)addNewSelectedColor:(UIColor *)newColor;
 - (OAColorItem *)duplicateColor:(OAColorItem *)colorItem;
