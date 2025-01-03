@@ -4559,7 +4559,7 @@ static char kMapSourceUpdateQueueKey;
             if (!trackChartHelper.isLandscape && [trackChartHelper.delegate respondsToSelector:@selector(adjustViewPort:)])
                 [trackChartHelper.delegate adjustViewPort:trackChartHelper.isLandscape];
             [self goToPosition:[OANativeUtilities convertFromPointI:point]
-                      animated:YES];
+                      animated:NO];
         }
     }
 }
