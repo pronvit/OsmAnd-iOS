@@ -297,9 +297,9 @@
 
 - (void) saveTrack:(BOOL)askForRec
 {
-    _saving = YES;
     if ([_savingTrackHelper hasDataToSave])
     {
+		_saving = YES;
         [_savingTrackHelper saveDataToGpxWithCompletionHandler:^{
             _saving = NO;
         }];
