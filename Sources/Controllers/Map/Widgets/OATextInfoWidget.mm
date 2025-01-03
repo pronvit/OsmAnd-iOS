@@ -339,12 +339,12 @@ static NSString * _Nonnull const kSizeStylePref = @"simple_widget_size";
     _contentUnitStackViewSimpleWidget.distribution = UIStackViewDistributionEqualSpacing;
     [valueUnitOrEmptyView addSubview:_contentUnitStackViewSimpleWidget];
     
-    self.titleOrEmptyLabel = [UILabel new];
-    self.titleOrEmptyLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.titleOrEmptyLabel.allowsDefaultTighteningForTruncation = YES;
-    self.titleOrEmptyLabel.textColor = [UIColor colorNamed:ACColorNameWidgetUnitsColor];
-    self.titleOrEmptyLabel.textAlignment = NSTextAlignmentRight;
-    [_contentUnitStackViewSimpleWidget addArrangedSubview:self.titleOrEmptyLabel];
+//    self.titleOrEmptyLabel = [UILabel new];
+//    self.titleOrEmptyLabel.translatesAutoresizingMaskIntoConstraints = NO;
+//    self.titleOrEmptyLabel.allowsDefaultTighteningForTruncation = YES;
+//    self.titleOrEmptyLabel.textColor = [UIColor colorNamed:ACColorNameWidgetUnitsColor];
+//    self.titleOrEmptyLabel.textAlignment = NSTextAlignmentRight;
+//    [_contentUnitStackViewSimpleWidget addArrangedSubview:self.titleOrEmptyLabel];
     
     // Create the unitOrEmptyLabel ("KM/H")
     self.unitOrEmptyLabel = [UILabel new];
@@ -557,7 +557,7 @@ static NSString * _Nonnull const kSizeStylePref = @"simple_widget_size";
 - (void) setText:(NSString *)text subtext:(NSString *)subtext
 {
     [self setTextNoUpdateVisibility:text subtext:subtext];
-    [self updateVisibility:text != nil];
+    [self updateVisibility:text.length > 0];
 }
 
 - (void) setTextNoUpdateVisibility:(NSString *)text subtext:(NSString *)subtext
@@ -652,7 +652,7 @@ static NSString * _Nonnull const kSizeStylePref = @"simple_widget_size";
         if (self.widgetSizeStyle == EOAWidgetSizeStyleSmall)
         {
             self.unitView.hidden = YES;
-//            self.titleOrEmptyLabel.text = [_contentTitle upperCase];
+            self.titleOrEmptyLabel.text = [_contentTitle upperCase];
             self.unitOrEmptyLabel.text = [_subtext upperCase];
         }
         else
@@ -669,15 +669,6 @@ static NSString * _Nonnull const kSizeStylePref = @"simple_widget_size";
     {
         _contentStackViewSimpleWidget.spacing = 0;
         self.valueLabel.textAlignment = NSTextAlignmentCenter;
-        if (self.widgetSizeStyle == EOAWidgetSizeStyleSmall)
-        {
-            _contentStackViewSimpleWidget.spacing = unitOrEmptyLabelSmallModeWidth - imageSide + paddingBetweenIconAndValue;
-            _unitOrEmptyLabelWidthConstraint.active = NO;
-            _unitOrEmptyLabelWidthSmallModeConstraint.active = YES;
-            self.emptyViewRightPlaceholderFullRow.hidden = YES;
-        } else {
-            self.emptyViewRightPlaceholderFullRow.hidden = !isVisibleIcon;
-        }
     }
     else
     {
