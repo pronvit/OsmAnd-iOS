@@ -505,6 +505,8 @@ static const NSInteger kDBVersion = 1;
             } else {
                 NSLog(@"[ERROR] -> OASavingTrackHelper | save gpx");
             }
+
+			[settings showGpx:@[[fout stringByReplacingOccurrencesOfString:[_app.gpxPath stringByAppendingString:@"/"] withString:@""]]];
         }
         
         [self clearData];
