@@ -148,8 +148,6 @@
 
 - (void)applyAdditionalParams:(NSString *)filePath
 {
-    if (_appearanceInfo)
-        [self updateGpxParams];
 }
 
 - (void)updateGpxParams
