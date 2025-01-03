@@ -152,10 +152,10 @@ protocol SortableFolder {
         let distance = OAOsmAndFormatter.getFormattedDistance(track.totalDistance) ?? localizedString("shared_string_not_available")
         let duration = track.getAnalysis()?.getDurationInSeconds() ?? 0
         let time = OAOsmAndFormatter.getFormattedTimeInterval(TimeInterval(duration), shortFormat: true) ?? localizedString("shared_string_not_available")
-        let waypointCount = "\(track.wptPoints)"
+        let waypointCount = track.wptPoints > 0 ? " • \(track.wptPoints)" : ""
         let fullString = NSMutableAttributedString()
         let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .footnote), .foregroundColor: UIColor.textColorSecondary]
-        let detailsText = "\(distance) • \(time) • \(waypointCount)"
+        let detailsText = "\(distance) • \(time)\(waypointCount)"
         let detailsString = NSAttributedString(string: detailsText, attributes: defaultAttributes)
         switch sortMode {
         case .nearest:
@@ -213,7 +213,7 @@ protocol SortableFolder {
         case .longestDistanceFirst, .shortestDistanceFirst:
             fullString.append(detailsString)
         case .longestDurationFirst, .shorterDurationFirst:
-            let durationFirstDetailsString = NSAttributedString(string: "\(time) • \(distance) • \(waypointCount)", attributes: defaultAttributes)
+            let durationFirstDetailsString = NSAttributedString(string: "\(time) • \(distance)\(waypointCount)", attributes: defaultAttributes)
             fullString.append(durationFirstDetailsString)
         }
         

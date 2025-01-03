@@ -719,21 +719,19 @@ final class TracksViewController: OACompoundViewController, UITableViewDelegate,
         let totalTime = folderAnalysis.timeSpan
         let totalSizeBytes = folderAnalysis.fileSize
         
-        var statistics = "\(localizedString("shared_string_gpx_tracks")) – \(folderAnalysis.tracksCount)"
+        var statistics = "\(localizedString("shared_string_gpx_tracks")): \(folderAnalysis.tracksCount)"
         if let distance = OAOsmAndFormatter.getFormattedDistance(totalDistance) {
-            statistics += ", \(localizedString("shared_string_distance").lowercased()) – \(distance)"
+            statistics += " •  \(localizedString("shared_string_distance")): \(distance)"
         }
         if let uphill = OAOsmAndFormatter.getFormattedAlt(totalUphill) {
-            statistics += ", \(localizedString("map_widget_trip_recording_uphill").lowercased()) – \(uphill)"
+            statistics += " •  \(localizedString("map_widget_trip_recording_uphill")): \(uphill)"
         }
         if let downhill = OAOsmAndFormatter.getFormattedAlt(totalDownhill) {
-            statistics += ", \(localizedString("map_widget_trip_recording_downhill").lowercased()) – \(downhill)"
+            statistics += " •  \(localizedString("map_widget_trip_recording_downhill")): \(downhill)"
         }
         if let duration = OAOsmAndFormatter.getFormattedTimeInterval(TimeInterval(totalTime), shortFormat: true) {
-            statistics += ", \(localizedString("map_widget_trip_recording_duration").lowercased()) – \(duration)."
+            statistics += " •  \(localizedString("map_widget_trip_recording_duration")): \(duration)."
         }
-        let size = ByteCountFormatter.string(fromByteCount: totalSizeBytes, countStyle: .file)
-        statistics += "\n\n\(localizedString("shared_string_total_size")) – \(size)"
         return statistics
     }
     
