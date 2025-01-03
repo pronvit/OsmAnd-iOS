@@ -338,7 +338,7 @@ static const NSInteger kDBVersion = 1;
 
 - (BOOL) hasData
 {
-    return points > 0 || distance > 0 || lastPoint.longitude > 0 || lastPoint.latitude > 0;
+	return points > 0 || distance > 0 || lastPoint.longitude != 0.0 || lastPoint.latitude != 0.0;
 }
 
 - (BOOL) hasDataToSave
@@ -771,7 +771,7 @@ static const NSInteger kDBVersion = 1;
 {
     dispatch_sync(syncQueue, ^{
         
-        if (lastTimeUpdated != 0 || lastPoint.latitude != 0 || lastPoint.longitude != 0)
+		if (lastTimeUpdated != 0 || lastPoint.latitude != 0 || lastPoint.longitude != 0)
         {
             lastTimeUpdated = 0;
             lastPoint = kCLLocationCoordinate2DInvalid;
