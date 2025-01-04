@@ -149,6 +149,7 @@ static const NSInteger kColorsSection = 1;
     if (self)
     {
         _reopeningTrackMenuState = state;
+		[self commonInit];
     }
     return self;
 }
@@ -160,6 +161,7 @@ static const NSInteger kColorsSection = 1;
         _wholeFolderTracks = tracks;
         _reopeningTrackMenuState = state;
         [self setOldValues];
+		[self commonInit];
     }
     return self;
 }

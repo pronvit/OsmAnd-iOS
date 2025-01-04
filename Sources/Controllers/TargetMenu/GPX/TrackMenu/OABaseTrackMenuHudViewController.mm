@@ -212,7 +212,7 @@
         [self updateGpxData:gpx == nil updateDocument:YES];
         if (!_analysis)
             [self updateAnalysis];
-        [self commonInit];
+//        [self commonInit];
     }
     return self;
 }
