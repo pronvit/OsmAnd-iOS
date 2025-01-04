@@ -6246,8 +6246,8 @@ static NSString *kOfflineKey = @"OFFLINE";
 //        [_mapSettingSaveTrackInterval setModeDefaultValue:@10 mode:[OAApplicationMode PEDESTRIAN]];
         [_globalPreferences setObject:_mapSettingSaveTrackInterval forKey:@"save_track_interval"];
 
-		_saveTrackMinDistance = [[[OACommonDouble withKey:saveTrackMinDistanceKey defValue:REC_FILTER_DEFAULT] makeGlobal] makeShared];
-		_saveTrackPrecision = [[[OACommonDouble withKey:saveTrackPrecisionKey defValue:REC_FILTER_DEFAULT] makeGlobal] makeShared];
+		_saveTrackMinDistance = [[[OACommonDouble withKey:saveTrackMinDistanceKey defValue:REC_TRACK_DISPLACEMENT_DEFAULT] makeGlobal] makeShared];
+		_saveTrackPrecision = [[[OACommonDouble withKey:saveTrackPrecisionKey defValue:REC_TRACK_PRECISION_DEFAULT] makeGlobal] makeShared];
 		_saveTrackMinSpeed = [[[OACommonDouble withKey:saveTrackMinSpeedKey defValue:REC_FILTER_DEFAULT] makeGlobal] makeShared];
 		_autoSplitRecording = [[[OACommonBoolean withKey:autoSplitRecordingKey defValue:NO] makeGlobal] makeShared];
 
