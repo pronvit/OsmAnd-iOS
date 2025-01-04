@@ -397,7 +397,7 @@
     {
         _pointLayers = @[self.mapViewController.mapLayers.myPositionLayer,
                          self.mapViewController.mapLayers.mapillaryLayer,
-                         self.mapViewController.mapLayers.downloadedRegionsLayer,
+//                         self.mapViewController.mapLayers.downloadedRegionsLayer,
                          self.mapViewController.mapLayers.gpxMapLayer];
     }
     for (OAMapLayer *layer in _pointLayers)
@@ -408,7 +408,8 @@
     NSMutableArray<OAMapLayer *> *layers = [[mapViewController.mapLayers getLayers] mutableCopy];
     [layers removeObjectsInArray:@[self.mapViewController.mapLayers.myPositionLayer,
                                    self.mapViewController.mapLayers.mapillaryLayer,
-                                   self.mapViewController.mapLayers.downloadedRegionsLayer]];
+//                                   self.mapViewController.mapLayers.downloadedRegionsLayer
+								 ]];
 
     for (const auto symbolInfo : symbolInfos)
     {

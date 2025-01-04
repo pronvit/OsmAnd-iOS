@@ -100,8 +100,8 @@
     _rulerByTapControlLayer = [[OARulerByTapControlLayer alloc] initWithMapViewController:_mapViewController baseOrder:-170000];
     [self addLayer:_rulerByTapControlLayer];
 
-    _downloadedRegionsLayer = [[OADownloadedRegionsLayer alloc] initWithMapViewController:_mapViewController baseOrder:1100000];
-    [self addLayer:_downloadedRegionsLayer];
+//    _downloadedRegionsLayer = [[OADownloadedRegionsLayer alloc] initWithMapViewController:_mapViewController baseOrder:1100000];
+//    [self addLayer:_downloadedRegionsLayer];
 
     _weatherLayerLow = [[OAWeatherRasterLayer alloc] initWithMapViewController:_mapViewController layerIndex:20 weatherLayer:WEATHER_LAYER_LOW date:_weatherDate];
     [self addLayer:_weatherLayerLow];
