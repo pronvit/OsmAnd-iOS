@@ -94,7 +94,7 @@ static const NSInteger kDBVersion = 1;
     _currentTrack = [[OASGpxFile alloc] initWithAuthor:[OAAppVersion getFullVersionWithAppName]];
     _currentTrack.showCurrentTrack = YES;
     [_currentTrack setWidthWidth:[settings.currentTrackWidth get]];
-    [_currentTrack setShowArrowsShowArrows:[settings.currentTrackWidth get]];
+	[_currentTrack setShowArrowsShowArrows:[settings.currentTrackShowArrows get]];
     [_currentTrack setShowStartFinishShowStartFinish:[settings.currentTrackShowStartFinish get]];
     // setVerticalExaggerationScale -> setAdditionalExaggerationAdditionalExaggeration (SharedLib)
     [_currentTrack setAdditionalExaggerationAdditionalExaggeration:[settings.currentTrackVerticalExaggerationScale get]];
@@ -475,7 +475,7 @@ static const NSInteger kDBVersion = 1;
             OAAppSettings *settings = [OAAppSettings sharedManager];
             
             [gpxFile setWidthWidth:[settings.currentTrackWidth get]];
-            [gpxFile setShowArrowsShowArrows:[settings.currentTrackWidth get]];
+			[gpxFile setShowArrowsShowArrows:[settings.currentTrackShowArrows get]];
             [gpxFile setShowStartFinishShowStartFinish:[settings.currentTrackShowStartFinish get]];
             // setVerticalExaggerationScale -> setAdditionalExaggerationAdditionalExaggeration (SharedLib)
             [gpxFile setAdditionalExaggerationAdditionalExaggeration:[settings.currentTrackVerticalExaggerationScale get]];
