@@ -279,7 +279,7 @@ extension TrackItem {
         dataItem?.gpxFileNameWithoutExtension ?? ""
     }
     
-    func resetAppearanceToOriginal() {
+	func resetAppearanceToOriginal(randomColor:Int) {
         var gpx: GpxFile?
         if isShowCurrentTrack {
             gpx = OASavingTrackHelper.sharedInstance().currentTrack
@@ -291,7 +291,7 @@ extension TrackItem {
         if let gpx {
             splitType = OAGPXDatabase.splitType(byName: gpx.getSplitType())
             splitInterval = gpx.getSplitInterval()
-            color = gpx.getColor(defColor: 0)?.intValue ?? 0
+			color = gpx.getColor(defColor: KotlinInt(integerLiteral: randomColor))?.intValue ?? 0
             coloringType = gpx.getColoringType() ?? ""
             gradientPaletteName = gpx.getGradientColorPalette()
             width = gpx.getWidth(defaultWidth: nil) ?? ""
