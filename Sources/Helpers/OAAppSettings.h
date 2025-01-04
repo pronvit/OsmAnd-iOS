@@ -31,7 +31,8 @@ static const NSInteger MAP_ARROWS_MAP_CENTER = 1;
 
 static const NSInteger SAVE_TRACK_INTERVAL_DEFAULT = 1; //5000 in Android
 static const double REC_FILTER_DEFAULT = 0.f;
-static const double REC_TRACK_PRECISION_DEFAULT = 50.f;
+static const double REC_TRACK_DISPLACEMENT_DEFAULT = 3.0f;
+static const double REC_TRACK_PRECISION_DEFAULT = 150.f;
 static const double MPS_TO_KMH_MULTIPLIER = 3.6;
 
 static const NSInteger MAP_GEO_FORMAT_DEGREES = 0;
