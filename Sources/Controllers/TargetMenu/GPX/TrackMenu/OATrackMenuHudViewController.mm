@@ -233,8 +233,12 @@
 
 	if (![self.gpx.gpxFileName isEqualToString:OALocalizedString(@"shared_string_currently_recording_track")])
 	{
-		self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = [_app.gpxPath stringByAppendingPathComponent:self.gpx.gpxFilePath];
-		[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
+		NSString *path = [_app.gpxPath stringByAppendingPathComponent:self.gpx.gpxFilePath];
+		if (![self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath isEqualToString:path])
+		{
+			self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = path;
+			[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
+		}
 	}
 }
 
@@ -417,7 +421,7 @@
 {
     __weak __typeof(self) weakSelf = self;
     [super hide:YES duration:duration onComplete:^{
-		if (weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath)
+		if (!_pushedNewScreen && weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath)
 		{
 			weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = nil;
 			[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
