@@ -1554,6 +1554,7 @@ static const NSInteger kColorsSection = 1;
             }
         }
 
+		//TODO: find a way to remove this is no changes made
         if (weakSelf.isCurrentTrack)
             [[weakSelf.app updateRecTrackOnMapObservable] notifyEvent];
         else
