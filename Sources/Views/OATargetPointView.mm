@@ -2154,10 +2154,13 @@ static const NSInteger _buttonsCount = 4;
     if (sharingText && sharingText.length > 0)
         [items addObject:sharingText];
 
-    OAShareMenuActivity *shareClipboard = [[OAShareMenuActivity alloc] initWithType:OAShareMenuActivityClipboard];
-    shareClipboard.delegate = self;
+//    OAShareMenuActivity *shareClipboard = [[OAShareMenuActivity alloc] initWithType:OAShareMenuActivityClipboard];
+//    shareClipboard.delegate = self;
 
-    OAShareMenuActivity *shareAddress = [[OAShareMenuActivity alloc] initWithType:OAShareMenuActivityCopyAddress];
+	OAShareMenuActivity *openInMaps = [[OAShareMenuActivity alloc] initWithType:OAShareMenuActivityOpenInMaps];
+	openInMaps.delegate = self;
+
+	OAShareMenuActivity *shareAddress = [[OAShareMenuActivity alloc] initWithType:OAShareMenuActivityCopyAddress];
     shareAddress.delegate = self;
 
     OAShareMenuActivity *sharePOIName = [[OAShareMenuActivity alloc] initWithType:OAShareMenuActivityCopyPOIName];
@@ -2171,7 +2174,7 @@ static const NSInteger _buttonsCount = 4;
     
     UIButton *button = (UIButton *)sender;
     
-    [self.navController showActivity:items applicationActivities:@[shareClipboard, shareAddress, sharePOIName, shareCoordinates, shareGeo] excludedActivityTypes:nil sourceView:button sourceRect:CGRect() barButtonItem:nil permittedArrowDirections:UIPopoverArrowDirectionAny completionWithItemsHandler:nil];
+	[self.navController showActivity:items applicationActivities:@[openInMaps, shareAddress, sharePOIName, shareCoordinates, shareGeo] excludedActivityTypes:nil sourceView:button sourceRect:CGRect() barButtonItem:nil permittedArrowDirections:UIPopoverArrowDirectionAny completionWithItemsHandler:nil];
 
     [self.menuViewDelegate targetPointShare];
 }
@@ -2802,6 +2805,12 @@ static const NSInteger _buttonsCount = 4;
             [self copyToClipboardWithToast:geoUrl];
             break;
         }
+		case OAShareMenuActivityOpenInMaps:
+		{
+			NSString *url = [NSString stringWithFormat:@"https://maps.apple.com/?ll=%f,%f&q=%@", _targetPoint.location.latitude, _targetPoint.location.longitude, [_targetPoint.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:nil];
+			break;
+		}
     }
 }
 

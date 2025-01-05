@@ -14,7 +14,8 @@ typedef NS_ENUM(NSInteger, OAShareMenuActivityType)
     OAShareMenuActivityCopyAddress,
     OAShareMenuActivityCopyPOIName,
     OAShareMenuActivityCopyCoordinates,
-    OAShareMenuActivityGeo
+    OAShareMenuActivityGeo,
+	OAShareMenuActivityOpenInMaps
 };
 
 @protocol OAShareMenuDelegate

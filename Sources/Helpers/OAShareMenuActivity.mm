@@ -38,6 +38,8 @@
             return @"net.osmand.maps.copyCoordinates";
         case OAShareMenuActivityGeo:
             return @"net.osmand.maps.geo";
+		case OAShareMenuActivityOpenInMaps:
+			return @"net.osmand.maps.openInMaps";
     }
     return nil;
 }
@@ -56,6 +58,8 @@
             return OALocalizedString(@"copy_coordinates");
         case OAShareMenuActivityGeo:
             return OALocalizedString(@"share_geo");
+		case OAShareMenuActivityOpenInMaps:
+			return OALocalizedString(@"Open in Maps");
     }
     return nil;
 }
@@ -69,6 +73,8 @@
         case OAShareMenuActivityCopyCoordinates:
             return [self sfSymbol:@"mappin.and.ellipse.circle"];
         case OAShareMenuActivityGeo:
+            return [self sfSymbol:@"globe.europe.africa"];
+		case OAShareMenuActivityOpenInMaps:
             return [self sfSymbol:@"globe.europe.africa"];
         case OAShareMenuActivityClipboard:
             return [self sfSymbol:@"link"];
