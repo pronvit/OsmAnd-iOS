@@ -31,9 +31,9 @@ OASQLiteTileSourceMapLayerProvider::OASQLiteTileSourceMapLayerProvider(const QSt
     if (!db)
     {
         db = std::make_shared<OsmAnd::TileSqliteDatabase>(fileName);
-        _ts = db;
     }
-    
+	_ts = db;
+
     if (db->open())
     {
         OsmAnd::TileSqliteDatabase::Meta meta;
