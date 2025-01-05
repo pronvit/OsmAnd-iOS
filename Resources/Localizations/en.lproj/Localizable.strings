@@ -3282,7 +3282,7 @@
 "copy_address" = "Copy address";
 "copy_poi_name" = "Copy POI name";
 "copy_coordinates" = "Copy coordinates";
-"share_geo" = "geo:";
+"share_geo" = "Copy geo:";
 "toast_empty_name_error" = "Unnamed location";
 
 "pro_features" = "Pro features";

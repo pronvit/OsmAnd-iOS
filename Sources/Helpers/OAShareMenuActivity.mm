@@ -38,6 +38,8 @@
             return @"net.osmand.maps.copyCoordinates";
         case OAShareMenuActivityGeo:
             return @"net.osmand.maps.geo";
+		case OAShareMenuActivityOpenInMaps:
+			return @"net.osmand.maps.openInMaps";
     }
     return nil;
 }
@@ -56,6 +58,8 @@
             return OALocalizedString(@"copy_coordinates");
         case OAShareMenuActivityGeo:
             return OALocalizedString(@"share_geo");
+		case OAShareMenuActivityOpenInMaps:
+			return OALocalizedString(@"Open in Maps");
     }
     return nil;
 }
@@ -68,6 +72,7 @@
             return [UIImage imageNamed:@"ic_share_address"];
         case OAShareMenuActivityCopyCoordinates:
         case OAShareMenuActivityGeo:
+		case OAShareMenuActivityOpenInMaps:
             return [UIImage imageNamed:@"ic_share_coordinates"];
         case OAShareMenuActivityClipboard:
         case OAShareMenuActivityCopyPOIName:
