@@ -63,8 +63,8 @@ final class TracksViewController: OACompoundViewController, UITableViewDelegate,
     private var recCell: OATwoButtonsTableViewCell?
     private var baseFilters: TracksSearchFilter?
     private var baseFiltersResult: FilterResults?
-    private var sortMode: TracksSortMode = .lastModified
-    private var sortModeForSearch: TracksSortMode = .lastModified
+	private var sortMode: TracksSortMode = .newestDateFirst
+    private var sortModeForSearch: TracksSortMode = .newestDateFirst
     private var searchController = UISearchController()
     private var lastUpdate: TimeInterval?
     private var isSearchActive = false
@@ -661,11 +661,11 @@ final class TracksViewController: OACompoundViewController, UITableViewDelegate,
             return TracksSortMode.getByTitle(sortModeTitle)
         }
         
-        return TracksSortModeHelper.getDefaultSortMode(for: currentFolder.getId())
+		return .newestDateFirst
     }
     
     private func getSearchTracksSortMode() -> TracksSortMode {
-        guard let searchSortModeTitle = settings.searchTracksSortModes.get() else { return .lastModified }
+		guard let searchSortModeTitle = settings.searchTracksSortModes.get() else { return .newestDateFirst }
         return TracksSortMode.getByTitle(searchSortModeTitle)
     }
     
