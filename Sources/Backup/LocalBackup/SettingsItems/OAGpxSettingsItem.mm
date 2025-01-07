@@ -67,7 +67,12 @@
 
 - (NSString *)getPublicName
 {
-    return [self.filePath.lastPathComponent stringByDeletingPathExtension];
+	//TODO: don't hardcode "GPX"
+	NSString *folder = [self.filePath stringByDeletingLastPathComponent].lastPathComponent;
+	if ([folder isEqualToString:@"GPX"])
+		return [self.filePath.lastPathComponent stringByDeletingPathExtension];
+	else
+		return [NSString stringWithFormat:@"%@/%@", folder, [self.filePath.lastPathComponent stringByDeletingPathExtension]];
 }
 
 - (void)remove
