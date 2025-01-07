@@ -215,7 +215,6 @@
                 switch (selectedIndex) {
                     case 0:
                     {
-                        [_savingTrackHelper startNewSegment];
                         _settings.mapSettingTrackRecording = YES;
                         break;
                     }
