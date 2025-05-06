@@ -270,8 +270,23 @@
         OASGpxDataItem *dataItem = nil;
         if (!readItem)
         {
-            dataItem = [[OASGpxDataItem alloc] initWithFile:file];
-            readItem = ![gpxDbHelper addItem:dataItem];
+            OASGpxFile *gpxFile = [OASGpxUtilities.shared loadGpxFileFile:file];
+            if (!gpxFile.error)
+            {
+                OASGpxTrackAnalysis *trackAnalysis = [gpxFile getAnalysisFileTimestamp:gpxFile.modifiedTime];
+                OASGpxDataItem *dataItem = [[OASGpxDataItem alloc] initWithFile:file];
+                [dataItem setAnalysisAnalysis:trackAnalysis];
+                [dataItem readGpxParamsGpxFile:gpxFile];
+                if (dataItem.color == 0)
+                {
+                    int color = [[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].value;
+                    dataItem.color = color;
+                    [gpxFile setColorColor:[[OASInt alloc] initWithInt:color]];
+                    [OASGpxUtilities.shared writeGpxFileFile:dataItem.file gpxFile:gpxFile];
+                }
+
+                readItem = [gpxDbHelper addItem:dataItem];
+            }
         }
         if (readItem)
         {
