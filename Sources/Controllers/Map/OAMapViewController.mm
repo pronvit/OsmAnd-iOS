@@ -2610,8 +2610,8 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
 {
     const auto manualTilesCollection = new OsmAnd::GeoTiffCollection();
     NSString *cacheDir = [_app.cachePath stringByAppendingPathComponent:GEOTIFF_SQLITE_CACHE_DIR];
-    if (![NSFileManager.defaultManager fileExistsAtPath:cacheDir])
-        [NSFileManager.defaultManager createDirectoryAtPath:cacheDir withIntermediateDirectories:YES attributes:nil error:nil];
+	[NSFileManager.defaultManager removeItemAtPath:cacheDir error:nil]; // empty cache
+	[NSFileManager.defaultManager createDirectoryAtPath:cacheDir withIntermediateDirectories:YES attributes:nil error:nil];
     manualTilesCollection->setLocalCache(QString::fromNSString(cacheDir));
     manualTilesCollection->addDirectory(_app.documentsDir.absoluteFilePath(QString::fromNSString(RESOURCES_DIR)));
     _geoTiffCollection.reset(manualTilesCollection);

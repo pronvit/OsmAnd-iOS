@@ -91,8 +91,13 @@
     if ([_plugin isTerrainLayerEnabled] && [_plugin isEnabled])
     {
         _terrainMode = [_plugin getTerrainMode];
-        _layerProvider = [self createGeoTiffLayerProvider:_terrainMode];
-        [self.mapView setProvider:_layerProvider forLayer:self.layerIndex];
+		if ([_terrainMode getTransparency] > 0)
+		{
+			_layerProvider = [self createGeoTiffLayerProvider:_terrainMode];
+			[self.mapView setProvider:_layerProvider forLayer:self.layerIndex];
+		}
+		else
+			[self resetLayer];
 
         OsmAnd::MapLayerConfiguration config;
         config.setOpacityFactor([_terrainMode getTransparency] * 0.01);
@@ -136,11 +141,12 @@
         {
             if ([_terrainMode isTransparencySetting:notification.object])
             {
-                [self.mapViewController runWithRenderSync:^{
-                    OsmAnd::MapLayerConfiguration config;
-                    config.setOpacityFactor([_terrainMode getTransparency] * 0.01);
-                    [self.mapView setMapLayerConfiguration:self.layerIndex configuration:config forcedUpdate:NO];
-                }];
+				[self updateTerrainLayer];
+//                [self.mapViewController runWithRenderSync:^{
+//                    OsmAnd::MapLayerConfiguration config;
+//                    config.setOpacityFactor([_terrainMode getTransparency] * 0.01);
+//                    [self.mapView setMapLayerConfiguration:self.layerIndex configuration:config forcedUpdate:NO];
+//                }];
             }
             else if ([_terrainMode isZoomSetting:notification.object])
             {
@@ -201,6 +207,9 @@
 
 - (std::shared_ptr<OsmAnd::IMapLayerProvider>)createGeoTiffLayerProvider:(TerrainMode *)mode
 {
+	if ([_terrainMode getTransparency] == 0)
+		return {};
+
     auto geoTiffCollection = self.mapViewController.mapRendererEnv.geoTiffCollection;
     NSString *heightmapDir = self.app.colorsPalettePath;
     auto mainColorFilename = QString::fromNSString([heightmapDir stringByAppendingPathComponent:[mode getMainFile]]);
