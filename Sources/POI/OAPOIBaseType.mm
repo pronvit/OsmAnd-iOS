@@ -66,6 +66,11 @@ static NSMutableSet<NSString *> *nullTypeSetInstance;
     return [NSString stringWithFormat:@"mx_%@", optionalIcon ? : self.name];
 }
 
+- (UIColor *)iconColor
+{
+	return [OAPOIHelper.sharedInstance getPoiTypeOptionalColor:self.name];
+}
+
 -(BOOL)isEqual:(id)object
 {
     if ([object isKindOfClass:[OAPOIBaseType class]]) {

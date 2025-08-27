@@ -39,6 +39,7 @@ static xmlSAXHandler simpleSAXHandlerStruct;
     NSMutableArray<OAPOIFilter *> *_pFilters;
     NSMutableArray<OAPOIType *> *_textPoiAdditionals;
     NSMutableDictionary<NSString *, NSString *> *_poiTypeOptionalIcons;
+	NSMutableDictionary<NSString *, UIColor *> *_poiTypeOptionalColors;
     NSMutableDictionary<NSString *, NSString *> *_poiAdditionalCategoryIcons;
 
     xmlParserCtxtPtr _xmlParserContext;
@@ -78,6 +79,7 @@ static xmlSAXHandler simpleSAXHandlerStruct;
     _pFilters = [NSMutableArray array];
     _textPoiAdditionals = [NSMutableArray array];
     _poiTypeOptionalIcons = [NSMutableDictionary dictionary];
+	_poiTypeOptionalColors = [NSMutableDictionary dictionary];
     _poiAdditionalCategoryIcons = [NSMutableDictionary dictionary];
     _otherMapCategory = [[OAPOICategory alloc] initWithName:@"Other"];
     [_pCategories addObject:_otherMapCategory];
@@ -153,6 +155,7 @@ static xmlSAXHandler simpleSAXHandlerStruct;
         self.poiFilters = _pFilters;
         self.textPoiAdditionals = _textPoiAdditionals;
         self.poiTypeOptionalIcons = _poiTypeOptionalIcons;
+		self.poiTypeOptionalColors = _poiTypeOptionalColors;
         self.poiAdditionalCategoryIcons = _poiAdditionalCategoryIcons;
         self.deprecatedTags = _deprecatedTags;
         
@@ -300,6 +303,8 @@ static const char *kDeprecatedOfAttributeName = "deprecated_of";
 static NSUInteger kDeprecatedOfAttributeNameLength = 14;
 static const char *kHiddenAttributeName = "hidden";
 static NSUInteger kHiddenAttributeNameLength = 7;
+static const char *kColorAttributeName = "color";
+static NSUInteger kColorAttributeNameLength = 5;
 
 
 - (void)elementFound:(const xmlChar *)localname prefix:(const xmlChar *)prefix
@@ -796,6 +801,17 @@ defaultAttributeCount:(int)defaultAttributeCount attributes:(xmlSAX2Attributes *
             if (icon)
                 [_poiTypeOptionalIcons setObject:icon forKey:name];
         }
+		else if (0 == strncmp((const char*)attributes[i].localname, kColorAttributeName,
+							  kColorAttributeNameLength))
+		{
+			int length = (int) (attributes[i].end - attributes[i].value);
+			NSString * color = [[NSString alloc] initWithBytes:attributes[i].value
+													   length:length
+													 encoding:NSUTF8StringEncoding];
+
+			if (color)
+				[_poiTypeOptionalColors setObject:[UIColor colorFromString:color] forKey:name];
+		}
     }
     
     if (deprecatedOf)
