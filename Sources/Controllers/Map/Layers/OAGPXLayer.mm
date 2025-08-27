@@ -761,10 +761,12 @@ colorizationScheme:(int)colorizationScheme
         builder.setBaseOrder(baseOrder)
             .setIsHidden(points.size() == 0)
             .setLineId(lineId)
-            .setLineWidth(lineWidth)
+            .setLineWidth(12)
             .setPoints(points)
-            .setFillColor(colorARGB);
-        
+			.setFillColor(colorARGB)
+			.setOutlineWidth(12+7)
+			.setOutlineColor(OsmAnd::ColorARGB(200, 255, 255, 255));
+
         if (gpx.showArrows || [self isSelectedGpx:gpx])
         {
             // Use black arrows for gradient colorization
@@ -855,9 +857,11 @@ colorizationScheme:(int)colorizationScheme
             builder.setBaseOrder(baseOrder)
                 .setIsHidden(points.size() == 0)
                 .setLineId(lineId)
-                .setLineWidth(lineWidth)
+                .setLineWidth(12)
                 .setPoints(points)
-                .setFillColor(colorARGB);
+				.setFillColor(colorARGB)
+				.setOutlineWidth(12+7)
+				.setOutlineColor(OsmAnd::ColorARGB(200, 255, 255, 255));
 
             if ([gpx isShowArrows])
             {
