@@ -28,6 +28,7 @@ static const NSTimeInterval kCarPlayAutoRecalcInterval = 60.0;
     NSNumber *_tempMode;
     NSNumber *_carPlayMode;
     NSTimer *_carPlayAutoRecalcTimer;
+	NSInteger _cachedAppearanceMode;
 }
 
 - (instancetype)init
@@ -70,11 +71,14 @@ static const NSTimeInterval kCarPlayAutoRecalcInterval = 60.0;
  */
 - (BOOL)isNightMode
 {
-    NSInteger dayNightMode;
+	if (_firstCall)
+		[self appearanceModeChanged];
+
+	NSInteger dayNightMode;
     if (_tempMode)
         dayNightMode = _tempMode.integerValue;
     else
-        dayNightMode = [[OAAppSettings sharedManager].appearanceMode get];
+		dayNightMode = _cachedAppearanceMode;
 
     BOOL nightMode = _lastNightMode;
     if (dayNightMode == DayNightModeDay)
@@ -242,6 +246,11 @@ static const NSTimeInterval kCarPlayAutoRecalcInterval = 60.0;
     NSDate *actualTime = [NSDate date];
     SunriseSunset *daynightSwitch = [[SunriseSunset alloc] initWithLatitude:lastKnownLocation.coordinate.latitude longitude:longitude < 0 ? 360 + longitude : longitude dateInputIn:actualTime tzIn:[NSTimeZone localTimeZone]];
     return daynightSwitch;
+}
+
+-(void)appearanceModeChanged
+{
+	_cachedAppearanceMode = [[OAAppSettings sharedManager].appearanceMode get];
 }
 
 @end

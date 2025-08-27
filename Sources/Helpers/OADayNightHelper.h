@@ -24,4 +24,6 @@
 - (void)resetCarPlayMode;
 - (SunriseSunset *)getSunriseSunset;
 
+-(void)appearanceModeChanged;
+
 @end

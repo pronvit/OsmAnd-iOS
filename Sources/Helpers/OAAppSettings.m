@@ -1538,6 +1538,22 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
 
 @end
 
+@interface OANullableValue : NSObject
+@property(nonatomic,retain) id value;
+@end
+
+@implementation OANullableValue
+-(instancetype) initWithValue:(id)value
+{
+	if (self = [super init])
+	{
+		self.value = value;
+	}
+
+	return self;
+}
+@end
+
 @interface OADistanceByTapTextSizeConstant ()
 
 @property (nonatomic) EOADistanceByTapTextSizeConstant textSize;
@@ -1576,9 +1592,9 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
 
 @property (nonatomic, readonly) OAApplicationMode *appMode;
 @property (nonatomic) NSString *key;
-@property (nonatomic) NSMapTable<OAApplicationMode *, NSObject *> *cachedValues;
+@property (nonatomic) NSMapTable<OAApplicationMode *, OANullableValue *> *cachedValues;
 @property (nonatomic) NSMapTable<OAApplicationMode *, NSObject *> *defaultValues;
-@property (nonatomic) NSObject *cachedValue;
+@property (nonatomic) OANullableValue *cachedValue;
 @property (nonatomic) NSObject *defaultValue;
 
 + (instancetype) withKey:(NSString *)key;
@@ -1594,13 +1610,22 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
 
 @synthesize global=_global, shared=_shared;
 
+-(instancetype)init
+{
+    if (self=[super init])
+    {
+        self.cachedValues = [NSMapTable strongToStrongObjectsMapTable];
+    }
+
+    return self;
+}
+
 + (instancetype)withKey:(NSString *)key
 {
     OACommonPreference *obj = [[OACommonPreference alloc] init];
     if (obj)
     {
         obj.key = key;
-        obj.cachedValues = [NSMapTable strongToStrongObjectsMapTable];
     }
     return obj;
 }
@@ -1656,21 +1681,21 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
 
 - (NSObject *)getValue:(OAApplicationMode *)mode
 {
-    NSObject *cachedValue = self.global ? self.cachedValue : [self.cachedValues objectForKey:mode];
+    OANullableValue *cachedValue = self.global ? self.cachedValue : [self.cachedValues objectForKey:mode];
     if (!cachedValue)
     {
         NSString *key = [self getKey:mode];
-        cachedValue = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+		cachedValue = [[OANullableValue alloc] initWithValue:[[NSUserDefaults standardUserDefaults] objectForKey:key]];
         if (self.global)
             self.cachedValue = cachedValue;
         else
             [self.cachedValues setObject:cachedValue forKey:mode];
     }
-    if (!cachedValue)
+    if (!cachedValue.value)
     {
-        cachedValue = [self getProfileDefaultValue:mode];
+        cachedValue.value = [self getProfileDefaultValue:mode];
     }
-    return cachedValue;
+    return cachedValue.value;
 }
 
 - (void)setValue:(NSObject *)value
@@ -1684,13 +1709,14 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
     oldVal = oldVal ? oldVal : value;
     BOOL bothNil = value == nil && oldVal == nil;
     BOOL changed = !bothNil && ![value isEqual:oldVal];
+    OANullableValue *cachedValue = [[OANullableValue alloc] initWithValue:value];
     if (self.global)
     {
-        self.cachedValue = value;
+        self.cachedValue = cachedValue;
     }
     else
     {
-        [self.cachedValues setObject:value forKey:mode];
+        [self.cachedValues setObject:cachedValue forKey:mode];
     }
     if (changed)
     {
@@ -1885,10 +1911,11 @@ static NSString * const simulateOBDDataKey = @"simulateOBDDataKey";
     if ([self.key isEqualToString:applicationModeKey])
         [OAAppSettings sharedManager].currentMode = appMode;
 
-    if (self.global)
-        self.cachedValue = appMode;
-    else
-        [self.cachedValues setObject:appMode forKey:mode];
+    // Not needed because getValue: implementation doesn't use cache (why?)
+//    if (self.global)
+//        self.cachedValue = appMode;
+//    else
+//        [self.cachedValues setObject:appMode forKey:mode];
 
     [[NSUserDefaults standardUserDefaults] setObject:appMode.stringKey forKey:[self getKey:mode]];
     
@@ -4239,33 +4266,29 @@ static NSString *kWhenExceededKey = @"WHAN_EXCEEDED";
 
 - (NSObject *) getValue:(OAApplicationMode *)mode
 {
-    NSObject *cachedValue = self.global ? self.cachedValue : [self.cachedValues objectForKey:mode];
+    OANullableValue *cachedValue = self.global ? self.cachedValue : [self.cachedValues objectForKey:mode];
     if (!cachedValue)
     {
         NSString *key = [self getKey:mode];
-        cachedValue = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+        cachedValue = [[OANullableValue alloc] initWithValue:[[NSUserDefaults standardUserDefaults] objectForKey:key]];
 
-        if ([cachedValue isKindOfClass:NSString.class])
-            cachedValue = [NSUnit unitFromString:cachedValue];
+		if ([cachedValue.value isKindOfClass:NSString.class])
+            cachedValue.value = [NSUnit unitFromString:cachedValue.value];
 
-        if ([cachedValue isKindOfClass:NSData.class])
-            cachedValue = [NSKeyedUnarchiver unarchivedObjectOfClass:NSUnit.class fromData:cachedValue error:nil];
+		if ([cachedValue.value isKindOfClass:NSData.class])
+            cachedValue.value = [NSKeyedUnarchiver unarchivedObjectOfClass:NSUnit.class fromData:cachedValue.value error:nil];
 
         if (self.global)
             self.cachedValue = cachedValue;
         else
             [self.cachedValues setObject:cachedValue forKey:mode];
     }
-    else if ([cachedValue isKindOfClass:NSString.class])
+    if (!cachedValue.value)
     {
-        cachedValue = [NSUnit unitFromString:cachedValue];
+        cachedValue.value = [self getProfileDefaultValue:mode];
     }
 
-    if (!cachedValue)
-    {
-        cachedValue = [self getProfileDefaultValue:mode];
-    }
-    return cachedValue;
+    return cachedValue.value;
 }
 
 - (void) set:(NSUnit *)unit
@@ -4282,10 +4305,11 @@ static NSString *kWhenExceededKey = @"WHAN_EXCEEDED";
 {
     NSUnit *unit = (NSUnit *) value;
 
+    OANullableValue *cachedValue = [[OANullableValue alloc] initWithValue:unit];
     if (self.global)
-        self.cachedValue = unit;
+        self.cachedValue = cachedValue;
     else
-        [self.cachedValues setObject:unit forKey:mode];
+        [self.cachedValues setObject:cachedValue forKey:mode];
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:unit requiringSecureCoding:NO error:nil];
     [[NSUserDefaults standardUserDefaults] setObject:data forKey:[self getKey:mode]];
@@ -5842,12 +5866,15 @@ static NSString *kOfflineKey = @"OFFLINE";
         [_appearanceMode setModeDefaultValue:@(DayNightModeDay) mode:OAApplicationMode.PEDESTRIAN];
         [_profilePreferences setObject:_appearanceMode forKey:@"daynight_mode"];
         
+        [[NSNotificationCenter defaultCenter] addObserver:_dayNightHelper selector:@selector(appearanceModeChanged) name:kNotificationSetProfileSetting object:_appearanceMode];
+        [[NSNotificationCenter defaultCenter] addObserver:_dayNightHelper selector:@selector(appearanceModeChanged) name:kNotificationSetProfileSetting object:_applicationMode];
+
         _appearanceProfileTheme = [OACommonInteger withKey:appearanceProfileThemeKey defValue:0];
         [_profilePreferences setObject:_appearanceProfileTheme forKey:@"osmand_theme"];
         
         _mapManuallyRotatingAngle = [OACommonDouble withKey:mapManuallyRotatingAngleKey defValue:0];
-        [_profilePreferences setObject:_appearanceMode forKey:mapManuallyRotatingAngleKey];
-        
+        [_profilePreferences setObject:_mapManuallyRotatingAngle forKey:mapManuallyRotatingAngleKey];
+
         _settingShowZoomButton = YES;//[[NSUserDefaults standardUserDefaults] objectForKey:settingZoomButtonKey] ? [[NSUserDefaults standardUserDefaults] boolForKey:settingZoomButtonKey] : YES;
         _settingMapArrows = [[NSUserDefaults standardUserDefaults] objectForKey:settingMapArrowsKey] ? (int)[[NSUserDefaults standardUserDefaults] integerForKey:settingMapArrowsKey] : MAP_ARROWS_LOCATION;
         
