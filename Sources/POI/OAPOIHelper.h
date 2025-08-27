@@ -58,6 +58,7 @@ const static int kSearchRadiusKm[] = {1, 2, 5, 10, 20, 50, 100};
 - (OAPOIType *) getTextPoiAdditionalByKey:(NSString *)name;
 - (nullable OAPOIType *) getPoiAdditionalType:(nullable OAPOICategory *)category name:(NSString *)name;
 - (NSString *) getPoiTypeOptionalIcon:(NSString *)type;
+- (UIColor *) getPoiTypeOptionalColor:(NSString *)type;
 - (nullable NSString *) getPoiAdditionalCategoryIcon:(nullable NSString *)category;
 - (NSString *) replaceDeprecatedSubtype:(NSString *)subtype;
 

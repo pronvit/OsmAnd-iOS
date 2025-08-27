@@ -46,4 +46,6 @@
 - (NSString *)iconName;
 - (NSString *)iconKeyName;
 
+- (UIColor *)iconColor;
+
 @end

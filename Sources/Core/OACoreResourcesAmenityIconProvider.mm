@@ -102,7 +102,8 @@ sk_sp<SkImage> OACoreResourcesAmenityIconProvider::getIcon(
             if (!type)
                 continue;
 
-            auto iconId = isSmallIcon ? QStringLiteral("small_ic") : QString::fromNSString(type.name) + QString("_%1").arg(textScaleFactor, 0, 'f', 2);
+			UIColor *iconColor = type.iconColor?:UIColorFromARGB(color_poi_orange);
+            auto iconId = isSmallIcon ? QStringLiteral("small_ic") : QString::fromNSString(type.name) + QString("_%1%2").arg(textScaleFactor, 0, 'f', 2).arg(iconColor.hash);
             sk_sp<SkImage> bitmap;
             bool isNew = false;
             {
@@ -116,7 +117,7 @@ sk_sp<SkImage> OACoreResourcesAmenityIconProvider::getIcon(
             }
             if (isNew)
             {
-                bitmap = [OACompoundIconUtils createCompositeIconWithcolor:UIColorFromARGB(color_poi_orange) shapeName:@"circle" iconName:type.iconName isFullSize:!isSmallIcon icon:nil scale:textScaleFactor];
+                bitmap = [OACompoundIconUtils createCompositeIconWithcolor:iconColor shapeName:@"circle" iconName:type.iconName isFullSize:!isSmallIcon icon:nil scale:textScaleFactor];
                 QWriteLocker scopedLocker(&_iconsCacheLock);
                 _iconsCache[iconId] = bitmap;
             }

@@ -83,6 +83,11 @@ static NSMutableSet<NSString *> *nullTypeSetInstance;
     return kn;
 }
 
+- (UIColor *)iconColor
+{
+	return [OAPOIHelper.sharedInstance getPoiTypeOptionalColor:self.name];
+}
+
 -(BOOL)isEqual:(id)object
 {
     if ([object isKindOfClass:[OAPOIBaseType class]]) {

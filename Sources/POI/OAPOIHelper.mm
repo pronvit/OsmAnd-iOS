@@ -62,6 +62,7 @@ NSString * const ROUTE_ARTICLE_POINT = @"route_article_point";
     NSDictionary *_phrasesEN;
     NSArray<OAPOIType *> *_textPoiAdditionals;
     NSDictionary<NSString *, NSString *> *_poiTypeOptionalIcons;
+	NSDictionary<NSString *, UIColor *> *_poiTypeOptionalColors;
     NSDictionary<NSString *, NSString *> *_poiAdditionalCategoryIcons;
     NSMapTable<NSString *, NSString *> *_deprecatedTags;
     NSMutableArray<NSString *> *_publicTransportTypes;
@@ -108,6 +109,7 @@ NSString * const ROUTE_ARTICLE_POINT = @"route_article_point";
     _poiCategories = parser.poiCategories;
     _textPoiAdditionals = parser.textPoiAdditionals;
     _poiTypeOptionalIcons = parser.poiTypeOptionalIcons;
+	_poiTypeOptionalColors = parser.poiTypeOptionalColors;
     _poiAdditionalCategoryIcons = parser.poiAdditionalCategoryIcons;
     _otherMapCategory = parser.otherMapCategory;
     _deprecatedTags = parser.deprecatedTags;
@@ -727,7 +729,12 @@ NSString * const ROUTE_ARTICLE_POINT = @"route_article_point";
 
 - (NSString *) getPoiTypeOptionalIcon:(NSString *)type
 {
-    return [_poiTypeOptionalIcons objectForKey:type];
+	return [_poiTypeOptionalIcons objectForKey:type];
+}
+
+- (UIColor *) getPoiTypeOptionalColor:(NSString *)type
+{
+	return [_poiTypeOptionalColors objectForKey:type];
 }
 
 - (NSString *) getPoiAdditionalCategoryIcon:(NSString *)category
