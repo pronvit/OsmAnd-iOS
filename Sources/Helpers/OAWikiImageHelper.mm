@@ -216,7 +216,7 @@ typedef void(^OAWikiImageHelperOtherImages)(NSMutableArray<AbstractCard *> *card
 {
     NSString *imageName = [imageFileName stringByRemovingPercentEncoding];
     imageFileName = [imageName stringByReplacingOccurrencesOfString:@" " withString:@"_"];
-    imageFileName = [imageName stringByReplacingOccurrencesOfString:@"File:" withString:@""];
+    imageFileName = [imageFileName stringByReplacingOccurrencesOfString:@"File:" withString:@""];
     
     NSRange dotRange = [imageName rangeOfString:@"." options:NSBackwardsSearch];
     if (dotRange.location != NSNotFound)

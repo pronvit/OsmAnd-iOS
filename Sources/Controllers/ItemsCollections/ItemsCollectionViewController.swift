@@ -269,8 +269,8 @@ final class ItemsCollectionViewController: OABaseNavbarViewController {
                     selectedChipsIndex = iconCategories.firstIndex(where: { $0.key == poiIconsDelegate.selectedCatagoryKey }) ?? 0
                 }
                 var chipsValues = [[String: String]]()
-                iconCategories.map { chipsValues.append(["title": $0.translatedName]) }
-                
+				iconCategories.forEach{ chipsValues.append(["title": $0.translatedName]) }
+
                 let chipsSection = data.createNewSection()
                 chipsSection.addRow(from: [
                     kCellTypeKey: OAFoldersCell.reuseIdentifier,
