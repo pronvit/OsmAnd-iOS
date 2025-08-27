@@ -20,4 +20,6 @@
 - (BOOL) resetTempMode;
 - (SunriseSunset *) getSunriseSunset;
 
+-(void)appearanceModeChanged;
+
 @end
