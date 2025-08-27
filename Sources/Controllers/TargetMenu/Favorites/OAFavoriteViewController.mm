@@ -65,7 +65,7 @@
 - (void) buildTopRows:(NSMutableArray<OARowInfo *> *)rows
 {
     [super buildTopRows:rows];
-    [self buildGroupFavouritesView:rows];
+//    [self buildGroupFavouritesView:rows];
 }
 
 - (void) buildRowsInternal:(NSMutableArray<OARowInfo *> *)rows

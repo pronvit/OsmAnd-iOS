@@ -568,7 +568,7 @@ static const NSArray<NSString *> *kPrefixTags = @[@"start_date"];
                 {
                     isText = YES;
                     isDescription = [iconId isEqualToString:@"ic_description"];
-                    textPrefix = pType.nameLocalized;
+//                    textPrefix = pType.nameLocalized;
                     if (needIntFormatting && [self isNumericValue:vl])
                     {
                         NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];

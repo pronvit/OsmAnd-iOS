@@ -537,8 +537,8 @@ static NSArray<NSString *> *const HIDDEN_EXTENSIONS = @[
         }
         if (!type)
             type = [OAPOIHelper.sharedInstance getPoiType:typeStr value:subType];
-        if (!type)
-            type = [OAPOIHelper.sharedInstance getDefaultOtherCategoryType];
+//        if (!type)
+//            type = [OAPOIHelper.sharedInstance getDefaultOtherCategoryType];
         if (type)
         {
             amenity = [[OAPOI alloc] init];

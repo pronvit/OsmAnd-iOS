@@ -165,7 +165,7 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
             [self setName:name];
         
         if (timestamp > 0)
-            [self setTimestamp:[NSDate dateWithTimeIntervalSince1970:timestamp / 1000.0]];
+			;//[self setTimestamp:[NSDate dateWithTimeIntervalSince1970:timestamp / 1000.0]];
         else
             [self setTimestamp:[NSDate date]];
         

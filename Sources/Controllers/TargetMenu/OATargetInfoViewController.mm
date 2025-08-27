@@ -225,8 +225,8 @@ static const CGFloat kTextMaxHeight = 150.0;
     if ([self showNearestWiki] && !OAIAPHelper.sharedInstance.wiki.disabled && [OAPluginsHelper getEnabledPlugin:OAWikipediaPlugin.class])
         [self buildRowsPoi:YES];
 
-    if ([self showNearestPoi])
-        [self buildRowsPoi:NO];
+//    if ([self showNearestPoi])
+//        [self buildRowsPoi:NO];
 
     [_rows sortUsingComparator:^NSComparisonResult(OARowInfo *row1, OARowInfo *row2) {
         if (row1.order < row2.order)
@@ -238,10 +238,10 @@ static const CGFloat kTextMaxHeight = 150.0;
     }];
 
     [self buildCoordinateRows:rows];
-    [self addNearbyImagesIfNeeded];
+//    [self addNearbyImagesIfNeeded];
     [self addMapillaryCardsRowInfoIfNeeded];
     
-    [self startLoadingImages];
+//    [self startLoadingImages];
 
     _calculatedWidth = 0;
     [self contentHeight:self.tableView.bounds.size.width];
