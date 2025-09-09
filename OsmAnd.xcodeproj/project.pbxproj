@@ -211,6 +211,7 @@
 		15CD7EA725B1C1A700BCB36A /* ic_small_time_start@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 15CD7EA425B1C1A700BCB36A /* ic_small_time_start@2x.png */; };
 		15CD7EAD25B1C1B900BCB36A /* ic_small_waypoints@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 15CD7EAA25B1C1B700BCB36A /* ic_small_waypoints@3x.png */; };
 		15CD7EAF25B1C1B900BCB36A /* ic_small_waypoints@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 15CD7EAC25B1C1B800BCB36A /* ic_small_waypoints@2x.png */; };
+		19D11E972DCC36AC00FDCDAA /* my-default.render.xml in Resources */ = {isa = PBXBuildFile; fileRef = 19D11E962DCC36AC00FDCDAA /* my-default.render.xml */; };
 		2717D3B52DBBA2F800B7BD22 /* ShapesAppearanceCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2717D3B42DBBA2F100B7BD22 /* ShapesAppearanceCategory.swift */; };
 		2717D3B72DBBA3C500B7BD22 /* ShapesCollectionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2717D3B62DBBA3BC00B7BD22 /* ShapesCollectionHandler.swift */; };
 		2717D3D22DC8D8A600B7BD22 /* BaseAppearanceCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2717D3D12DC8D8A600B7BD22 /* BaseAppearanceCategory.swift */; };
@@ -224,7 +225,6 @@
 		27F050952DD38E400058075F /* RouteInfoWidgetState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F050942DD38E400058075F /* RouteInfoWidgetState.swift */; };
 		27F050992DD4B6080058075F /* RouteInfoCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F050982DD4B6060058075F /* RouteInfoCalculator.swift */; };
 		27F0509F2DD4DEB30058075F /* RouteInfoWidget.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27F0509E2DD4DEB30058075F /* RouteInfoWidget.xib */; };
-		19D11E972DCC36AC00FDCDAA /* my-default.render.xml in Resources */ = {isa = PBXBuildFile; fileRef = 19D11E962DCC36AC00FDCDAA /* my-default.render.xml */; };
 		2C8E8A562D5104E600746A69 /* OAArabicNormalizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2C8E8A552D5104E600746A69 /* OAArabicNormalizer.mm */; };
 		320076142BFC775100CDDDAF /* SpeedLimitWarningViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 320076132BFC775100CDDDAF /* SpeedLimitWarningViewController.swift */; };
 		3202C5932D6647CB0094AC8B /* ItemsCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3202C5922D6647C90094AC8B /* ItemsCollectionViewController.swift */; };
