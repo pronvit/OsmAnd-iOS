@@ -1358,7 +1358,7 @@ static const NSInteger kReplaceLocalNamesMaxZoom = 6;
                     auto angle = zoomAndRotation.y;
                     if (!isnan(zoom) && !isnan(angle))
                     {
-                        _app.mapMode = OAMapModeFree;
+//                        _app.mapMode = OAMapModeFree;
                         [[OAMapViewTrackingUtilities instance] checkMapLinkedToLocation];
 
                         OAZoom *zoomObject = [[OAZoom alloc] initWitZoom:_mapView.zoom minZoom:_mapView.minZoom maxZoom:_mapView.maxZoom];
