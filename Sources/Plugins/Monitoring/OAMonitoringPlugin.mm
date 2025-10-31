@@ -341,7 +341,6 @@
     }
     else
     {
-        [_savingTrackHelper startNewSegment];
         _settings.mapSettingTrackRecording = YES;
     }
 }
