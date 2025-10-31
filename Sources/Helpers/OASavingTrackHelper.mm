@@ -129,7 +129,8 @@ static const NSInteger kDBVersion = 1;
         _app = [OsmAndApp instance];
         currentTrackIndex = 1;
         syncQueue = dispatch_queue_create("sth_syncQueue", DISPATCH_QUEUE_SERIAL);
-        
+		lastPoint = kCLLocationCoordinate2DInvalid;
+
         [self createDb];
         
         [self setupCurrentTrack];
@@ -339,7 +340,9 @@ static const NSInteger kDBVersion = 1;
 
 - (BOOL) hasData
 {
-	return points > 0 || distance > 0 || lastPoint.longitude != 0.0 || lastPoint.latitude != 0.0;
+	// `points` are manually created waypoints, while `distance` is total distance across all segments
+	// track is not empty if either of those are present
+	return points > 0 || distance > 0;
 }
 
 - (BOOL) hasDataToSave
@@ -774,12 +777,12 @@ static const NSInteger kDBVersion = 1;
 {
     dispatch_sync(syncQueue, ^{
         
-		if (lastTimeUpdated != 0 || lastPoint.latitude != 0 || lastPoint.longitude != 0)
+		if (lastTimeUpdated != 0 || CLLocationCoordinate2DIsValid(lastPoint))
         {
             lastTimeUpdated = 0;
             lastPoint = kCLLocationCoordinate2DInvalid;
             long time = (long)[[NSDate date] timeIntervalSince1970];
-            [self doUpdateTrackLat:0.0 lon:0.0 alt:0.0 speed:0.0 hdop:0.0 time:time heading:NAN pluginsInfo:nil];
+//            [self doUpdateTrackLat:0.0 lon:0.0 alt:0.0 speed:0.0 hdop:0.0 time:time heading:NAN pluginsInfo:nil];
             [self addTrackPointNew:nil newSegment:YES time:time];
         }
     });
@@ -906,10 +909,9 @@ static const NSInteger kDBVersion = 1;
     [self doUpdateTrackLat:lat lon:lon alt:alt speed:speed hdop:hdop time:time heading:heading pluginsInfo:pluginsInfo];
     
     BOOL newSegment = NO;
-    if ((lastPoint.latitude == 0.0 && lastPoint.longitude == 0.0))
+    if (!CLLocationCoordinate2DIsValid(lastPoint))
     {
         lastPoint = CLLocationCoordinate2DMake(lat, lon);
-        newSegment = YES;
     }
     else
     {
