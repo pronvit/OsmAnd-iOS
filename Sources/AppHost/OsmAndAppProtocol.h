@@ -20,7 +20,7 @@
 - (BOOL) initializeCore;
 - (void) shutdown;
 
-@property(nonatomic, readonly) NSString *dataPath;
+//@property(nonatomic, readonly) NSString *dataPath;
 @property(nonatomic, readonly) NSString *documentsPath;
 @property(nonatomic, readonly) NSString *cachePath;
 @property(nonatomic, readonly) NSString *weatherForecastPath;
@@ -30,6 +30,7 @@
 @property(nonatomic, readonly) NSString *travelGuidesPath;
 @property(nonatomic, readonly) NSString *gpxTravelPath;
 @property(nonatomic, readonly) NSString *hiddenMapsPath;
+// ".metainfo" definitions for online tile sources. Downloaded tiles stay in cachePath.
 @property(nonatomic, readonly) NSString *onlineTileSourcesPath;
 @property(nonatomic, readonly) NSString *routingMapsCachePath;
 @property(nonatomic, readonly) NSString *models3dPath;
@@ -117,14 +118,6 @@
 
 - (void) loadRoutingFiles;
 - (void) rescanUnmanagedStoragePaths;
-
-// The resources manager reads online tile source definitions from Library/Caches, which iOS may
-// purge at any time; onlineTileSourcesPath is where they survive. Every place that writes or
-// removes a ".metainfo" under cachePath must mirror the change through these, so the two never
-// fall out of sync.
-- (void) backupOnlineTileSource:(NSString *)name;
-- (void) backupAllOnlineTileSources;
-- (void) removeOnlineTileSourceBackup:(NSString *)name;
 
 - (NSString *) favoritesStorageFilename:(NSString *)groupName;
 - (NSString *) getGroupFileName:(NSString *)groupName;

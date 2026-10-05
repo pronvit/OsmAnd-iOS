@@ -130,16 +130,10 @@ typedef enum
 
 - (BOOL) okButtonPressed
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     for (const auto& item : _selectedSources)
     {
-        NSString *cachePath = [_app.cachePath stringByAppendingPathComponent:item->name.toNSString()];
-        if ([fileManager fileExistsAtPath:cachePath])
-        {
-            _app.resourcesManager->uninstallTilesResource(item->name);
-        }
-        OsmAnd::OnlineTileSources::installTileSource(item, QString::fromNSString(_app.cachePath));
-        [_app backupOnlineTileSource:item->name.toNSString()];
+        _app.resourcesManager->uninstallTilesResource(item->name);
+        OsmAnd::OnlineTileSources::installTileSource(item, QString::fromNSString(_app.onlineTileSourcesPath));
         _app.resourcesManager->installTilesResource(item);
     }
     if (_selectedSources.size() == 1)

@@ -22,7 +22,7 @@
 
 @property(nonatomic, assign) bool performanceMetricsEnabled;
 
-@property(nonatomic, readonly) QDir dataDir;
+//@property(nonatomic, readonly) QDir dataDir;
 @property(nonatomic, readonly) QDir documentsDir;
 
 @property(nonatomic, readonly) std::shared_ptr<OsmAnd::ResourcesManager> resourcesManager;

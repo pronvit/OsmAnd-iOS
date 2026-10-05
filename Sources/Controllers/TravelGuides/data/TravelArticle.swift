@@ -85,7 +85,7 @@ class TravelArticle: NSObject {
     }
     
     static func getTravelBook(file: String) -> String {
-        file.replacingOccurrences(of: OsmAndApp.swiftInstance().dataPath, with: "")
+        file.replacingOccurrences(of: OsmAndApp.swiftInstance().documentsPath, with: "")
     }
     
     func getTravelBook() -> String? {

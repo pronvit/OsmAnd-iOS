@@ -271,14 +271,12 @@
     OsmAndAppInstance _app;
     
     NSString *_docPath;
-    NSString *_libPath;
 }
 
 - (void) commonInit
 {
     _app = OsmAndApp.instance;
     _docPath = _app.documentsPath;
-    _libPath = _app.dataPath;
 }
 
 - (instancetype) initWithFilePath:(NSString *)filePath error:(NSError * _Nullable *)error
@@ -288,7 +286,6 @@
     {
         [self commonInit];
         self.name = [filePath stringByReplacingOccurrencesOfString:_docPath withString:@""];
-        self.name = [self.name stringByReplacingOccurrencesOfString:_libPath withString:@""];
         if ([self.name hasPrefix:@"/Resources/"])
             self.name = [@"/" stringByAppendingString:self.name.lastPathComponent];
         self.name = [self.name stringByReplacingOccurrencesOfString:@"/GPX/" withString:@"/tracks/"];
@@ -510,8 +507,8 @@
 - (NSString *) getPluginPath
 {
     if (self.pluginId.length > 0)
-        return [[_libPath stringByAppendingPathComponent:PLUGINS_DIR] stringByAppendingPathComponent:self.pluginId];
-    
+        return [[_docPath stringByAppendingPathComponent:PLUGINS_DIR] stringByAppendingPathComponent:self.pluginId];
+
     return @"";
 }
 

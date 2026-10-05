@@ -87,7 +87,7 @@
         }
         else
         {
-            filePath = [[OsmAndApp.instance.cachePath stringByAppendingPathComponent:source.name] stringByAppendingPathComponent:@".metainfo"];
+            filePath = [[OsmAndApp.instance.onlineTileSourcesPath stringByAppendingPathComponent:source.name] stringByAppendingPathComponent:@".metainfo"];
         }
         if (filePath)
         {
@@ -115,7 +115,7 @@
         }
         else
         {
-            filePath = [[OsmAndApp.instance.cachePath stringByAppendingPathComponent:source.name] stringByAppendingPathComponent:@".metainfo"];
+            filePath = [[OsmAndApp.instance.onlineTileSourcesPath stringByAppendingPathComponent:source.name] stringByAppendingPathComponent:@".metainfo"];
         }
         if (filePath)
         {
@@ -157,9 +157,8 @@
                     NSString *name = item.name;
                     if (name)
                     {
-                        NSString *path = [app.cachePath stringByAppendingPathComponent:name];
-                        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-                        [app removeOnlineTileSourceBackup:name];
+                        [[NSFileManager defaultManager] removeItemAtPath:[app.cachePath stringByAppendingPathComponent:name] error:nil];
+                        [[NSFileManager defaultManager] removeItemAtPath:[app.onlineTileSourcesPath stringByAppendingPathComponent:name] error:nil];
                         app.resourcesManager->uninstallTilesResource(QString::fromNSString(name));
                         [self.appliedItems addObject:item];
                     }
@@ -186,8 +185,7 @@
             else
             {
                 const auto result = localItem.toOnlineTileSource;
-                OsmAnd::OnlineTileSources::installTileSource(result, QString::fromNSString(app.cachePath));
-                [app backupOnlineTileSource:result->name.toNSString()];
+                OsmAnd::OnlineTileSources::installTileSource(result, QString::fromNSString(app.onlineTileSourcesPath));
                 app.resourcesManager->installTilesResource(result);
             }
         }

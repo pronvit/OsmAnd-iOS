@@ -27,6 +27,7 @@
 #import "OAPluginsHelper.h"
 #import "OAObservable.h"
 #import "OsmAnd_Maps-Swift.h"
+#import "OsmAndApp.h"
 
 static NSString* const UDF_CAR_AID = @"car_aid";
 static NSString* const UDF_FOR_TOURISTS = @"for_tourists";
@@ -88,9 +89,9 @@ static const NSArray<NSString *> *DEL = @[UDF_CAR_AID, UDF_FOR_TOURISTS, UDF_FOO
 
 - (void)createDb
 {
-    NSString *dir = [NSHomeDirectory() stringByAppendingString:@"/Library/UIFilters"];
-    databasePath = [dir stringByAppendingString:@"/uifilters.db"];
-    
+	NSString *dir = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"UIFilters"];
+	databasePath = [dir stringByAppendingPathComponent:@"uifilters.db"];
+
     BOOL isDir = YES;
     if (![[NSFileManager defaultManager] fileExistsAtPath:dir isDirectory:&isDir])
         [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];

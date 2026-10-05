@@ -611,7 +611,7 @@
     if (_tileSource != nullptr)
     {
         [[NSFileManager defaultManager] removeItemAtPath:[_app.cachePath stringByAppendingPathComponent:_tileSource->name.toNSString()] error:nil];
-        [_app removeOnlineTileSourceBackup:_tileSource->name.toNSString()];
+        [[NSFileManager defaultManager] removeItemAtPath:[_app.onlineTileSourcesPath stringByAppendingPathComponent:_tileSource->name.toNSString()] error:nil];
         if (!_isNewItem)
             _app.resourcesManager->uninstallTilesResource(_tileSource->name);
     }
@@ -624,8 +624,7 @@
     {
         const auto item = [self createEditedTileSource];
         
-        OsmAnd::OnlineTileSources::installTileSource(item, QString::fromNSString(_app.cachePath));
-        [_app backupOnlineTileSource:_itemName];
+        OsmAnd::OnlineTileSources::installTileSource(item, QString::fromNSString(_app.onlineTileSourcesPath));
         _app.resourcesManager->installTilesResource(item);
         
         OAOnlineTilesResourceItem *res = [[OAOnlineTilesResourceItem alloc] init];
@@ -660,12 +659,11 @@
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     [fileManager moveItemAtURL:[NSURL fileURLWithPath:[_app.cachePath stringByAppendingPathComponent:_tileSource->name.toNSString()]] toURL:[NSURL fileURLWithPath:[_app.cachePath stringByAppendingPathComponent:_itemName]] error:nil];
-    
-    [_app removeOnlineTileSourceBackup:_tileSource->name.toNSString()];
+    [fileManager removeItemAtPath:[_app.onlineTileSourcesPath stringByAppendingPathComponent:_tileSource->name.toNSString()] error:nil];
+
     _app.resourcesManager->uninstallTilesResource(_tileSource->name);
     const auto& item = [self createEditedTileSource];
-    OsmAnd::OnlineTileSources::installTileSource(item, QString::fromNSString(_app.cachePath));
-    [_app backupOnlineTileSource:_itemName];
+    OsmAnd::OnlineTileSources::installTileSource(item, QString::fromNSString(_app.onlineTileSourcesPath));
     _app.resourcesManager->installTilesResource(item);
     [_app.localResourcesChangedObservable notifyEvent];
     

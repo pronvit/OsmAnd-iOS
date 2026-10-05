@@ -7,6 +7,7 @@
 //
 
 #import "OABackupDbHelper.h"
+#import "OsmAndApp.h"
 
 #import <sqlite3.h>
 
@@ -122,9 +123,9 @@ static const NSInteger kDBVersion = 1;
     self = [super init];
     if (self)
     {
-        NSString *dir = [NSHomeDirectory() stringByAppendingString:@"/Library/BackupDatabase/"];
-        _dbFilePath = [dir stringByAppendingString:kCloudDbName];
-        
+		NSString *dir = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"BackupDatabase"];
+		_dbFilePath = [dir stringByAppendingPathComponent:kCloudDbName];
+
         BOOL isDir = YES;
         if (![[NSFileManager defaultManager] fileExistsAtPath:dir isDirectory:&isDir])
             [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];

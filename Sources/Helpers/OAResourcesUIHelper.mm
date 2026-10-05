@@ -1441,8 +1441,7 @@ includeHidden:(BOOL)includeHidden
         {
             OsmAndAppInstance app = OsmAndApp.instance;
             const auto result = tileSource.toOnlineTileSource;
-            OsmAnd::OnlineTileSources::installTileSource(result, QString::fromNSString(app.cachePath));
-            [app backupOnlineTileSource:result->name.toNSString()];
+            OsmAnd::OnlineTileSources::installTileSource(result, QString::fromNSString(app.onlineTileSourcesPath));
             app.resourcesManager->installTilesResource(result);
         }
         [OsmAndApp.instance.localResourcesChangedObservable notifyEvent];
@@ -2050,13 +2049,10 @@ includeHidden:(BOOL)includeHidden
             {
                 OAOnlineTilesResourceItem *tilesItem = (OAOnlineTilesResourceItem *) item;
                 [[NSFileManager defaultManager] removeItemAtPath:tilesItem.path error:nil];
-                [app removeOnlineTileSourceBackup:item.title];
+                [[NSFileManager defaultManager] removeItemAtPath:[app.onlineTileSourcesPath stringByAppendingPathComponent:item.title] error:nil];
                 app.resourcesManager->uninstallTilesResource(QString::fromNSString(item.title));
                 if ([tilesItem.title isEqualToString:@"OsmAnd (online tiles)"])
-                {
                     app.resourcesManager->installBuiltInTileSources();
-                    [app backupAllOnlineTileSources];
-                }
 
                 [app.localResourcesChangedObservable notifyEvent];
             }

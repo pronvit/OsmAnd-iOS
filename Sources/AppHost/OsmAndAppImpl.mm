@@ -110,12 +110,14 @@
     UNORDERED_map<std::string, std::shared_ptr<RoutingConfigurationBuilder>> _customRoutingConfigs;
 
     BOOL _isInBackground;
+
+	NSString *_dataPath; // Only used for legacy migrations now
 }
 
 @synthesize initialized = _initialized;
 @synthesize performanceMetricsEnabled = _performanceMetricsEnabled;
-@synthesize dataPath = _dataPath;
-@synthesize dataDir = _dataDir;
+//@synthesize dataPath = _dataPath;
+//@synthesize dataDir = _dataDir;
 @synthesize documentsPath = _documentsPath;
 @synthesize documentsDir = _documentsDir;
 @synthesize gpxPath = _gpxPath;
@@ -169,7 +171,7 @@
 
         // Get default paths
         _dataPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject];
-        _dataDir = QDir(QString::fromNSString(_dataPath));
+//        _dataDir = QDir(QString::fromNSString(_dataPath));
         _documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
         _documentsDir = QDir(QString::fromNSString(_documentsPath));
         _gpxPath = [_documentsPath stringByAppendingPathComponent:GPX_DIR];
@@ -182,8 +184,8 @@
         _favoritesLegacyFilename = _documentsDir.filePath(QLatin1String("favourites.gpx")).toNSString();
         _travelGuidesPath = [_documentsPath stringByAppendingPathComponent:WIKIVOYAGE_INDEX_DIR];
         _gpxTravelPath = [_gpxPath stringByAppendingPathComponent:WIKIVOYAGE_INDEX_DIR];
-        _hiddenMapsPath = [_dataPath stringByAppendingPathComponent:HIDDEN_DIR];
-        _onlineTileSourcesPath = [_dataPath stringByAppendingPathComponent:@"OnlineTileSources"];
+        _hiddenMapsPath = [_documentsPath stringByAppendingPathComponent:HIDDEN_DIR];
+        _onlineTileSourcesPath = [_documentsPath stringByAppendingPathComponent:@"OnlineTileSources"];
         _routingMapsCachePath = [_cachePath stringByAppendingPathComponent:@"ind_routing.cache"];
         _colorsPalettePath = [_documentsPath stringByAppendingPathComponent:COLOR_PALETTE_DIR];
 
@@ -228,75 +230,46 @@
     [self createFolderIfNeeded:_weatherForecastPath];
     [self createFolderIfNeeded:_hiddenMapsPath];
     [self createFolderIfNeeded:_onlineTileSourcesPath];
-    [self restoreOnlineTileSourcesToCache];
-    [self backupAllOnlineTileSources];
+    [self migrateOnlineTileSources];
 }
 
-// The resources manager only ever looks for online tile source definitions (".metainfo" files,
-// written by "Add online source") under Library/Caches, which iOS is free to purge whenever the
-// app isn't running and which no device backup ever contains. That copy is therefore treated as
-// disposable, and onlineTileSourcesPath holds the definitions that actually define the user's
-// sources; a purge then costs only the re-download of the cached tile images. This puts the
-// definitions back where the resources manager expects them, and must run before it is
-// constructed, since it scans Library/Caches exactly once, at startup.
-- (void)restoreOnlineTileSourcesToCache
+// Older builds kept ".metainfo" in Library/Caches, next to the tile bitmaps, and r5.4 also mirrored
+// that file under Library/OnlineTileSources. Move the definition to Documents and leave every other
+// file in the cache directory.
+- (void)migrateOnlineTileSources
 {
     NSFileManager *fileManager = NSFileManager.defaultManager;
-    for (NSString *name in [fileManager contentsOfDirectoryAtPath:_onlineTileSourcesPath error:nil])
+    NSMutableOrderedSet<NSString *> *names = [NSMutableOrderedSet orderedSet];
+    for (NSString *directory in @[ _cachePath, _onlineTileSourcesPath ])
     {
-        NSString *backupMetainfoPath = [self metainfoPathIn:_onlineTileSourcesPath forSource:name];
-        if (![fileManager fileExistsAtPath:backupMetainfoPath])
+        for (NSString *name in [fileManager contentsOfDirectoryAtPath:directory error:nil])
+        {
+            if ([fileManager fileExistsAtPath:[self metainfoPathIn:directory forSource:name]])
+                [names addObject:name];
+        }
+    }
+
+    for (NSString *name in names)
+    {
+        NSString *destinationPath = [self metainfoPathIn:_onlineTileSourcesPath forSource:name];
+        if (![fileManager fileExistsAtPath:destinationPath])
+        {
+            NSString *cacheMetainfoPath = [self metainfoPathIn:_cachePath forSource:name];
+			NSString *sourcePath = cacheMetainfoPath;
+            if ([fileManager fileExistsAtPath:sourcePath] && ![sourcePath isEqualToString:destinationPath])
+                [self moveMetainfoAtPath:sourcePath toPath:destinationPath];
+        }
+
+        if (![fileManager fileExistsAtPath:destinationPath])
             continue;
 
         NSString *cacheMetainfoPath = [self metainfoPathIn:_cachePath forSource:name];
-        if ([fileManager fileExistsAtPath:cacheMetainfoPath])
-            continue;
+        if ([fileManager fileExistsAtPath:cacheMetainfoPath] && ![cacheMetainfoPath isEqualToString:destinationPath])
+            [fileManager removeItemAtPath:cacheMetainfoPath error:nil];
 
-        [self copyMetainfoFrom:backupMetainfoPath to:cacheMetainfoPath forSource:name];
-    }
-}
-
-// Takes over the definitions that only Library/Caches still holds — sources added by a build that
-// predates onlineTileSourcesPath, or installed straight into the cache by the core. Purely
-// additive: a definition leaves onlineTileSourcesPath only through
-// -removeOnlineTileSourceBackup:, so a failure here can never drop the last copy of one.
-- (void)backupAllOnlineTileSources
-{
-    NSFileManager *fileManager = NSFileManager.defaultManager;
-    for (NSString *name in [fileManager contentsOfDirectoryAtPath:_cachePath error:nil])
-    {
-        if ([fileManager fileExistsAtPath:[self metainfoPathIn:_cachePath forSource:name]])
-            [self backupOnlineTileSource:name];
-    }
-}
-
-// Write-through: call right after a source's ".metainfo" has been written to Library/Caches, so
-// that the definition is never one termination or crash away from being lost.
-- (void)backupOnlineTileSource:(NSString *)name
-{
-    NSString *cacheMetainfoPath = [self metainfoPathIn:_cachePath forSource:name];
-    NSString *backupMetainfoPath = [self metainfoPathIn:_onlineTileSourcesPath forSource:name];
-    NSFileManager *fileManager = NSFileManager.defaultManager;
-    if (![fileManager fileExistsAtPath:cacheMetainfoPath])
-        return;
-
-    if ([fileManager contentsEqualAtPath:cacheMetainfoPath andPath:backupMetainfoPath])
-        return;
-
-    [fileManager removeItemAtPath:backupMetainfoPath error:nil];
-    [self copyMetainfoFrom:cacheMetainfoPath to:backupMetainfoPath forSource:name];
-}
-
-// Write-through counterpart: call wherever a source's ".metainfo" is removed from Library/Caches,
-// so that deleting a source deletes it for good instead of having it reappear on the next launch.
-- (void)removeOnlineTileSourceBackup:(NSString *)name
-{
-    NSError *error = nil;
-    NSString *backupEntryPath = [_onlineTileSourcesPath stringByAppendingPathComponent:name];
-    if ([NSFileManager.defaultManager fileExistsAtPath:backupEntryPath]
-        && ![NSFileManager.defaultManager removeItemAtPath:backupEntryPath error:&error])
-    {
-        OALog(@"Failed to remove online tile source \"%@\" from %@: %@", name, _onlineTileSourcesPath, error.localizedDescription);
+        NSString *cacheDir = [_cachePath stringByAppendingPathComponent:name];
+        if ([fileManager fileExistsAtPath:cacheDir] && [fileManager contentsOfDirectoryAtPath:cacheDir error:nil].count == 0)
+            [fileManager removeItemAtPath:cacheDir error:nil];
     }
 }
 
@@ -305,18 +278,18 @@
     return [[directory stringByAppendingPathComponent:name] stringByAppendingPathComponent:@".metainfo"];
 }
 
-- (void)copyMetainfoFrom:(NSString *)sourcePath to:(NSString *)destinationPath forSource:(NSString *)name
+- (BOOL)moveMetainfoAtPath:(NSString *)sourcePath toPath:(NSString *)destinationPath
 {
     NSError *error = nil;
     NSFileManager *fileManager = NSFileManager.defaultManager;
-    if (![fileManager createDirectoryAtPath:destinationPath.stringByDeletingLastPathComponent
-                withIntermediateDirectories:YES
-                                 attributes:nil
-                                      error:&error]
-        || ![fileManager copyItemAtPath:sourcePath toPath:destinationPath error:&error])
+    NSString *destinationDir = destinationPath.stringByDeletingLastPathComponent;
+    if (![fileManager createDirectoryAtPath:destinationDir withIntermediateDirectories:YES attributes:nil error:&error]
+        || ![fileManager moveItemAtPath:sourcePath toPath:destinationPath error:&error])
     {
-        OALog(@"Failed to copy online tile source \"%@\" to %@: %@", name, destinationPath, error.localizedDescription);
+        OALog(@"Failed to move online tile source definition to %@: %@", destinationPath, error.localizedDescription);
+        return NO;
     }
+    return YES;
 }
 
 - (void)createFolderIfNeeded:(NSString *)path
@@ -475,7 +448,7 @@
         LogStartup(@"resetSettings completed");
     }
 
-    OALog(@"Data path: %@", _dataPath);
+    OALog(@"Legacy data path: %@", _dataPath);
     OALog(@"Documents path: %@", _documentsPath);
     OALog(@"GPX path: %@", _gpxPath);
     OALog(@"Cache path: %@", _cachePath);
@@ -527,7 +500,8 @@
                                                          QString::fromNSString(OAAppVersion.getVersion),
                                                          QString::fromNSString(@"https://download.osmand.net"),
                                                          QString::fromNSString([self generateIndexesUrl]),
-                                                         _webClient));
+                                                         _webClient,
+                                                         QString::fromNSString(_onlineTileSourcesPath)));
     LogStartup(@"resources manager created");
 
     // Attach observables handlers
@@ -571,6 +545,8 @@
     {
         if (resource->origin == OsmAnd::ResourcesManager::ResourceOrigin::Installed)
         {
+            if (resource->type == OsmAnd::ResourcesManager::ResourceType::OnlineTileSources)
+                continue;
             NSString *localPath = resource->localPath.toNSString();
             [localPath applyExcludedFromBackup];
         }
@@ -613,7 +589,6 @@
     {
         [[NSUserDefaults standardUserDefaults] setFloat:currentVersion forKey:@"appVersion"];
         _resourcesManager->installBuiltInTileSources();
-        [self backupAllOnlineTileSources];
         LogStartup(@"first launch - built-in tile sources installed");
         [OAAppSettings sharedManager].shouldShowWhatsNewScreen = YES;
     }
@@ -627,7 +602,6 @@
             _data.underlayMapSource = nil;
             _data.lastMapSource = [OAAppData defaultMapSource];
             _resourcesManager->installBuiltInTileSources();
-            [self backupAllOnlineTileSources];
 
             [self clearUnsupportedTilesCache];
             LogStartup(@"version < 3.10 migration done");
@@ -713,9 +687,8 @@
     [ocbfPathLib applyExcludedFromBackup];
     LogStartup(@"excludedFromBackup applied to regions.ocbf");
 
-    // Copy proj.db to Library/Application Support/proj
-    NSString *projDbPathBundle = [[NSBundle mainBundle] pathForResource:@"proj" ofType:@"db"];
-    NSString *projDbPathLib = [NSHomeDirectory() stringByAppendingString:@"/Library/Application Support/proj/proj.db"];
+	// Copy proj.db to Documents/proj
+	NSString *projDbPathLib = [OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"proj/proj.db"];
 
     [[NSFileManager defaultManager] removeItemAtPath:projDbPathLib error:nil];
     LogStartup(@"old proj.db removed");
@@ -723,12 +696,13 @@
     if (![[NSFileManager defaultManager] fileExistsAtPath:projDbPathLib])
     {
         NSError *errorDir = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:[NSHomeDirectory() stringByAppendingString:@"/Library/Application Support/proj"]
+        [[NSFileManager defaultManager] createDirectoryAtPath:[projDbPathLib stringByDeletingLastPathComponent]
                                   withIntermediateDirectories:YES attributes:nil error:&errorDir];
         if (errorDir)
             NSLog(@"Error creating dir for proj: %@", [errorDir localizedDescription]);
 
         NSError *error = nil;
+		NSString *projDbPathBundle = [[NSBundle mainBundle] pathForResource:@"proj" ofType:@"db"];
         [[NSFileManager defaultManager] copyItemAtPath:projDbPathBundle toPath:projDbPathLib error:&error];
         if (error)
             NSLog(@"Error copying file: %@ to %@ - %@", projDbPathBundle, projDbPathLib, [error localizedDescription]);
@@ -958,7 +932,7 @@
     _resourcesManager->instantiateWeatherResourcesManager(
         bandSettings,
         QString::fromNSString(_weatherForecastPath),
-        QString::fromNSString([NSHomeDirectory() stringByAppendingString:@"/Library/Application Support/proj"]),
+        QString::fromNSString([OsmAndApp.instance.documentsPath stringByAppendingPathComponent:@"proj"]),
         256,
         [UIScreen mainScreen].scale,
         std::make_shared<OAWeatherWebClient>()
@@ -1242,7 +1216,8 @@
                                                              QString::fromNSString(OAAppVersion.getVersion),
                                                              QString::fromNSString(@"https://download.osmand.net"),
                                                              QString::fromNSString([self generateIndexesUrl]),
-                                                             _webClient));
+                                                             _webClient,
+                                                             QString::fromNSString(_onlineTileSourcesPath)));
     }
     
     const auto filePathQ = QString::fromNSString(filePath);

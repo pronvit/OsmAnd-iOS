@@ -486,6 +486,9 @@ NSString *const OAResourceInstallationFailedNotification = @"OAResourceInstallat
         return;
     }
 
+    if (resource->type == OsmAnd::ResourcesManager::ResourceType::OnlineTileSources)
+        return;
+
     NSString *localPath = resource->localPath.toNSString();
     if (localPath.length == 0)
     {
