@@ -256,6 +256,12 @@
     return [self findColorItemWithValue:colorValue] ?: [self addNewSelectedColor:UIColorFromARGB(colorValue)];
 }
 
+- (OASPaletteItemSolid *)getRandomLineColorItem
+{
+	NSArray<OASPaletteItemSolid *> *colors = [self solidItemsWithSortMode:OASPaletteSortMode.originalOrder];
+	return colors[arc4random_uniform(colors.count)];
+}
+
 - (OASPaletteItemSolid *)changeColor:(OASPaletteItemSolid *)colorItem newColor:(UIColor *)newColor
 {
     if (!colorItem || !newColor)

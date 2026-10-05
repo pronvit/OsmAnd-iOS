@@ -22,6 +22,7 @@
 #import "OAGPXDatabase.h"
 #import "OAColoringType.h"
 #import "OAObservable.h"
+#import "OsmAnd_Maps-Swift.h"
 #import <sqlite3.h>
 #import <CoreLocation/CoreLocation.h>
 #import "OAAppVersion.h"
@@ -110,6 +111,14 @@ static const NSInteger kDBVersion = 1;
     [_currentTrack setColoringTypeColoringType:[settings.currentTrackColoringType get].name];
     [_currentTrack setGradientColorPaletteGradientColorPaletteName:[settings.currentTrackGradientPalette get]];
     [_currentTrack setJoinSegmentIsJoinSegment:[settings.currentTrackIsJoinSegments get]];
+}
+
+- (void)randomizeCurrentTrackColor
+{
+	OAAppSettings *settings = [OAAppSettings sharedManager];
+	OAGPXAppearanceCollection *ac = [OAGPXAppearanceCollection sharedInstance];
+	[settings.currentTrackColor set:[ac getRandomLineColorItem].colorInt];
+	[_currentTrack setColorColor:[[OASInt alloc] initWithInt:[settings.currentTrackColor get]]];
 }
 
 - (instancetype)init

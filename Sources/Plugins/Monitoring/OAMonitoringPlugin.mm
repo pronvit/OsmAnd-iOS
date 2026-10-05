@@ -281,6 +281,7 @@
         }
         else
         {
+			[_savingTrackHelper randomizeCurrentTrackColor];
             if (![_settings.mapSettingSaveTrackIntervalApproved get])
             {
                 OARecordSettingsBottomSheetViewController *bottomSheet = [[OARecordSettingsBottomSheetViewController alloc] initWithCompletitionBlock:^(int recordingInterval, BOOL rememberChoice, BOOL showOnMap) {
@@ -333,7 +334,8 @@
                                                  cancelTitle:OALocalizedString(@"shared_string_no")
                                                    doneTitle:OALocalizedString(@"shared_string_yes")
                                             doneColpletition:^{
-            _settings.mapSettingTrackRecording = YES;
+			[_savingTrackHelper randomizeCurrentTrackColor];
+			_settings.mapSettingTrackRecording = YES;
         }];
     }
 }

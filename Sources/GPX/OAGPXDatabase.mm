@@ -338,7 +338,7 @@
                 [dataItem readGpxParamsGpxFile:gpxFile];
                 if (dataItem.color == 0)
                 {
-                    int color = [[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].value;
+                    int color = [[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].colorInt;
                     dataItem.color = color;
                     [gpxFile setColorColor:[[OASInt alloc] initWithInt:color]];
                     [OASGpxUtilities.shared writeGpxFileFile:dataItem.file gpxFile:gpxFile];

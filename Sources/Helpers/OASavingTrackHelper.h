@@ -35,6 +35,7 @@
 - (BOOL) saveIfNeeded;
 - (void) updateLocation:(CLLocation *)location heading:(CLLocationDirection)heading;
 - (BOOL) getIsRecording;
+- (void) randomizeCurrentTrackColor;
 
 - (void) runSyncBlock:(void (^)(void))block;
 

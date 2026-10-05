@@ -57,6 +57,7 @@
 - (BOOL)saveFavoriteColorsIfNeeded:(NSArray<OAFavoriteGroup *> *)favoriteGroups;
 - (OASPaletteItemSolid *)defaultLineColorItem;
 - (OASPaletteItemSolid *)defaultPointColorItem;
+- (OASPaletteItemSolid *)getRandomLineColorItem;
 
 - (OASPaletteItemSolid *)changeColor:(OASPaletteItemSolid *)colorItem newColor:(UIColor *)newColor;
 - (OASPaletteItemSolid *)addNewSelectedColor:(UIColor *)newColor;

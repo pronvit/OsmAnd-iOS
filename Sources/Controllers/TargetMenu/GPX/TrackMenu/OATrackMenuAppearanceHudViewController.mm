@@ -2621,7 +2621,7 @@ static const NSInteger kColorsSection = 1;
             [self.settings.currentTrackVisualization3dWallColorType resetToDefault];
             [self.settings.currentTrackVisualization3dPositionType resetToDefault];
             [self.settings.currentTrackColoringType resetToDefault];
-			[self.settings.currentTrackColor set:[[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].value];
+			[self.settings.currentTrackColor set:[[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].colorInt];
 
             [self.doc setWidthWidth:[self.settings.currentTrackWidth get]];
             [self.doc setShowArrowsShowArrows:[self.settings.currentTrackShowArrows get]];
@@ -2643,7 +2643,7 @@ static const NSInteger kColorsSection = 1;
             [self.doc setJoinSegmentIsJoinSegment:[self.settings.currentTrackIsJoinSegments get]];
         }
 		else
-			[self.gpx resetAppearanceToOriginalWithRandomColor:[[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].value];
+			[self.gpx resetAppearanceToOriginalWithRandomColor:[[OAGPXAppearanceCollection sharedInstance] getRandomLineColorItem].colorInt];
 
         [self updateAllValues];
         
