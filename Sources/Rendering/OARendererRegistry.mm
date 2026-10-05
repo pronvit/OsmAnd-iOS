@@ -25,6 +25,7 @@ static NSDictionary<NSString *, NSString *> *stylesTitlesOffline;
     {
         internalRenderers = @{
                 DEFAULT_RENDER: DEFAULT_RENDER_FILE_PATH,
+				@"My Default": [NSString stringWithFormat:@"my-default%@", RENDERER_INDEX_EXT],
                 TOURING_VIEW: [NSString stringWithFormat:@"Touring-view_(more-contrast-and-details)%@", RENDERER_INDEX_EXT],
                 TOPO_RENDER: [NSString stringWithFormat:@"topo%@", RENDERER_INDEX_EXT],
                 OSM_CARTO_RENDER: [NSString stringWithFormat:@"osm-carto%@", RENDERER_INDEX_EXT],
@@ -141,6 +142,7 @@ static NSDictionary<NSString *, NSString *> *stylesTitlesOffline;
     {
         stylesTitlesOffline = @{
                 @"default" : DEFAULT_RENDER,
+				@"My Default" : @"My Default",
                 @"nautical" : NAUTICAL_RENDER,
                 @"marine" : MARINE_RENDER,
                 @"Ski-map" : WINTER_SKI_RENDER,
@@ -179,8 +181,10 @@ static NSDictionary<NSString *, NSString *> *stylesTitlesOffline;
         return 8;
     else if ([title isEqualToString:SNOWMOBILE_RENDER])
         return 9;
+	else if ([title isEqualToString:@"My Default"])
+		return 10;
     else
-        return 10;
+        return 11;
 }
 
 @end
