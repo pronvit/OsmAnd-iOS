@@ -2051,8 +2051,8 @@ includeHidden:(BOOL)includeHidden
                 [[NSFileManager defaultManager] removeItemAtPath:tilesItem.path error:nil];
                 [[NSFileManager defaultManager] removeItemAtPath:[app.onlineTileSourcesPath stringByAppendingPathComponent:item.title] error:nil];
                 app.resourcesManager->uninstallTilesResource(QString::fromNSString(item.title));
-                if ([tilesItem.title isEqualToString:@"OsmAnd (online tiles)"])
-                    app.resourcesManager->installBuiltInTileSources();
+//                if ([tilesItem.title isEqualToString:@"OsmAnd (online tiles)"])
+//                    app.resourcesManager->installBuiltInTileSources();
 
                 [app.localResourcesChangedObservable notifyEvent];
             }
