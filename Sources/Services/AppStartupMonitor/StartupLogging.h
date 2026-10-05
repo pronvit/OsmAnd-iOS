@@ -47,7 +47,7 @@ static inline void OAPruneStartupLogFiles(NSString *logsPath)
 
 static inline void OAInitializeStartupLogFileIfNeeded(void)
 {
-#if DEBUG
+#if RELEASE
     return;
 #else
     static BOOL initialized = NO;
