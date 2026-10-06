@@ -861,9 +861,11 @@ colorizationScheme:(int)colorizationScheme
 		builder.setBaseOrder(baseOrder)
 			.setIsHidden(points.size() == 0)
 			.setLineId(lineId)
-			.setLineWidth(lineWidth)
+			.setLineWidth(lineWidth) //12
 			.setPoints(points)
-			.setFillColor(colorARGB);
+			.setFillColor(colorARGB)
+			.setOutlineWidth(lineWidth + lineWidth * (7./12.)) //12+7
+			.setOutlineColor(OsmAnd::ColorARGB(200, 255, 255, 255));
 
 		if (gpx.showArrows || [self isSelectedGpx:gpx])
 		{
@@ -955,9 +957,11 @@ colorizationScheme:(int)colorizationScheme
 			builder.setBaseOrder(baseOrder)
 				.setIsHidden(points.size() == 0)
 				.setLineId(lineId)
-				.setLineWidth(lineWidth)
+				.setLineWidth(lineWidth) //12
 				.setPoints(points)
-				.setFillColor(colorARGB);
+				.setFillColor(colorARGB)
+				.setOutlineWidth(lineWidth + lineWidth * (7./12.)) //12+7
+				.setOutlineColor(OsmAnd::ColorARGB(200, 255, 255, 255));
 
 			if ([gpx isShowArrows])
 			{
@@ -1006,9 +1010,11 @@ colorizationScheme:(int)colorizationScheme
 		else
 		{
 			line->setIsHidden(points.size() == 0);
-			line->setLineWidth(lineWidth);
+			line->setLineWidth(lineWidth); //12
 			line->setPoints(points);
 			line->setFillColor(colorARGB);
+			line->setOutlineWidth(lineWidth + lineWidth * (7./12.)); //12+7
+			line->setOutlineColor(OsmAnd::ColorARGB(200, 255, 255, 255));
 
 			line->setColorizationMapping(colors);
 			line->setColorizationScheme(colorizationScheme);
