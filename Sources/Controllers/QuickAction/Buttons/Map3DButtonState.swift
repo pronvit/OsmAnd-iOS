@@ -19,7 +19,7 @@ final class Map3DButtonState: MapButtonState {
 
     init() {
         fabMarginPref = FabMarginPreference("map_3d_mode_margin")
-        visibilityPref = OAAppSettings.sharedManager().registerIntPreference("map_3d_mode_visibility", defValue: Map3DModeVisibility.visible.rawValue)
+        visibilityPref = OAAppSettings.sharedManager().registerIntPreference("map_3d_mode_visibility", defValue: Map3DModeVisibility.visibleIn3DMode.rawValue)
         super.init(withId: Self.map3DHudId)
     }
 
