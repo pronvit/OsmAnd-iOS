@@ -2794,7 +2794,11 @@ static char kMapSourceUpdateQueueKey;
 
     BOOL shouldShowRecTrack = !hasTempGpxTrack && [OAAppSettings sharedManager].mapSettingShowRecordingTrack.get;
     BOOL gpxListLoading = [_selectedGpxHelper buildGpxList];
-    BOOL shouldInitGpxTracks = !gpxListLoading && (_selectedGpxHelper.activeGpx.allKeys.count != 0 || hasTempGpxTrack);
+    // resetLayers below clears the track overlay. Files that already finished loading will not
+    // notify again, so rebuild from whatever is in memory even while other files are still loading.
+    BOOL shouldInitGpxTracks = gpxListLoading
+        || _selectedGpxHelper.activeGpx.allKeys.count != 0
+        || hasTempGpxTrack;
     OASRTMPlugin *srtmPlugin = (OASRTMPlugin *) [OAPluginsHelper getPlugin:OASRTMPlugin.class];
     OASRTMPlugin *enabledSrtmPlugin = (OASRTMPlugin *) [OAPluginsHelper getEnabledPlugin:OASRTMPlugin.class];
     BOOL hasSrtmPlugin = srtmPlugin != nil;
@@ -4253,11 +4257,10 @@ static char kMapSourceUpdateQueueKey;
 
 - (void)refreshGpxTracks
 {
-    [self runWithRenderSync:^{
-        [_mapLayers.gpxMapLayer resetLayer];
-    }];
-    if (![_selectedGpxHelper buildGpxList])
-        [self initRendererWithGpxTracks];
+    // Each finished file notifies once. Rebuilding only after the queue drains leaves the overlay
+    // empty when that last rebuild is skipped, so publish the tracks already loaded.
+    [_selectedGpxHelper buildGpxList];
+    [self initRendererWithGpxTracks];
 }
 
 - (UIColor *) getTransportRouteColor:(BOOL)nightMode renderAttrName:(NSString *)renderAttrName

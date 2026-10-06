@@ -2809,6 +2809,7 @@
 		DA5A845A26C563A900F274C7 /* OAGPXRecLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7EE426C563A400F274C7 /* OAGPXRecLayer.mm */; };
 		DA5A845B26C563A900F274C7 /* OADestinationsLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7EE626C563A400F274C7 /* OADestinationsLayer.mm */; };
 		DA5A845C26C563A900F274C7 /* OAGPXLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7EE726C563A400F274C7 /* OAGPXLayer.mm */; };
+		E7A1C0032F60000100A1C003 /* OAGpxTrackObjectsProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = E7A1C0022F60000100A1C002 /* OAGpxTrackObjectsProvider.mm */; };
 		DA5A845D26C563A900F274C7 /* OAMapillaryLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7EE926C563A400F274C7 /* OAMapillaryLayer.mm */; };
 		DA5A845E26C563A900F274C7 /* OARoutePointsLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7EEB26C563A400F274C7 /* OARoutePointsLayer.mm */; };
 		DA5A845F26C563A900F274C7 /* OAImpassableRoadsLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7EEC26C563A400F274C7 /* OAImpassableRoadsLayer.mm */; };
@@ -7551,6 +7552,8 @@
 		DA5A7EE526C563A400F274C7 /* OAOsmBugsLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAOsmBugsLayer.h; sourceTree = "<group>"; };
 		DA5A7EE626C563A400F274C7 /* OADestinationsLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OADestinationsLayer.mm; sourceTree = "<group>"; };
 		DA5A7EE726C563A400F274C7 /* OAGPXLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OAGPXLayer.mm; sourceTree = "<group>"; };
+		E7A1C0022F60000100A1C002 /* OAGpxTrackObjectsProvider.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OAGpxTrackObjectsProvider.mm; sourceTree = "<group>"; };
+		E7A1C0012F60000100A1C001 /* OAGpxTrackObjectsProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAGpxTrackObjectsProvider.h; sourceTree = "<group>"; };
 		DA5A7EE826C563A400F274C7 /* OAPOILayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAPOILayer.h; sourceTree = "<group>"; };
 		DA5A7EE926C563A400F274C7 /* OAMapillaryLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OAMapillaryLayer.mm; sourceTree = "<group>"; };
 		DA5A7EEA26C563A400F274C7 /* OADestinationsLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OADestinationsLayer.h; sourceTree = "<group>"; };
@@ -13881,6 +13884,8 @@
 				DA5A7EF126C563A400F274C7 /* OAFavoritesLayer.mm */,
 				DA5A7EEE26C563A400F274C7 /* OAGPXLayer.h */,
 				DA5A7EE726C563A400F274C7 /* OAGPXLayer.mm */,
+				E7A1C0012F60000100A1C001 /* OAGpxTrackObjectsProvider.h */,
+				E7A1C0022F60000100A1C002 /* OAGpxTrackObjectsProvider.mm */,
 				DA5A7EDD26C563A400F274C7 /* OAGPXRecLayer.h */,
 				DA5A7EE426C563A400F274C7 /* OAGPXRecLayer.mm */,
 				DA5A7EF226C563A400F274C7 /* OAImpassableRoadsLayer.h */,
@@ -17965,6 +17970,7 @@
 				DA5A831D26C563A800F274C7 /* OACollectionViewCell.mm in Sources */,
 				8A3BE84F27DBB2AC00C5DFE2 /* OAWeatherContourLayer.mm in Sources */,
 				DA5A845C26C563A900F274C7 /* OAGPXLayer.mm in Sources */,
+				E7A1C0032F60000100A1C003 /* OAGpxTrackObjectsProvider.mm in Sources */,
 				DA5A835126C563A800F274C7 /* OAPointHeaderTableViewCell.m in Sources */,
 				27D33B5F2E74622A00AD4F70 /* OpenWeatherAction.swift in Sources */,
 				A5A500022F50000100000002 /* AstronomyPlugin.swift in Sources */,

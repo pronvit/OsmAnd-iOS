@@ -20,6 +20,9 @@
 #import "OASelectedGPXHelper.h"
 #import "OASavingTrackHelper.h"
 #import "OAWaypointsMapLayerProvider.h"
+#import "OAGpxTrackObjectsProvider.h"
+#import "OAMapRendererEnvironment.h"
+#import "OAMapPresentationEnvironment.h"
 #import "OAFavoritesLayer.h"
 #import "OARouteColorize.h"
 #import "OARouteColorize+cpp.h"
@@ -42,6 +45,9 @@
 #include <OsmAndCore/Map/VectorLineBuilder.h>
 #include <OsmAndCore/Map/MapMarkerBuilder.h>
 #include <OsmAndCore/Map/GpxAdditionalIconsProvider.h>
+#include <OsmAndCore/Map/MapPrimitiviser.h>
+#include <OsmAndCore/Map/MapPrimitivesProvider.h>
+#include <OsmAndCore/Map/MapRasterLayerProvider_Software.h>
 #include <OsmAndCore/SingleSkImage.h>
 
 
@@ -132,6 +138,7 @@ namespace
 {
 	std::shared_ptr<OAWaypointsMapLayerProvider> _waypointsMapProvider;
 	std::shared_ptr<OsmAnd::GpxAdditionalIconsProvider> _startFinishProvider;
+	std::shared_ptr<OsmAnd::MapRasterLayerProvider_Software> _solidTrackRasterProvider;
 	BOOL _showCaptionsCache;
 	OsmAnd::PointI _hiddenPointPos31;
 	double _textScaleFactor;
@@ -196,6 +203,8 @@ namespace
 	[self.mapView removeTiledSymbolsProvider:_waypointsMapProvider];
 	[self removeStartFinishProvider];
 	[self.mapView removeKeyedSymbolsProvider:_linesCollection];
+	_solidTrackRasterProvider.reset();
+	[self.mapView resetProviderFor:kGpxTrackRasterLayer];
 
 	_linesCollection = std::make_shared<OsmAnd::VectorLinesCollection>();
 	[_gpxFiles removeAllObjects];
@@ -404,6 +413,93 @@ namespace
 	}
 }
 
+- (BOOL)canRasterizeSolidTracks
+{
+	OAMapPresentationEnvironment *presentation = self.mapViewController.mapPresentationEnv;
+	OAMapRendererEnvironment *rendererEnv = self.mapViewController.mapRendererEnv;
+	return presentation != nil
+		&& rendererEnv != nil
+		&& presentation.mapPresentationEnvironment != nullptr
+		&& rendererEnv.mapPrimitivesProvider != nullptr;
+}
+
+- (void)updateSolidTrackOverlay:(const QList<std::shared_ptr<const OsmAnd::MapObject>> &)objects
+{
+	if (objects.isEmpty() || ![self canRasterizeSolidTracks])
+	{
+		_solidTrackRasterProvider.reset();
+		[self.mapView resetProviderFor:kGpxTrackRasterLayer];
+		return;
+	}
+
+	const auto env = self.mapViewController.mapPresentationEnv.mapPresentationEnvironment;
+	const auto basemapPrimitives = self.mapViewController.mapRendererEnv.mapPrimitivesProvider;
+	const auto objectsProvider = std::make_shared<OAGpxTrackObjectsProvider>(objects);
+	const auto primitiviser = std::make_shared<OsmAnd::MapPrimitiviser>(env);
+	const auto primitivesProvider = std::make_shared<OsmAnd::MapPrimitivesProvider>(
+		objectsProvider,
+		primitiviser,
+		basemapPrimitives->tileSize,
+		OsmAnd::MapPrimitivesProvider::Mode::WithoutSurface);
+	_solidTrackRasterProvider = std::make_shared<OsmAnd::MapRasterLayerProvider_Software>(
+		primitivesProvider, false, false, true);
+	[self.mapView setProvider:_solidTrackRasterProvider forLayer:kGpxTrackRasterLayer];
+}
+
+- (void)emitTrackLine:(QVector<OsmAnd::PointI> &)points
+				  gpx:(OASGpxDataItem *)gpx
+			  gpxFile:(OASGpxFile *)gpxFile
+			baseOrder:(int)baseOrder
+			   lineId:(int)lineId
+			   colors:(const QList<OsmAnd::FColorARGB> &)colors
+	segmentWallColors:(const QList<OsmAnd::FColorARGB> &)segmentWallColors
+ colorizationScheme:(int)colorizationScheme
+		   elevations:(NSArray<NSNumber *> *)elevations
+	   isCurrentTrack:(BOOL)isCurrentTrack
+	  rasterizeSolid:(BOOL)rasterizeSolid
+		  solidTracks:(QList<std::shared_ptr<const OsmAnd::MapObject>> &)solidTracks
+{
+	if (rasterizeSolid)
+	{
+		if (points.size() > 1)
+		{
+			NSString *widthName = @"thin";
+			int colorArgb = (int)kDefaultTrackColor;
+			if (gpx)
+			{
+				if (gpx.width.length > 0)
+					widthName = gpx.width;
+				if (gpx.color != 0)
+					colorArgb = (int)gpx.color;
+			}
+			if ((gpx == nil || gpx.color == 0) && !colors.isEmpty() && colorizationScheme == COLORIZATION_NONE)
+			{
+				const auto &color = colors.first();
+				const auto channel = [](float value) {
+					return qBound(0, qRound(value * 255.0f), 255);
+				};
+				colorArgb = (channel(color.a) << 24) | (channel(color.r) << 16) | (channel(color.g) << 8) | channel(color.b);
+			}
+			solidTracks.push_back(OAGpxTrackObjectsProvider::makeObject(
+				points,
+				QString::fromNSString(widthName),
+				OAGpxTrackObjectsProvider::colorHexForArgb(colorArgb)));
+			if (gpx && [self isSelectedGpx:gpx])
+				[self drawDirectionArrows:points gpx:gpx baseOrder:baseOrder lineId:lineId colorArgb:colorArgb];
+		}
+		return;
+	}
+
+	if (isCurrentTrack)
+	{
+		[self refreshLine:points gpx:gpxFile baseOrder:baseOrder lineId:lineId colors:colors segmentWallColors:segmentWallColors colorizationScheme:colorizationScheme elevations:elevations];
+	}
+	else
+	{
+		[self drawLine:points gpx:gpx baseOrder:baseOrder lineId:lineId colors:colors segmentWallColors:segmentWallColors colorizationScheme:colorizationScheme elevations:elevations];
+	}
+}
+
 - (void) refreshGpxTracks
 {
 	BOOL hasVolumetricSymbols = NO;
@@ -423,6 +519,9 @@ namespace
 		[self.mapView removeKeyedSymbolsProvider:_linesCollection];
 		_linesCollection = std::make_shared<OsmAnd::VectorLinesCollection>(hasVolumetricSymbols);
 	}
+
+	QList<std::shared_ptr<const OsmAnd::MapObject>> solidTracks;
+	const BOOL canRasterize = [self canRasterizeSolidTracks];
 
 	if (_gpxFiles.count > 0)
 	{
@@ -589,6 +688,11 @@ namespace
 				cachedTrack[@"prev_wall_coloring_type"] = @(dataWrapper.visualization3dWallColorType);
 			}
 
+			const BOOL rasterizeSolid = canRasterize
+				&& !isCurrentTrack
+				&& dataWrapper.visualization3dByType == EOAGPX3DLineVisualizationByTypeNone
+				&& [cachedTrack[@"colorization_scheme"] intValue] == COLORIZATION_NONE;
+
 			if (gpxFile_.hasTrkPt)
 			{
 				int segStartIndex = 0;
@@ -652,14 +756,7 @@ namespace
 						segStartIndex += seg.points.count;
 						if (!dataWrapper.joinSegments)
 						{
-							if (isCurrentTrack)
-							{
-								[self refreshLine:points gpx:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:segmentColors segmentWallColors:segmentWallColors colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] elevations:elevations];
-							}
-							else
-							{
-								[self drawLine:points gpx:gpx baseOrder:baseOrder-- lineId:lineId++ colors:segmentColors segmentWallColors:segmentWallColors colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] elevations:elevations];
-							}
+							[self emitTrackLine:points gpx:gpx gpxFile:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:segmentColors segmentWallColors:segmentWallColors colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] elevations:elevations isCurrentTrack:isCurrentTrack rasterizeSolid:rasterizeSolid solidTracks:solidTracks];
 							points.clear();
 							segmentColors.clear();
 							segmentWallColors.clear();
@@ -669,14 +766,7 @@ namespace
 				}
 				if (dataWrapper.joinSegments)
 				{
-					if (isCurrentTrack)
-					{
-						[self refreshLine:points gpx:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:segmentColors segmentWallColors:segmentWallColors colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] elevations:elevations];
-					}
-					else
-					{
-						[self drawLine:points gpx:gpx baseOrder:baseOrder-- lineId:lineId++ colors:segmentColors segmentWallColors:segmentWallColors colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] elevations:elevations];
-					}
+					[self emitTrackLine:points gpx:gpx gpxFile:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:segmentColors segmentWallColors:segmentWallColors colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] elevations:elevations isCurrentTrack:isCurrentTrack rasterizeSolid:rasterizeSolid solidTracks:solidTracks];
 				}
 			}
 			else if (gpxFile_.hasRtePt)
@@ -708,20 +798,14 @@ namespace
 								break;
 						}
 					}
-					if (isCurrentTrack)
-					{
-						[self refreshLine:points gpx:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:{} segmentWallColors:{} colorizationScheme:COLORIZATION_NONE elevations:elevations];
-					}
-					else
-					{
-						[self drawLine:points gpx:gpx baseOrder:baseOrder-- lineId:lineId++ colors:{} segmentWallColors:{} colorizationScheme:COLORIZATION_NONE elevations:elevations];
-					}
+					[self emitTrackLine:points gpx:gpx gpxFile:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:{} segmentWallColors:{} colorizationScheme:COLORIZATION_NONE elevations:elevations isCurrentTrack:isCurrentTrack rasterizeSolid:rasterizeSolid solidTracks:solidTracks];
 				}
 			}
 		}
 		[self.mapView addKeyedSymbolsProvider:_linesCollection];
 	}
 	[self setVectorLineProvider:_linesCollection sync:YES];
+	[self updateSolidTrackOverlay:solidTracks];
 	[self refreshGpxWaypoints];
 	[self refreshStartFinishPoints];
 }
@@ -818,6 +902,52 @@ namespace
 		default: return NAN;
 	}
 	return 0;
+}
+
+- (void)drawDirectionArrows:(QVector<OsmAnd::PointI> &)points
+						gpx:(OASGpxDataItem *)gpx
+				  baseOrder:(int)baseOrder
+					 lineId:(int)lineId
+				  colorArgb:(int)colorArgb
+{
+	if (points.size() <= 1 || !gpx)
+		return;
+
+	CGFloat lineWidth;
+	if (_cachedTrackWidth[gpx.width])
+		lineWidth = _cachedTrackWidth[gpx.width].floatValue;
+	else
+	{
+		lineWidth = [self getLineWidth:gpx.width];
+		_cachedTrackWidth[gpx.width] = @(lineWidth);
+	}
+
+	OsmAnd::VectorLineBuilder builder;
+	builder.setBaseOrder(baseOrder)
+		.setIsHidden(false)
+		.setLineId(lineId)
+		.setLineWidth(lineWidth)
+		.setPoints(points)
+		.setFillColor(OsmAnd::FColorARGB(0.f, 0.f, 0.f, 0.f))
+		.setOutlineWidth(0);
+
+	UIColor *color = UIColorFromARGB(colorArgb);
+	auto iconBitmap = [self bitmapForColor:color fileName:@"map_direction_arrow"];
+	if (iconBitmap)
+	{
+		builder.setPathIcon(OsmAnd::SingleSkImage(iconBitmap))
+			.setPathIconStep(iconBitmap->height() * kPathIconStepCoef)
+			.setShouldShowArrows(true);
+	}
+	auto specialIconBitmap = [self specialBitmapWithColor:OsmAnd::ColorARGB(colorArgb)];
+	if (specialIconBitmap)
+	{
+		builder.setSpecialPathIcon(OsmAnd::SingleSkImage(specialIconBitmap))
+			.setSpecialPathIconStep(specialIconBitmap->height() * kPathIconStepCoef)
+			.setShouldShowArrows(true);
+	}
+	builder.setScreenScale(UIScreen.mainScreen.scale);
+	builder.buildAndAddToCollection(_linesCollection);
 }
 
 - (void) drawLine:(QVector<OsmAnd::PointI> &)points
