@@ -66,8 +66,8 @@ final class TracksViewController: UITableViewController, OATrackSavingHelperUpda
     private var recCell: OATwoButtonsTableViewCell?
     private var baseFilters: TracksSearchFilter?
     private var baseFiltersResult: FilterResults?
-    private var sortMode: TracksSortMode = .lastModified
-    private var sortModeForSearch: TracksSortMode = .lastModified
+    private var sortMode: TracksSortMode = .newestDateFirst
+    private var sortModeForSearch: TracksSortMode = .newestDateFirst
     private var searchController = UISearchController()
     private var lastUpdate: TimeInterval?
     private var isSearchActive = false
