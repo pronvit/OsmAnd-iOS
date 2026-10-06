@@ -254,13 +254,13 @@ static const NSInteger kOrderRegionPopulationRow = 3;
 
 - (void)rightControlButtonPressed
 {
-    OADownloadedRegionsLayer *layer = OARootViewController.instance.mapPanel.mapViewController.mapLayers.downloadedRegionsLayer;
-    NSMutableArray<OATargetPoint *> *targetPoints = [NSMutableArray array];
-    for (OAResourceItem *item in _otherResources)
-    {
-        [targetPoints addObject:[layer getTargetPoint:[[OADownloadMapObject alloc] initWithWorldRegion:_mapObject.worldRegion indexItem:item] touchLocation:nil]];
-    }
-    [OARootViewController.instance.mapPanel showContextMenuWithPoints:targetPoints];
+//    OADownloadedRegionsLayer *layer = OARootViewController.instance.mapPanel.mapViewController.mapLayers.downloadedRegionsLayer;
+//    NSMutableArray<OATargetPoint *> *targetPoints = [NSMutableArray array];
+//    for (OAResourceItem *item in _otherResources)
+//    {
+//        [targetPoints addObject:[layer getTargetPoint:[[OADownloadMapObject alloc] initWithWorldRegion:_mapObject.worldRegion indexItem:item] touchLocation:nil]];
+//    }
+//    [OARootViewController.instance.mapPanel showContextMenuWithPoints:targetPoints];
 }
 
 @end

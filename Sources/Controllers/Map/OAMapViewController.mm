@@ -2228,11 +2228,11 @@ static char kMapSourceUpdateQueueKey;
 
 - (void) highlightRegion:(OAWorldRegion *)region
 {
-    [_mapLayers.downloadedRegionsLayer highlightRegion:region];
+//    [_mapLayers.downloadedRegionsLayer highlightRegion:region];
 }
 - (void) hidePolygonHighlight
 {
-    [_mapLayers.downloadedRegionsLayer hideRegionHighlight];
+//    [_mapLayers.downloadedRegionsLayer hideRegionHighlight];
     [_mapLayers.contextMenuLayer hideRegionHighlight];
 }
 
