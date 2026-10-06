@@ -128,6 +128,8 @@
             [self updateHeightConstraint:_widgetHeightConstraint];
             [_showButton addTarget:self action:@selector(onWidgetClicked:) forControlEvents:UIControlEventTouchUpInside];
             _showButton.menu = [self configureContextWidgetMenu];
+            // The xib is built with placeholder "Label" titles. Stay hidden until the first route update fills them.
+            self.hidden = YES;
         }
         else
         {
@@ -184,6 +186,11 @@
     {
         NSArray *nibObjects = [[NSBundle mainBundle] loadNibNamed:@"OANextTurnWidget" owner:self options:nil];
         _widgetView = (UIView *)[nibObjects firstObject];
+        _distanceLabel.text = @"";
+        _streetLabel.text = @"";
+        _exitLabel.text = @"";
+        _exitView.hidden = YES;
+        _shieldStackView.hidden = YES;
     }
     return _widgetView;
 }
@@ -657,9 +664,10 @@
         [self refreshLayout];
     }
     
-    [self setTurnType:turnType];
     [self setTurnImminent:turnImminent deviatedFromRoute:deviatedFromRoute];
     [self setTurnDistance:nextTurnDistance];
+    // Visibility follows the turn. Apply the labels first so the xib placeholders are gone before the widget is shown.
+    [self setTurnType:turnType];
 }
 
 - (void)applySuitableTextFont
