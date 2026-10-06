@@ -10,6 +10,7 @@
 // git revision 14c59e54e11dd340f5cbf9ea99b9f2a85ae9c644
 
 #import "OASelectedGPXHelper.h"
+#import "OAGpxTrackGeometry.h"
 #import "OAAppSettings.h"
 #import "OsmAndApp.h"
 #import "OAGPXDatabase.h"
@@ -28,6 +29,7 @@ static NSString *kBackupSuffix = @"_osmand_backup";
     NSMutableArray *_selectedGPXFilesBackup;
     NSMutableArray *_loadingGPXPaths;
     NSMutableDictionary<NSString *, OASGpxFile *> *_activeGpx;
+    NSMutableDictionary<NSString *, OAGpxTrackGeometry *> *_geometries;
     NSOperationQueue *_operationQueue;
 }
 
@@ -41,6 +43,11 @@ static NSString *kBackupSuffix = @"_osmand_backup";
     return sharedInstance;
 }
 
++ (BOOL)isGeometryCacheEnabled
+{
+    return NO;
+}
+
 - (instancetype)init
 {
     self = [super init];
@@ -50,6 +57,7 @@ static NSString *kBackupSuffix = @"_osmand_backup";
         _settings = [OAAppSettings sharedManager];
         _selectedGPXFilesBackup = [NSMutableArray new];
         _activeGpx = [NSMutableDictionary dictionary];
+        _geometries = [NSMutableDictionary dictionary];
         _loadingGPXPaths = [NSMutableArray new];
         _operationQueue = [[NSOperationQueue alloc] init];
         _operationQueue.maxConcurrentOperationCount = 4;
@@ -69,11 +77,24 @@ static NSString *kBackupSuffix = @"_osmand_backup";
 
 - (void)removeGpxFileWith:(NSString *)path {
     [_activeGpx removeObjectForKey:path];
+    [_geometries removeObjectForKey:path];
 }
 
 - (void)addGpxFile:(OASGpxFile *)file for:(NSString *)path
 {
+    // Replaced without a parse, so the next publish walks this file instead of stale points.
+    [_geometries removeObjectForKey:path];
     _activeGpx[path] = file;
+}
+
+- (BOOL)isLoading
+{
+    return _loadingGPXPaths.count > 0;
+}
+
+- (OAGpxTrackGeometry *)geometryForPath:(NSString *)path
+{
+    return _geometries[path];
 }
 
 - (nullable OASGpxFile *)getGpxFileFor:(NSString *)path
@@ -134,10 +155,15 @@ static NSString *kBackupSuffix = @"_osmand_backup";
                 [_loadingGPXPaths addObject:absoluteGpxFilepath];
                 GpxLoadOperation *loadOperation = [[GpxLoadOperation alloc] initWithFilePath:absoluteGpxFilepath];
                 loadOperation.completeHandler =^(NSString *absoluteFilePath, OASGpxFile *gpxFile) {
-                    [weakSelf completeTrackLoadingForFilePath:absoluteFilePath gpxFile:gpxFile];
+                    OAGpxTrackGeometry *geometry = nil;
+                    if ([OASelectedGPXHelper isGeometryCacheEnabled])
+                        geometry = [OAGpxTrackGeometry geometryFromGpxFile:gpxFile];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf completeTrackLoadingForFilePath:absoluteFilePath gpxFile:gpxFile geometry:geometry];
+                    });
                 };
                 loadOperation.cancelledHandler = ^(NSString *absoluteFilePath) {
-                    [weakSelf removeFilePathFromLoadingQueue:absoluteFilePath];
+                    [weakSelf noteLoadingPathCancelled:absoluteFilePath];
                 };
                 [gpxLoadOperations addObject:loadOperation];
             }
@@ -164,7 +190,10 @@ static NSString *kBackupSuffix = @"_osmand_backup";
     }
     
     if (keysToRemove.count > 0)
+    {
         [_activeGpx removeObjectsForKeys:keysToRemove];
+        [_geometries removeObjectsForKeys:keysToRemove];
+    }
 }
 
 - (BOOL)shouldLoadFileAtPath:(NSString *)filePath
@@ -179,12 +208,35 @@ static NSString *kBackupSuffix = @"_osmand_backup";
     [_loadingGPXPaths removeObject:filePath];
 }
 
+- (void)publishLoadedTracksIfIdle
+{
+    if (_loadingGPXPaths.count == 0)
+    {
+        uint64_t bytes = 0;
+        for (OAGpxTrackGeometry *geometry in _geometries.allValues)
+            bytes += geometry.storedBytes;
+        NSLog(@"GPX geometry cache: %llu bytes (%lu tracks)", bytes, (unsigned long)_geometries.count);
+        [[_app updateGpxTracksOnMapObservable] notifyEvent];
+    }
+}
+
+- (void)noteLoadingPathCancelled:(NSString *)filePath
+{
+    if (![_loadingGPXPaths containsObject:filePath])
+        return;
+    [_loadingGPXPaths removeObject:filePath];
+    [self publishLoadedTracksIfIdle];
+}
+
 - (void)completeTrackLoadingForFilePath:(NSString *)absoluteFilePath
                                 gpxFile:(OASGpxFile *)gpxFile
+                               geometry:(OAGpxTrackGeometry *)geometry
 {
     _activeGpx[absoluteFilePath] = gpxFile;
-    [self removeFilePathFromLoadingQueue:absoluteFilePath];
-    [[_app updateGpxTracksOnMapObservable] notifyEvent];
+    if (geometry)
+        _geometries[absoluteFilePath] = geometry;
+    [_loadingGPXPaths removeObject:absoluteFilePath];
+    [self publishLoadedTracksIfIdle];
 }
 
 - (OASGpxFile *)getSelectedGpx:(OASWptPt *)gpxWpt
@@ -218,6 +270,7 @@ static NSString *kBackupSuffix = @"_osmand_backup";
         }
     }
     [_activeGpx removeAllObjects];
+    [_geometries removeAllObjects];
     [_settings.mapSettingVisibleGpx set:[NSArray arrayWithArray:backedUp]];
     [_selectedGPXFilesBackup removeAllObjects];
     [_selectedGPXFilesBackup addObjectsFromArray:backedUp];
@@ -299,6 +352,7 @@ static NSString *kBackupSuffix = @"_osmand_backup";
     // cancel all operations download GPX
     [_operationQueue cancelAllOperations];
     [_loadingGPXPaths removeAllObjects];
+    [self publishLoadedTracksIfIdle];
 }
 
 @end

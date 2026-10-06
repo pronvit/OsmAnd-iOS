@@ -186,6 +186,8 @@ static char kMapSourceUpdateQueueKey;
     dispatch_queue_t _mapSourceUpdateQueue;
     BOOL _mapSourceInvalidated;
     std::atomic_bool _gpxTracksRefreshScheduled;
+    uint64_t _gpxOverlayEpoch;
+    uint64_t _gpxPublishedEpoch;
     NSInteger _lastMapLocaleLanguageZoom;
     CGFloat _contentScaleFactor;
     
@@ -2329,7 +2331,8 @@ static char kMapSourceUpdateQueueKey;
 
 - (void) onUpdateGpxTracks
 {
-    // Every finished track load fires this, so a burst of N tracks used to queue N full rebuilds
+    // Load completions notify once, when the queue goes idle. The flag also lets the map-source
+    // rebuild skip a second publish if that idle refresh is already queued.
     if (_gpxTracksRefreshScheduled.exchange(true))
         return;
 
@@ -2793,12 +2796,7 @@ static char kMapSourceUpdateQueueKey;
     }
 
     BOOL shouldShowRecTrack = !hasTempGpxTrack && [OAAppSettings sharedManager].mapSettingShowRecordingTrack.get;
-    BOOL gpxListLoading = [_selectedGpxHelper buildGpxList];
-    // resetLayers below clears the track overlay. Files that already finished loading will not
-    // notify again, so rebuild from whatever is in memory even while other files are still loading.
-    BOOL shouldInitGpxTracks = gpxListLoading
-        || _selectedGpxHelper.activeGpx.allKeys.count != 0
-        || hasTempGpxTrack;
+    [_selectedGpxHelper buildGpxList];
     OASRTMPlugin *srtmPlugin = (OASRTMPlugin *) [OAPluginsHelper getPlugin:OASRTMPlugin.class];
     OASRTMPlugin *enabledSrtmPlugin = (OASRTMPlugin *) [OAPluginsHelper getEnabledPlugin:OASRTMPlugin.class];
     BOOL hasSrtmPlugin = srtmPlugin != nil;
@@ -2838,6 +2836,7 @@ static char kMapSourceUpdateQueueKey;
         self.referenceTileSizeRasterOrigInPixels = rasterTileSizeOrig;
 
         [_mapLayers resetLayers];
+        _gpxOverlayEpoch++;
 
         if (_obfMapSymbolsProvider)
             [_mapView removeTiledSymbolsProvider:_obfMapSymbolsProvider];
@@ -2929,7 +2928,16 @@ static char kMapSourceUpdateQueueKey;
 
     if (shouldShowRecTrack)
         [self showRecGpxTrack:YES];
-    if (shouldInitGpxTracks)
+
+    // resetLayers cleared the overlay. Publish when loading is finished and nothing else is about
+    // to publish the same generation. A load still in progress publishes once when it goes idle.
+    __block BOOL gpxStillLoading = NO;
+    __block BOOL gpxOverlayStale = NO;
+    [self runWithRenderSync:^{
+        gpxStillLoading = [_selectedGpxHelper isLoading];
+        gpxOverlayStale = _gpxPublishedEpoch != _gpxOverlayEpoch;
+    }];
+    if (!gpxStillLoading && gpxOverlayStale && !_gpxTracksRefreshScheduled.load())
         [self initRendererWithGpxTracks];
 
     [_mapSourceUpdatedObservable notifyEvent];
@@ -4250,6 +4258,7 @@ static char kMapSourceUpdateQueueKey;
     }
     [self runWithRenderSync:^{
         [_mapLayers.gpxMapLayer refreshGpxTracks:gpxFilesDic reset:YES];
+        _gpxPublishedEpoch = _gpxOverlayEpoch;
     }];
     
     [_gpxTracksRefreshedObservable notifyEvent];
@@ -4257,9 +4266,13 @@ static char kMapSourceUpdateQueueKey;
 
 - (void)refreshGpxTracks
 {
-    // Each finished file notifies once. Rebuilding only after the queue drains leaves the overlay
-    // empty when that last rebuild is skipped, so publish the tracks already loaded.
+    if ([_selectedGpxHelper isLoading])
+        return;
+
     [_selectedGpxHelper buildGpxList];
+    if ([_selectedGpxHelper isLoading])
+        return;
+
     [self initRendererWithGpxTracks];
 }
 

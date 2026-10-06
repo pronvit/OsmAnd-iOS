@@ -2826,6 +2826,7 @@
 		DA5A846A26C563A900F274C7 /* OADestination.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7F1026C563A400F274C7 /* OADestination.mm */; };
 		DA5A846B26C563A900F274C7 /* OAToolbarViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7F1126C563A400F274C7 /* OAToolbarViewController.mm */; };
 		DA5A846D26C563A900F274C7 /* OASelectedGPXHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7F1426C563A400F274C7 /* OASelectedGPXHelper.mm */; };
+		E7A1C0132F60000100A1C013 /* OAGpxTrackGeometry.mm in Sources */ = {isa = PBXBuildFile; fileRef = E7A1C0122F60000100A1C012 /* OAGpxTrackGeometry.mm */; };
 		DA5A846E26C563A900F274C7 /* OAWidgetState.m in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7F1726C563A400F274C7 /* OAWidgetState.m */; };
 		DA5A846F26C563A900F274C7 /* OABearingWidgetState.m in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7F1926C563A400F274C7 /* OABearingWidgetState.m */; };
 		DA5A847026C563A900F274C7 /* OACompassRulerWidgetState.m in Sources */ = {isa = PBXBuildFile; fileRef = DA5A7F1A26C563A400F274C7 /* OACompassRulerWidgetState.m */; };
@@ -7597,6 +7598,8 @@
 		DA5A7F1126C563A400F274C7 /* OAToolbarViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OAToolbarViewController.mm; sourceTree = "<group>"; };
 		DA5A7F1326C563A400F274C7 /* OAMultiDestinationCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAMultiDestinationCell.h; sourceTree = "<group>"; };
 		DA5A7F1426C563A400F274C7 /* OASelectedGPXHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OASelectedGPXHelper.mm; sourceTree = "<group>"; };
+		E7A1C0112F60000100A1C011 /* OAGpxTrackGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAGpxTrackGeometry.h; sourceTree = "<group>"; };
+		E7A1C0122F60000100A1C012 /* OAGpxTrackGeometry.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OAGpxTrackGeometry.mm; sourceTree = "<group>"; };
 		DA5A7F1726C563A400F274C7 /* OAWidgetState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAWidgetState.m; sourceTree = "<group>"; };
 		DA5A7F1826C563A400F274C7 /* OATimeWidgetState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OATimeWidgetState.h; sourceTree = "<group>"; };
 		DA5A7F1926C563A400F274C7 /* OABearingWidgetState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OABearingWidgetState.m; sourceTree = "<group>"; };
@@ -9120,6 +9123,8 @@
 				32C1C4E72DD4C4F200A053D4 /* OAMapSelectionHelper.mm */,
 				DA5A7F0C26C563A400F274C7 /* OASelectedGPXHelper.h */,
 				DA5A7F1426C563A400F274C7 /* OASelectedGPXHelper.mm */,
+				E7A1C0112F60000100A1C011 /* OAGpxTrackGeometry.h */,
+				E7A1C0122F60000100A1C012 /* OAGpxTrackGeometry.mm */,
 				328EE3582E171BA4003CDB48 /* SelectedGpxPoint.swift */,
 				328EE3592E171BA4003CDB48 /* SelectedMapObject.swift */,
 			);
@@ -19462,6 +19467,7 @@
 				DA5A856D26C563A900F274C7 /* OATargetPointsHelper.mm in Sources */,
 				DA5A824426C563A700F274C7 /* OAVehicleParametersSettingsViewController.mm in Sources */,
 				DA5A846D26C563A900F274C7 /* OASelectedGPXHelper.mm in Sources */,
+				E7A1C0132F60000100A1C013 /* OAGpxTrackGeometry.mm in Sources */,
 				FAF7920F2A780F2500CE5F79 /* UIViewController+Extension.swift in Sources */,
 				277987BA2E7AB4A100607516 /* KeyView.swift in Sources */,
 				DA5A834826C563A800F274C7 /* OARadiusCellEx.m in Sources */,

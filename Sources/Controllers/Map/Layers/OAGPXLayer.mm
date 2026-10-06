@@ -21,6 +21,7 @@
 #import "OASavingTrackHelper.h"
 #import "OAWaypointsMapLayerProvider.h"
 #import "OAGpxTrackObjectsProvider.h"
+#import "OAGpxTrackGeometry.h"
 #import "OAMapRendererEnvironment.h"
 #import "OAMapPresentationEnvironment.h"
 #import "OAFavoritesLayer.h"
@@ -500,6 +501,58 @@ namespace
 	}
 }
 
+- (void)emitPreparedGeometry:(OAGpxTrackGeometry *)geometry
+						 gpx:(OASGpxDataItem *)gpx
+					 gpxFile:(OASGpxFile *)gpxFile
+				   baseOrder:(int &)baseOrder
+					  lineId:(int &)lineId
+		  colorizationScheme:(int)colorizationScheme
+			  isCurrentTrack:(BOOL)isCurrentTrack
+			  rasterizeSolid:(BOOL)rasterizeSolid
+				joinSegments:(BOOL)joinSegments
+				 solidTracks:(QList<std::shared_ptr<const OsmAnd::MapObject>> &)solidTracks
+{
+	const auto &segments = geometry.trackSegments;
+	const auto &segmentColors = geometry.trackSegmentColors;
+	if (!segments.isEmpty())
+	{
+		const auto emitLine = [&](QVector<OsmAnd::PointI> points, int colorArgb) {
+			QList<OsmAnd::FColorARGB> colors;
+			if (colorArgb != 0)
+				colors.push_back([UIColorFromARGB(colorArgb) toFColorARGB]);
+			[self emitTrackLine:points gpx:gpx gpxFile:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:colors segmentWallColors:{} colorizationScheme:colorizationScheme elevations:@[] isCurrentTrack:isCurrentTrack rasterizeSolid:rasterizeSolid solidTracks:solidTracks];
+		};
+		if (joinSegments)
+		{
+			QVector<OsmAnd::PointI> joined;
+			int colorArgb = 0;
+			for (int i = 0; i < segments.size(); i++)
+			{
+				joined += segments[i];
+				if (colorArgb == 0 && i < segmentColors.size())
+					colorArgb = segmentColors[i];
+			}
+			if (joined.size() > 1)
+				emitLine(joined, colorArgb);
+		}
+		else
+		{
+			for (int i = 0; i < segments.size(); i++)
+			{
+				const int colorArgb = i < segmentColors.size() ? segmentColors[i] : 0;
+				emitLine(segments[i], colorArgb);
+			}
+		}
+		return;
+	}
+
+	for (const auto &route : geometry.routes)
+	{
+		QVector<OsmAnd::PointI> points = route;
+		[self emitTrackLine:points gpx:gpx gpxFile:gpxFile baseOrder:baseOrder-- lineId:lineId++ colors:{} segmentWallColors:{} colorizationScheme:COLORIZATION_NONE elevations:@[] isCurrentTrack:isCurrentTrack rasterizeSolid:rasterizeSolid solidTracks:solidTracks];
+	}
+}
+
 - (void) refreshGpxTracks
 {
 	BOOL hasVolumetricSymbols = NO;
@@ -692,8 +745,18 @@ namespace
 				&& !isCurrentTrack
 				&& dataWrapper.visualization3dByType == EOAGPX3DLineVisualizationByTypeNone
 				&& [cachedTrack[@"colorization_scheme"] intValue] == COLORIZATION_NONE;
+			const BOOL solidAppearance = !isCurrentTrack
+				&& dataWrapper.visualization3dByType == EOAGPX3DLineVisualizationByTypeNone
+				&& [cachedTrack[@"colorization_scheme"] intValue] == COLORIZATION_NONE;
+			OAGpxTrackGeometry *preparedGeometry = solidAppearance && [OASelectedGPXHelper isGeometryCacheEnabled]
+				? [[OASelectedGPXHelper instance] geometryForPath:key]
+				: nil;
 
-			if (gpxFile_.hasTrkPt)
+			if (preparedGeometry)
+			{
+				[self emitPreparedGeometry:preparedGeometry gpx:gpx gpxFile:gpxFile baseOrder:baseOrder lineId:lineId colorizationScheme:[cachedTrack[@"colorization_scheme"] intValue] isCurrentTrack:isCurrentTrack rasterizeSolid:rasterizeSolid joinSegments:dataWrapper.joinSegments solidTracks:solidTracks];
+			}
+			else if (gpxFile_.hasTrkPt)
 			{
 				int segStartIndex = 0;
 				QVector<OsmAnd::PointI> points;

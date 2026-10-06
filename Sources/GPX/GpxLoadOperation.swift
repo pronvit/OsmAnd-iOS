@@ -23,12 +23,13 @@ final class GpxLoadOperation: Operation, @unchecked Sendable {
         let gpxFile = GpxUtilities.shared.loadGpxFile(file: KFile(filePath: filePath))
         if gpxFile != nil {
             guard !checkIfCancelled() else { return }
-            DispatchQueue.main.async {
-                guard !self.checkIfCancelled() else { return }
-                self.completeHandler?(self.filePath, gpxFile)
-            }
+            // Handler builds map geometry on this queue, then hops to the main thread itself.
+            self.completeHandler?(self.filePath, gpxFile)
         } else {
             NSLog("[ERROR] GpxLoadOperation -> gpxFile is nil: \(filePath)")
+            DispatchQueue.main.async {
+                self.cancelledHandler?(self.filePath)
+            }
         }
     }
     

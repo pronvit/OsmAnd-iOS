@@ -13,13 +13,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 
-@class OASGpxFile, OASWptPt;
+@class OASGpxFile, OASWptPt, OAGpxTrackGeometry;
 
 @interface OASelectedGPXHelper : NSObject
 
 + (OASelectedGPXHelper *)instance;
++ (BOOL)isGeometryCacheEnabled;
 
 - (BOOL)buildGpxList;
+- (BOOL)isLoading;
+- (nullable OAGpxTrackGeometry *)geometryForPath:(NSString *)path;
 - (void)markTrackForReload:(NSString *)filePath;
 - (nullable OASGpxFile *)getSelectedGpx:(OASWptPt *)gpxWpt;
 - (BOOL)isShowingAnyGpxFiles;
