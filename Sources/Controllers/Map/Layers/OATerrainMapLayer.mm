@@ -94,7 +94,7 @@
     if ([_plugin isTerrainLayerEnabled] && [_plugin isEnabled])
     {
         _terrainMode = [_plugin getTerrainMode];
-        _layerProvider = [self createGeoTiffLayerProvider:_terrainMode];
+		_layerProvider = [self createGeoTiffLayerProvider:_terrainMode];
         if (_layerProvider)
         {
             [self.mapView setProvider:_layerProvider forLayer:self.layerIndex];
@@ -178,9 +178,7 @@
                 }
                 else
                 {
-                    OsmAnd::MapLayerConfiguration config;
-                    config.setOpacityFactor([_terrainMode getTransparency] * 0.01);
-                    [self.mapView setMapLayerConfiguration:self.layerIndex configuration:config forcedUpdate:NO];
+					[self updateLayer];
                 }
             }];
         }
@@ -242,7 +240,10 @@
 
 - (std::shared_ptr<OsmAnd::IMapLayerProvider>)createGeoTiffLayerProvider:(TerrainMode *)mode
 {
-    NSString *mainFile = [mode mainFile];
+	if ([_terrainMode getTransparency] == 0)
+		return {};
+
+	NSString *mainFile = [mode mainFile];
     if (mainFile.length > 0)
     {
         auto geoTiffCollection = self.mapViewController.mapRendererEnv.geoTiffCollection;
