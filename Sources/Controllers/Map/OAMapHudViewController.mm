@@ -793,10 +793,10 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
             case OAMapModeFree: // Free mode
             {
                 [_mapModeButton setImage:iconImage forState:UIControlStateNormal];
-                _mapModeButton.unpressedColorDay = [UIColor colorNamed:ACColorNameMapButtonBgColorActive].light;
-                _mapModeButton.unpressedColorNight = [UIColor colorNamed:ACColorNameMapButtonBgColorActive].dark;
-                _mapModeButton.tintColorDay = UIColor.whiteColor;
-                _mapModeButton.tintColorNight = UIColor.whiteColor;
+				_mapModeButton.unpressedColorDay = [UIColor colorNamed:ACColorNameMapButtonBgColorDefault].light;
+				_mapModeButton.unpressedColorNight = [UIColor colorNamed:ACColorNameMapButtonBgColorDefault].dark;
+				_mapModeButton.tintColorDay = [UIColor colorNamed:ACColorNameMapButtonIconColorActive].light;
+				_mapModeButton.tintColorNight = [UIColor colorNamed:ACColorNameMapButtonIconColorActive].dark;
                 _mapModeButton.accessibilityHint = OALocalizedString(@"with_permission_my_position_value");
                 _mapModeButton.borderWidthNight = 0;
                 break;
@@ -805,10 +805,10 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
             case OAMapModePositionTrack: // Trace point
             {
                 [_mapModeButton setImage:iconImage forState:UIControlStateNormal];
-                _mapModeButton.unpressedColorDay = [UIColor colorNamed:ACColorNameMapButtonBgColorDefault].light;
-                _mapModeButton.unpressedColorNight = [UIColor colorNamed:ACColorNameMapButtonBgColorDefault].dark;
-                _mapModeButton.tintColorDay = [UIColor colorNamed:ACColorNameMapButtonIconColorActive].light;
-                _mapModeButton.tintColorNight = [UIColor colorNamed:ACColorNameMapButtonIconColorActive].dark;
+				_mapModeButton.unpressedColorDay = [UIColor colorNamed:ACColorNameMapButtonBgColorActive].light;
+				_mapModeButton.unpressedColorNight = [UIColor colorNamed:ACColorNameMapButtonBgColorActive].dark;
+				_mapModeButton.tintColorDay = UIColor.whiteColor;
+				_mapModeButton.tintColorNight = UIColor.whiteColor;
                 _mapModeButton.accessibilityHint = nil;
                 _mapModeButton.borderWidthNight = 2;
                 break;
