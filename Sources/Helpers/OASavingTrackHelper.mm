@@ -716,21 +716,33 @@ static const NSInteger kDBVersion = 1;
                     }
                     
                     long currentInterval = labs(pt.time - previousTime);
-                    BOOL newInterval = (lat == 0.0 && lon == 0.0);
+                    // A 0,0 row is the marker written by startNewSegment, not a recorded location.
+                    BOOL segmentMarker = (lat == 0.0 && lon == 0.0);
+                    BOOL autoSplit = [OAAppSettings sharedManager].autoSplitRecording.get;
                     
-                    if (track && !newInterval && (![OAAppSettings sharedManager].autoSplitRecording.get || currentInterval < 6 * 60 || currentInterval < 10 * previousInterval))
+                    if (track && segmentMarker)
+                    {
+                        segment = [[OASTrkSegment alloc] init];
+                        segment.points = [NSMutableArray array];
+                        [track.segments addObject:segment];
+                    }
+                    else if (track && !autoSplit)
+                    {
+                        [segment.points addObject:pt];
+                    }
+                    else if (track && (currentInterval < 6 * 60 || currentInterval < 10 * previousInterval))
                     {
                         // 6 minute - same segment
                         [segment.points addObject:pt];
                         
                     }
-                    else if (track && [OAAppSettings sharedManager].autoSplitRecording.get)
+                    else if (track && autoSplit)
                     {
                         // 2 hour - same track
                         segment = [[OASTrkSegment alloc] init];
                         segment.points = [NSMutableArray array];
                         
-                        if (!newInterval)
+                        if (!segmentMarker)
                             [segment.points addObject:pt];
                         
                         [track.segments addObject:segment];
@@ -758,7 +770,7 @@ static const NSInteger kDBVersion = 1;
                         [gpx.tracks addObject:track];
                         [track.segments addObject:segment];
                         
-                        if (!newInterval)
+                        if (!segmentMarker)
                             [segment.points addObject:pt];
                         
                     }
@@ -782,7 +794,7 @@ static const NSInteger kDBVersion = 1;
             lastTimeUpdated = 0;
             lastPoint = kCLLocationCoordinate2DInvalid;
             long time = (long)[[NSDate date] timeIntervalSince1970];
-//            [self doUpdateTrackLat:0.0 lon:0.0 alt:0.0 speed:0.0 hdop:0.0 time:time heading:NAN pluginsInfo:nil];
+            [self doUpdateTrackLat:0.0 lon:0.0 alt:0.0 speed:0.0 hdop:0.0 time:time heading:NAN pluginsInfo:nil];
             [self addTrackPointNew:nil newSegment:YES time:time];
         }
     });
@@ -1230,6 +1242,9 @@ static const NSInteger kDBVersion = 1;
 
 - (BOOL) saveIfNeeded
 {
+    // Closing the file here starts a new one. With auto-split off, recording stays one file until it is stopped by hand.
+    if (![OAAppSettings sharedManager].autoSplitRecording.get)
+        return NO;
     if ([self hasDataToSave] && (distance > 10.0) && ([[NSDate date] timeIntervalSince1970] - [self getLastTrackPointTime] >= 60 * 30))
     {
         [self saveDataToGpx];
