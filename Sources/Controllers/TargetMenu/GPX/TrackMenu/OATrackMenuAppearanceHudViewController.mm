@@ -11,6 +11,7 @@
 #import "OAFoldersCollectionView.h"
 #import "OASlider.h"
 #import "OAAppData.h"
+#import "OAMapLayers.h"
 #import "OASimpleTableViewCell.h"
 #import "OASwitchTableViewCell.h"
 #import "OAValueTableViewCell.h"
@@ -1530,7 +1531,10 @@ static const NSInteger kColorsSection = 1;
 {
     __weak __typeof(self) weakSelf = self;
     [self hide:YES duration:.2 onComplete:^{
-        if (weakSelf.reopeningTrackMenuState)
+		if (_forceHiding && weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath)
+			weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = nil;
+
+		if (weakSelf.reopeningTrackMenuState)
         {
             [weakSelf restoreOldValues];
             if (!weakSelf.forceHiding)
