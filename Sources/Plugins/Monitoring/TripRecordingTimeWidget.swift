@@ -38,6 +38,15 @@ final class TripRecordingTimeWidget: OASimpleWidget {
     @discardableResult override func updateInfo() -> Bool {
         setIcon("widget_track_recording_duration")
         let timeSpan = getTimeSpan()
+        let globalRecording = OAAppSettings.sharedManager().mapSettingTrackRecording
+        let isRecording = savingTrackHelper?.getIsRecording() ?? false
+        if !isRecording && !globalRecording && timeSpan <= 0 {
+            if cachedTimeSpan != -1 {
+                cachedTimeSpan = -1
+                setText(nil, subtext: nil)
+            }
+            return true
+        }
         if cachedTimeSpan != timeSpan {
             cachedTimeSpan = timeSpan
             let formattedTime = OAOsmAndFormatter.getFormattedDurationShort(Double(timeSpan) / 1000, fullForm: false)
