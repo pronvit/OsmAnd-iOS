@@ -2151,6 +2151,16 @@ typedef enum
 
 - (void) updateTargetPointPosition:(CGFloat)height animated:(BOOL)animated
 {
+    // The place sheet used to shift the camera so the pin stayed above it.
+    // Leave the map where it is. goToPosition: would also leave position tracking.
+    OATargetPointType targetType = self.targetMenuView.targetPoint.type;
+    if (_app.mapMode == OAMapModePositionTrack
+        || targetType == OATargetPOI
+        || targetType == OATargetWiki
+        || targetType == OATargetRenderedObject
+        || targetType == OATargetBaseDetailsObject)
+        return;
+
     if ((![self.targetMenuView isLandscape] && self.targetMenuView.showFullScreen)
         || (self.targetMenuView.targetPoint.type == OATargetImpassableRoadSelection && !_routingHelper.isRouteCalculated)
         || self.targetMenuView.targetPoint.type == OATargetRouteDetailsGraph

@@ -941,9 +941,12 @@ static char kMapSourceUpdateQueueKey;
             return NO;
         }
     }
-    // If user gesture should begin, stop all animations
-    _mapView.mapAnimator->pause();
-    _mapView.mapAnimator->cancelAllAnimations();
+    // A POI tap should keep the follow animation. Other gestures still stop it.
+    if (gestureRecognizer != _grSymbolContextMenu || _app.mapMode != OAMapModePositionTrack)
+    {
+        _mapView.mapAnimator->pause();
+        _mapView.mapAnimator->cancelAllAnimations();
+    }
 
     if (gestureRecognizer != _grPointContextMenu)
     {
