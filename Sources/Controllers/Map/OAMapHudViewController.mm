@@ -1432,10 +1432,12 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
 - (void) removeToolbar
 {
     if (_toolbarViewController)
-        [_toolbarViewController.view removeFromSuperview];
-
-    _toolbarViewController = nil;
-    [self updateControlsLayout:YES];
+	{
+		[_toolbarViewController.view removeFromSuperview];
+		
+		_toolbarViewController = nil;
+		[self updateControlsLayout:YES];
+	}
 }
 
 - (void) setDownloadMapWidget:(OADownloadMapWidget *)widget
