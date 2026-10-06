@@ -248,7 +248,7 @@
 		if (![self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath isEqualToString:path])
 		{
 			self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = path;
-			[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
+			[self.mapViewController.mapLayers.gpxMapLayer refreshSelectedTrackPresentation];
 		}
 	}
 }
@@ -430,14 +430,14 @@
 
 - (void)hide:(BOOL)animated duration:(NSTimeInterval)duration onComplete:(void (^)(void))onComplete
 {
+    if (!_pushedNewScreen && self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath)
+    {
+        self.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = nil;
+        [self.mapViewController.mapLayers.gpxMapLayer refreshSelectedTrackPresentation];
+    }
     __weak __typeof(self) weakSelf = self;
     [super hide:YES duration:duration onComplete:^{
-		if (!_pushedNewScreen && weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath)
-		{
-			weakSelf.mapViewController.mapLayers.gpxMapLayer.selectedGpxPath = nil;
-			[[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
-		}
-		if (weakSelf.routeKey && !_pushedNewScreen)
+        if (weakSelf.routeKey && !_pushedNewScreen)
             [weakSelf.mapViewController hideTempGpxTrack];
         [weakSelf stopLocationServices];
         [weakSelf.mapViewController.mapLayers.gpxMapLayer hideCurrentStatisticsLocation];

@@ -22,6 +22,7 @@
 @property (nonatomic) NSString* selectedGpxPath;
 
 - (void)refreshGpxTracks:(NSDictionary<NSString *, OASGpxFile *> *)gpxFiles reset:(BOOL)reset;
+- (void)refreshSelectedTrackPresentation;
 - (void)refreshGpxWaypoints;
 - (CGFloat)getLineWidth:(NSString *)gpxWidth;
 - (void)updateCachedGpxItem:(NSString *)filePath;

@@ -116,6 +116,23 @@
     return YES;
 }
 
+- (void) reloadVectorLineArrows
+{
+    QWriteLocker scopedLocker(&_lock);
+    if (_vectorLinesArrowsProvider)
+    {
+        [self.mapView removeKeyedSymbolsProvider:_vectorLinesArrowsProvider];
+        _vectorLinesArrowsProvider.reset();
+    }
+    if (!_vectorLinesCollection)
+        return;
+
+    // The renderer can still hold the previous provider, so the collection would hand that one back.
+    // Arrow positions are filled when a line is drawn, and only a provider created now subscribes to that.
+    _vectorLinesArrowsProvider = _vectorLinesCollection->getVectorLineArrowsProvider(true);
+    [self.mapView addKeyedSymbolsProvider:_vectorLinesArrowsProvider];
+}
+
 - (void) setVectorLineProvider:(std::shared_ptr<OsmAnd::VectorLinesCollection> &)collection sync:(BOOL)sync
 {
     QWriteLocker scopedLocker(&_lock);

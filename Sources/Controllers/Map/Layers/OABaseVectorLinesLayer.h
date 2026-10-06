@@ -32,6 +32,7 @@ struct RouteSegmentResult;
 @interface OABaseVectorLinesLayer : OASymbolMapLayer
 
 - (void) setVectorLineProvider:(std::shared_ptr<OsmAnd::VectorLinesCollection> &)collection sync:(BOOL)sync;
+- (void) reloadVectorLineArrows;
 
 - (sk_sp<SkImage>) bitmapForColor:(UIColor *)color fileName:(NSString *)fileName;
 - (sk_sp<SkImage>) specialBitmapWithColor:(OsmAnd::ColorARGB)color;

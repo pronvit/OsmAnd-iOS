@@ -55,6 +55,7 @@
 static const CGFloat kSpeedToHeightScale = 10.0;
 static const CGFloat kTemperatureToHeightOffset = 100.0;
 static const int START_ZOOM = 7;
+static const int kSelectionArrowLineIdBase = 1000000;
 
 namespace
 {
@@ -133,6 +134,9 @@ namespace
 
 @property (nonatomic) OAGPXAppearanceCollection *appearanceCollection;
 
+- (void)installSelectionArrows;
+- (void)refreshStartFinishPointsRebuildingSplitLabels:(BOOL)rebuildSplitLabels;
+
 @end
 
 @implementation OAGPXLayer
@@ -140,6 +144,7 @@ namespace
 	std::shared_ptr<OAWaypointsMapLayerProvider> _waypointsMapProvider;
 	std::shared_ptr<OsmAnd::GpxAdditionalIconsProvider> _startFinishProvider;
 	std::shared_ptr<OsmAnd::MapRasterLayerProvider_Software> _solidTrackRasterProvider;
+	QList<std::shared_ptr<OsmAnd::VectorLine>> _selectionArrowLines;
 	BOOL _showCaptionsCache;
 	OsmAnd::PointI _hiddenPointPos31;
 	double _textScaleFactor;
@@ -208,6 +213,7 @@ namespace
 	[self.mapView resetProviderFor:kGpxTrackRasterLayer];
 
 	_linesCollection = std::make_shared<OsmAnd::VectorLinesCollection>();
+	_selectionArrowLines.clear();
 	[_gpxFiles removeAllObjects];
 }
 
@@ -287,6 +293,22 @@ namespace
 	_gpxFiles = (NSMutableDictionary *)[gpxFiles mutableCopy];
 	[self refreshCachedTracks];
 	[self refreshGpxTracks];
+}
+
+- (void)refreshSelectedTrackPresentation
+{
+	// Arrows are a separate line on the existing collection. Commit that first so the
+	// start/finish icon rebuild does not keep the previous arrows on screen.
+	[self.mapViewController runWithRenderSync:^{
+		[self installSelectionArrows];
+		if (!_selectionArrowLines.isEmpty())
+			[self reloadVectorLineArrows];
+	}];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[self.mapViewController runWithRenderSync:^{
+			[self refreshStartFinishPointsRebuildingSplitLabels:NO];
+		}];
+	});
 }
 
 - (void)refreshCachedTracks
@@ -485,8 +507,6 @@ namespace
 				points,
 				QString::fromNSString(widthName),
 				OAGpxTrackObjectsProvider::colorHexForArgb(colorArgb)));
-			if (gpx && [self isSelectedGpx:gpx])
-				[self drawDirectionArrows:points gpx:gpx baseOrder:baseOrder lineId:lineId colorArgb:colorArgb];
 		}
 		return;
 	}
@@ -867,6 +887,7 @@ namespace
 		}
 		[self.mapView addKeyedSymbolsProvider:_linesCollection];
 	}
+	[self installSelectionArrows];
 	[self setVectorLineProvider:_linesCollection sync:YES];
 	[self updateSolidTrackOverlay:solidTracks];
 	[self refreshGpxWaypoints];
@@ -967,14 +988,15 @@ namespace
 	return 0;
 }
 
-- (void)drawDirectionArrows:(QVector<OsmAnd::PointI> &)points
+- (std::shared_ptr<OsmAnd::VectorLine>)drawDirectionArrows:(QVector<OsmAnd::PointI> &)points
 						gpx:(OASGpxDataItem *)gpx
 				  baseOrder:(int)baseOrder
 					 lineId:(int)lineId
 				  colorArgb:(int)colorArgb
+				 elevations:(NSArray<NSNumber *> *)elevations
 {
 	if (points.size() <= 1 || !gpx)
-		return;
+		return nullptr;
 
 	CGFloat lineWidth;
 	if (_cachedTrackWidth[gpx.width])
@@ -1010,7 +1032,191 @@ namespace
 			.setShouldShowArrows(true);
 	}
 	builder.setScreenScale(UIScreen.mainScreen.scale);
-	builder.buildAndAddToCollection(_linesCollection);
+	if (elevations.count > 0 && gpx.visualization3dByType != EOAGPX3DLineVisualizationByTypeNone)
+	{
+		[self configureRaisedLine:builder
+					   elevations:elevations
+						colorARGB:OsmAnd::ColorARGB(colorArgb)
+						   colors:{}
+				segmentWallColors:{}
+							  gpx:gpx
+						lineWidth:lineWidth];
+	}
+	return builder.buildAndAddToCollection(_linesCollection);
+}
+
+- (void)addSelectionArrowLine:(QVector<OsmAnd::PointI> &)points
+						  gpx:(OASGpxDataItem *)gpx
+					colorArgb:(int)colorArgb
+				   elevations:(NSArray<NSNumber *> *)elevations
+{
+	if (points.size() <= 1)
+		return;
+
+	const int lineId = kSelectionArrowLineIdBase + (int)_selectionArrowLines.size();
+	auto line = [self drawDirectionArrows:points
+									  gpx:gpx
+								baseOrder:self.baseOrder
+								   lineId:lineId
+								colorArgb:colorArgb
+							   elevations:elevations];
+	if (line)
+		_selectionArrowLines.push_back(line);
+}
+
+- (void)removeSelectionArrows
+{
+	for (const auto &line : _selectionArrowLines)
+	{
+		if (line && _linesCollection)
+			_linesCollection->removeLine(line);
+	}
+	_selectionArrowLines.clear();
+}
+
+- (void)addSelectionArrowsFromFile:(OASGpxFile *)gpxFile
+							   gpx:(OASGpxDataItem *)gpx
+						 colorArgb:(int)colorArgb
+{
+	const BOOL joinSegments = gpx.joinSegments;
+	const BOOL raised = gpx.visualization3dByType != EOAGPX3DLineVisualizationByTypeNone;
+	const BOOL sensor = raised && [self isSensorLineVisualizationType:gpx.visualization3dByType];
+	NSMutableArray<NSNumber *> *elevations = [NSMutableArray array];
+
+	const auto appendPoint = [&](OASWptPt *pt, QVector<OsmAnd::PointI> &points) {
+		points.push_back(OsmAnd::Utilities::convertLatLonTo31(OsmAnd::LatLon(pt.lat, pt.lon)));
+		if (!raised)
+			return;
+
+		const double elevationValue = [self getValidElevation:pt.ele];
+		if (sensor)
+		{
+			[elevations addObject:@([self processSensorData:pt forType:gpx.visualization3dByType])];
+			return;
+		}
+		switch (gpx.visualization3dByType)
+		{
+			case EOAGPX3DLineVisualizationByTypeAltitude:
+				[elevations addObject:@(pt.ele)];
+				break;
+			case EOAGPX3DLineVisualizationByTypeSpeed:
+				[elevations addObject:@([self is3DMapsEnabled] ? (pt.speed * kSpeedToHeightScale) + elevationValue : pt.speed * kSpeedToHeightScale)];
+				break;
+			case EOAGPX3DLineVisualizationByTypeFixedHeight:
+				[elevations addObject:@([self is3DMapsEnabled] ? elevationValue + gpx.elevationMeters : gpx.elevationMeters)];
+				break;
+			default:
+				break;
+		}
+	};
+	const auto emit_ = [&](QVector<OsmAnd::PointI> &points) {
+		NSArray<NSNumber *> *lineElevations = (raised && elevations.count == points.size()) ? [elevations copy] : nil;
+		[self addSelectionArrowLine:points gpx:gpx colorArgb:colorArgb elevations:lineElevations];
+		points.clear();
+		[elevations removeAllObjects];
+	};
+
+	if (gpxFile.hasTrkPt)
+	{
+		QVector<OsmAnd::PointI> points;
+		for (OASTrack *track in [gpxFile getTracksIncludeGeneralTrack:NO])
+		{
+			for (OASTrkSegment *seg in track.segments)
+			{
+				for (OASWptPt *pt in seg.points)
+					appendPoint(pt, points);
+				if (!joinSegments)
+					emit_(points);
+			}
+		}
+		if (joinSegments)
+			emit_(points);
+		return;
+	}
+
+	if (!gpxFile.hasRtePt)
+		return;
+
+	for (OASRoute *route in gpxFile.routes)
+	{
+		QVector<OsmAnd::PointI> points;
+		for (OASWptPt *pt in route.points)
+			appendPoint(pt, points);
+		emit_(points);
+	}
+}
+
+- (void)installSelectionArrows
+{
+	[self removeSelectionArrows];
+	if (_selectedGpxPath.length == 0 || !_linesCollection)
+		return;
+
+	NSMutableDictionary<NSString *, id> *cachedTrack = _cachedTracks[_selectedGpxPath];
+	OASGpxDataItem *gpx = cachedTrack[@"gpx"];
+	OASGpxFile *gpxFile = _gpxFiles[_selectedGpxPath];
+	if (!gpx || !gpxFile)
+		return;
+
+	const int colorization = [cachedTrack[@"colorization_scheme"] intValue];
+	const BOOL drawnAsRaster = [self canRasterizeSolidTracks]
+		&& gpx.visualization3dByType == EOAGPX3DLineVisualizationByTypeNone
+		&& colorization == COLORIZATION_NONE;
+	// The vector line already carries arrows when that appearance is on. A rasterized track does not.
+	if (!drawnAsRaster && gpx.showArrows)
+		return;
+
+	int colorArgb = gpx.color != 0 ? (int)gpx.color : (int)kDefaultTrackColor;
+	if (colorization != COLORIZATION_NONE)
+		colorArgb = (int)0xFFFFFFFF;
+
+	const BOOL raised = gpx.visualization3dByType != EOAGPX3DLineVisualizationByTypeNone;
+	OAGpxTrackGeometry *geometry = (!raised && colorization == COLORIZATION_NONE && [OASelectedGPXHelper isGeometryCacheEnabled])
+		? [[OASelectedGPXHelper instance] geometryForPath:_selectedGpxPath]
+		: nil;
+	if (geometry && ![geometry trackSegments].isEmpty())
+	{
+		const auto &segments = [geometry trackSegments];
+		const auto &segmentColors = [geometry trackSegmentColors];
+		if (gpx.joinSegments)
+		{
+			QVector<OsmAnd::PointI> joined;
+			int storedColor = 0;
+			for (int i = 0; i < segments.size(); i++)
+			{
+				joined += segments[i];
+				if (storedColor == 0 && i < segmentColors.size())
+					storedColor = segmentColors[i];
+			}
+			if (gpx.color == 0 && storedColor != 0)
+				colorArgb = storedColor;
+			[self addSelectionArrowLine:joined gpx:gpx colorArgb:colorArgb elevations:nil];
+		}
+		else
+		{
+			for (int i = 0; i < segments.size(); i++)
+			{
+				QVector<OsmAnd::PointI> points = segments[i];
+				int segmentColor = colorArgb;
+				if (gpx.color == 0 && i < segmentColors.size() && segmentColors[i] != 0)
+					segmentColor = segmentColors[i];
+				[self addSelectionArrowLine:points gpx:gpx colorArgb:segmentColor elevations:nil];
+			}
+		}
+		return;
+	}
+	if (geometry && ![geometry routes].isEmpty())
+	{
+		const auto &routes = [geometry routes];
+		for (const auto &route : routes)
+		{
+			QVector<OsmAnd::PointI> points = route;
+			[self addSelectionArrowLine:points gpx:gpx colorArgb:colorArgb elevations:nil];
+		}
+		return;
+	}
+
+	[self addSelectionArrowsFromFile:gpxFile gpx:gpx colorArgb:colorArgb];
 }
 
 - (void) drawLine:(QVector<OsmAnd::PointI> &)points
@@ -1060,7 +1266,7 @@ colorizationScheme:(int)colorizationScheme
 			.setOutlineWidth(lineWidth + lineWidth * (7./12.)) //12+7
 			.setOutlineColor(OsmAnd::ColorARGB(200, 255, 255, 255));
 
-		if (gpx.showArrows || [self isSelectedGpx:gpx])
+		if (gpx.showArrows)
 		{
 			// Use black arrows for gradient colorization
 			UIColor *color = gpx.coloringType.length != 0 && ![gpx.coloringType isEqualToString:@"solid"] ? UIColor.whiteColor : UIColorFromARGB(gpx.color);
@@ -1512,12 +1718,24 @@ lineWidth:(CGFloat)lineWidth
 
 - (void) refreshStartFinishPoints
 {
-	[_splitLabelsQueue cancelAllOperations];
-	[_splitLabelsQueue setSuspended:YES];
-	[self resetSplitCounter];
+	[self refreshStartFinishPointsRebuildingSplitLabels:YES];
+}
+
+- (void) refreshStartFinishPointsRebuildingSplitLabels:(BOOL)rebuildSplitLabels
+{
+	if (rebuildSplitLabels)
+	{
+		[_splitLabelsQueue cancelAllOperations];
+		[_splitLabelsQueue setSuspended:YES];
+		[self resetSplitCounter];
+		[self clearSplitLabels];
+	}
+	else
+	{
+		[_splitLabelsQueue setSuspended:YES];
+	}
 	[self clearStartFinishPoints];
 	[self clearConfigureStartFinishPointsElevations];
-	[self clearSplitLabels];
 	_elevationScaleFactor = kGpxExaggerationDefScale;
 	[self removeStartFinishProvider];
 
@@ -1689,7 +1907,7 @@ lineWidth:(CGFloat)lineWidth
 				}
 			}
 		}
-		if (dataWrapper.splitType != EOAGpxSplitTypeNone)
+		if (rebuildSplitLabels && dataWrapper.splitType != EOAGpxSplitTypeNone)
 			[self processSplitLabels:gpx doc:gpxFile];
 	}
 	if (!startFinishPoints.isEmpty())
