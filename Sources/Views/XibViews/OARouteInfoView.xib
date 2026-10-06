@@ -14,11 +14,6 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="396"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tQT-vC-GJ3">
-                    <rect key="frame" x="0.0" y="0.0" width="320" height="0.0"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <color key="backgroundColor" name="viewBg"/>
-                </view>
                 <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RA8-Ii-enj">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="338"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -93,7 +88,6 @@
                 <outlet property="contentContainer" destination="RA8-Ii-enj" id="6Mb-BR-orR"/>
                 <outlet property="goButton" destination="jgn-vo-vA0" id="bwj-Mg-7XZ"/>
                 <outlet property="sliderView" destination="tto-l2-MYy" id="Fnj-0p-vm2"/>
-                <outlet property="statusBarBackgroundView" destination="tQT-vC-GJ3" id="ZG8-qG-SeV"/>
                 <outlet property="tableView" destination="7Db-ij-pS7" id="Cir-a5-KSl"/>
             </connections>
             <point key="canvasLocation" x="52.5" y="-2.5"/>

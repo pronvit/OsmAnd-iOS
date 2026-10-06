@@ -865,7 +865,7 @@ typedef NS_ENUM(NSInteger, EOARouteInfoMenuState)
     }
     
     BOOL isFullScreen = _currentState == EOARouteInfoMenuStateFullScreen;
-    _statusBarBackgroundView.frame = isFullScreen ? CGRectMake(0., 0., DeviceScreenWidth, OAUtilities.getStatusBarHeight) : CGRectZero;
+    CGFloat statusBarInset = isFullScreen ? OAUtilities.getStatusBarHeight : 0.;
     
     CGRect sliderFrame = _sliderView.frame;
     sliderFrame.origin.x = self.bounds.size.width / 2 - sliderFrame.size.width / 2;
@@ -877,7 +877,7 @@ typedef NS_ENUM(NSInteger, EOARouteInfoMenuState)
     
     CGRect contentFrame = _contentContainer.frame;
     contentFrame.size.width = self.bounds.size.width;
-    contentFrame.origin.y = CGRectGetMaxY(_statusBarBackgroundView.frame);
+    contentFrame.origin.y = statusBarInset;
     contentFrame.size.height -= contentFrame.origin.y;
     _contentContainer.frame = contentFrame;
     
@@ -2239,7 +2239,7 @@ typedef NS_ENUM(NSInteger, EOARouteInfoMenuState)
             frame.size.height = DeviceScreenHeight - newY;
             self.frame = frame;
             
-            _statusBarBackgroundView.frame = newY == 0 ? CGRectMake(0., 0., DeviceScreenWidth, OAUtilities.getStatusBarHeight) : CGRectZero;
+            CGFloat statusBarInset = newY == 0 ? OAUtilities.getStatusBarHeight : 0.;
             
             CGRect buttonsFrame = _buttonsView.frame;
             buttonsFrame.origin.y = frame.size.height - buttonsFrame.size.height;
@@ -2247,7 +2247,7 @@ typedef NS_ENUM(NSInteger, EOARouteInfoMenuState)
             
             CGRect contentFrame = _contentContainer.frame;
             contentFrame.size.width = self.bounds.size.width;
-            contentFrame.origin.y = CGRectGetMaxY(_statusBarBackgroundView.frame);
+            contentFrame.origin.y = statusBarInset;
             contentFrame.size.height = frame.size.height - buttonsFrame.size.height - contentFrame.origin.y;
             _contentContainer.frame = contentFrame;
             

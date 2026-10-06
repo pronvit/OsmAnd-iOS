@@ -187,6 +187,7 @@ typedef enum
 
     BOOL _customStatusBarStyleNeeded;
     UIStatusBarStyle _customStatusBarStyle;
+    UIView *_mapStatusBarView;
     
     BOOL _mapStateSaved;
         
@@ -270,6 +271,12 @@ typedef enum
     // Create root view
     UIView* rootView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.view = rootView;
+
+    _mapStatusBarView = [[UIView alloc] initWithFrame:CGRectZero];
+    _mapStatusBarView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.5];
+    _mapStatusBarView.userInteractionEnabled = NO;
+    _mapStatusBarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    [self.view addSubview:_mapStatusBarView];
     
     // Setup route info menu
     self.routeInfoView = [[OARouteInfoView alloc] initWithFrame:CGRectMake(0.0, 0.0, DeviceScreenWidth, 140.0)];
@@ -356,6 +363,10 @@ typedef enum
     
     if (_shadeView)
         _shadeView.frame = CGRectMake(0., 0., DeviceScreenWidth, DeviceScreenHeight);
+
+    CGFloat statusBarHeight = [OAUtilities getStatusBarHeight];
+    _mapStatusBarView.frame = CGRectMake(0., 0., self.view.bounds.size.width, statusBarHeight);
+    [self.view bringSubviewToFront:_mapStatusBarView];
 }
  
 @synthesize mapViewController = _mapViewController;
@@ -467,28 +478,7 @@ typedef enum
 
 - (UIStatusBarStyle) preferredStatusBarStyle
 {
-    if (_dashboard || !_mapillaryController.view.hidden)
-        return UIStatusBarStyleLightContent;
-    else if (_targetMenuView != nil && _targetMenuView.customController != nil &&
-                                        (_targetMenuView.targetPoint.type == OATargetImpassableRoadSelection ||
-                                        _targetMenuView.targetPoint.type == OATargetRouteDetails ||
-                                        _targetMenuView.targetPoint.type == OATargetRouteDetailsGraph ||
-                                        _targetMenuView.targetPoint.type == OATargetTransportRouteDetails))
-        return UIStatusBarStyleDefault;
-    else if (_scrollableHudViewController)
-        return _scrollableHudViewController.preferredStatusBarStyle;
-    else if ([self isRouteInfoVisible] && [_routeInfoView isFullScreen])
-        return [[ThemeManager shared] isLightTheme] ? UIStatusBarStyleDarkContent : UIStatusBarStyleLightContent;
-
-    if (_customStatusBarStyleNeeded)
-        return _customStatusBarStyle;
-    
-    if (self.hudViewController.mapInfoController.weatherToolbarVisible) {
-        return [[ThemeManager shared] isLightTheme] ? UIStatusBarStyleDarkContent : UIStatusBarStyleLightContent;
-    }
-
-    UIStatusBarStyle style = self.hudViewController ? self.hudViewController.preferredStatusBarStyle : UIStatusBarStyleDefault;
-    return [self.targetMenuView getStatusBarStyle:[self contextMenuMode] defaultStyle:style];
+    return UIStatusBarStyleLightContent;
 }
 
 - (BOOL) hasGpxActiveTargetType

@@ -1688,22 +1688,7 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
 
 - (UIColor *) getStatusBarBackgroundColor
 {
-    BOOL isNight = _settings.isAppMapNightMode;
-    BOOL transparent = [_settings.transparentMapTheme get];
-    UIColor *statusBarColor;
-    if ([_mapPanelViewController isDashboardVisible])
-        statusBarColor = UIColor.clearColor;
-    else if (self.contextMenuMode)
-        statusBarColor = isNight ? UIColor.clearColor : [UIColor colorWithWhite:1.0 alpha:0.5];
-    else if (_downloadMapWidget.isVisible)
-        statusBarColor = isNight ? UIColorFromRGB(nav_bar_night) : UIColorFromRGB(color_primary_table_background);
-    else if (_toolbarViewController)
-        statusBarColor = [_toolbarViewController getStatusBarColor];
-    else if (_mapInfoController.topPanelController && [_mapInfoController.topPanelController hasWidgets])
-        statusBarColor = isNight ? UIColorFromRGB(nav_bar_night) : UIColor.whiteColor;
-    if (!statusBarColor)
-        statusBarColor = isNight ? (transparent ? UIColor.clearColor : UIColor.blackColor) : [UIColor colorWithWhite:1.0 alpha:(transparent ? 0.5 : 1.0)];
-    return statusBarColor;
+    return UIColor.clearColor;
 }
 
 - (CGRect) getDownloadViewFrame

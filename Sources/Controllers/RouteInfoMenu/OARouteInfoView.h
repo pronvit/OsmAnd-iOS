@@ -19,7 +19,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *cancelButton;
 @property (weak, nonatomic) IBOutlet UIButton *goButton;
 @property (weak, nonatomic) IBOutlet UIView *contentContainer;
-@property (weak, nonatomic) IBOutlet UIView *statusBarBackgroundView;
 
 + (int) getDirectionInfo;
 + (BOOL) isVisible;
