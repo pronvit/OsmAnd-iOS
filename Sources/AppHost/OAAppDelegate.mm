@@ -302,9 +302,9 @@ NSNotificationName const OALaunchUpdateStateNotification = @"OALaunchUpdateState
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     LogStartup(@"didFinishLaunchingWithOptions");
-    [OACrashReportPromptCoordinator.shared start];
-    [OACrashDiagnosticsManager.shared start];
-    [OAMemoryLog.sharedInstance start];
+//    [OACrashReportPromptCoordinator.shared start];
+//    [OACrashDiagnosticsManager.shared start];
+//    [OAMemoryLog.sharedInstance start];
     _didFinishLaunching = YES;
    
     if (!_dataFetchQueue)
