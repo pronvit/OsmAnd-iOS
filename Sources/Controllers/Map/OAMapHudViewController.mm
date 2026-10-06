@@ -592,12 +592,10 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
     return [[[[OAMapButtonsHelper sharedInstance] getNavigationModeButtonState] visibilityPref] get] && ![self shouldAutoHideBottomButtons];
 }
 
-// Same as Android: while following a route, Menu and Navigation hide until the map is touched
+// Menu and Navigation stay visible while following a route.
 - (BOOL)canAutoHideBottomButtons
 {
-    return _routeFollowingMode
-        && !UIAccessibilityIsVoiceOverRunning()
-        && !UIApplication.sharedApplication.isCarPlayConnected;
+    return NO;
 }
 
 - (BOOL)shouldAutoHideBottomButtons
@@ -608,19 +606,19 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
 
 - (void)onBottomButtonsAutoHideStateChanged:(NSNotification *)notification
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self updateAutoHiddenBottomButtons];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self updateAutoHiddenBottomButtons];
+//    });
 }
 
 - (void)onMapGestureAction:(NSNotification *)notification
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (!self->_routeFollowingMode)
-            return;
-        self->_lastMapTouchTime = CACurrentMediaTime();
-        [self updateAutoHiddenBottomButtons];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        if (!self->_routeFollowingMode)
+//            return;
+//        self->_lastMapTouchTime = CACurrentMediaTime();
+//        [self updateAutoHiddenBottomButtons];
+//    });
 }
 
 - (void)updateAutoHiddenBottomButtons
@@ -2208,7 +2206,7 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
         if (routeFollowingMode)
             _lastMapTouchTime = 0;
         _routeFollowingMode = routeFollowingMode;
-        [self updateAutoHiddenBottomButtons];
+//        [self updateAutoHiddenBottomButtons];
     }
 }
 
