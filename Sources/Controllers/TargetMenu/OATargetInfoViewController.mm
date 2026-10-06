@@ -1043,7 +1043,7 @@ static inline BOOL OARowsContainKey(NSArray<OAAmenityInfoRow *> *rows, NSString 
 
 - (BOOL) showNearestPoi
 {
-    return YES;
+    return NO;
 }
 
 - (OAPOIUIFilter *) getPoiFilterForType:(OAPOI *)target isWiki:(BOOL)isWiki

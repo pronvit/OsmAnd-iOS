@@ -69,7 +69,7 @@ static const NSInteger kOrderFavGroupRow = 1;
 - (void) buildTopInternal:(NSMutableArray<OAAmenityInfoRow *> *)rows
 {
     [super buildTopInternal:rows];
-    [self buildGroupFavouritesView:rows];
+//    [self buildGroupFavouritesView:rows];
 }
 
 - (void) buildMenu:(NSMutableArray<OAAmenityInfoRow *> *)rows
