@@ -110,9 +110,9 @@ final class PlaceDetailsViewController: OAPOIViewController {
             infoBundle.setCustomHiddenExtensions([DESCRIPTION_TAG])
         }
         
-        if customOnlinePhotosPosition {
-            buildPhotosRow(rows)
-        }
+//        if customOnlinePhotosPosition {
+//            buildPhotosRow(rows)
+//        }
     }
 
     private func buildDescription(amenities: [OAPOI], allowOnlineWiki: Bool, rows: NSMutableArray) -> Bool {

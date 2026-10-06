@@ -295,8 +295,8 @@ static const NSInteger kOrderCoordinatesRow = 20000;
     if ([self needBuildCoordinatesRow])
         [self buildCoordinateRows:rows];
     
-    if (!_customOnlinePhotosPosition)
-        [self buildPhotosRow:rows];
+//    if (!_customOnlinePhotosPosition)
+//        [self buildPhotosRow:rows];
     
     [self handleOnlineAndMapillaryLoadingIfNeeded];
     

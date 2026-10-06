@@ -245,8 +245,8 @@ static const NSArray<NSString *> *kPrefixTags = @[@"start_date"];
         }
     }
     
-    if (self.customOnlinePhotosPosition)
-        [self buildPhotosRow:rows];
+//    if (self.customOnlinePhotosPosition)
+//        [self buildPhotosRow:rows];
 }
 
 - (void)buildInternalRows:(NSMutableArray<OAAmenityInfoRow *> *)rows
