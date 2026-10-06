@@ -1902,7 +1902,7 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
 
     if (animated)
     {
-        [UIView animateWithDuration:.3 animations:mainBlock completion:completionBlock];
+        [UIView animateWithDuration:.1 animations:mainBlock completion:completionBlock];
     }
     else
     {
