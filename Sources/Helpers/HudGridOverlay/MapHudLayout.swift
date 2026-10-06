@@ -32,6 +32,7 @@ final class MapHudLayout: NSObject {
     private var externalRulerLeftOffsetPx: CGFloat = 0
     private var ignoreTopSidePanels = false
     private var ignoreBottomSidePanels = false
+    private var isUpdatingButtons = false
     
     private weak var topBarPanelContainer: UIView?
     private weak var leftWidgetsPanel: UIView?
@@ -165,7 +166,10 @@ final class MapHudLayout: NSObject {
     }
     
     func updateButtons() {
+        guard !isUpdatingButtons else { return }
         guard !containerView.isHidden || containerView.bounds.width > 0 || containerView.bounds.height > 0 else { return }
+        isUpdatingButtons = true
+        defer { isUpdatingButtons = false }
         let positionMap = getButtonPositionSizes()
         for (view, pos) in positionMap where view is OAHudButton || view is OAMapRulerView || view is OADownloadMapWidget {
             if let btn = view as? OAHudButton {
@@ -495,14 +499,54 @@ final class MapHudLayout: NSObject {
         let extraBottom = position.isBottom ? externalBottomOverlayPx : 0.0
         let rulerExtraX = ruler != nil && externalRulerLeftOffsetPx > 0 && placeOnLeft ? max(0, externalRulerLeftOffsetPx - startX) : 0.0
         let newX: CGFloat = (placeOnLeft ? leftInset + startX : containerView.bounds.width - rightInset - view.bounds.width - startX) + rulerExtraX
-        let newY: CGFloat = position.isTop ? topInset + startY + extraTop : topInset + getAdjustedHeight() - view.bounds.height - startY - extraBottom
+        var newY: CGFloat = position.isTop ? topInset + startY + extraTop : topInset + getAdjustedHeight() - view.bounds.height - startY - extraBottom
+        let alignWithWidgets = alignsWithRightWidgets(view, position: position)
+        if alignWithWidgets, let widgetsTop = topOfRightWidgets() {
+            newY = widgetsTop
+        }
         let newOrigin = CGPoint(x: newX, y: newY)
         if view.frame.origin != newOrigin {
-            view.frame.origin = newOrigin
+            // Startup shows these two buttons before the widget panel's frame has caught up with its
+            // constraints, and a later layout pass was sliding them up. Apply the aligned origin
+            // immediately so that pass does not animate them from the grid position.
+            if alignWithWidgets {
+                UIView.performWithoutAnimation {
+                    view.frame.origin = newOrigin
+                }
+            } else {
+                view.frame.origin = newOrigin
+            }
             return true
         }
         
         return false
+    }
+    
+    // The grid's top row sits 16 pt below the safe area. The right widget panel does not, so the
+    // default map-settings and search buttons are lifted to that panel's top edge.
+    private func alignsWithRightWidgets(_ view: UIView, position: ButtonPositionSize) -> Bool {
+        guard position.isTop, position.marginY == 0, let button = view as? OAHudButton, let id = button.buttonState?.id else { return false }
+        return id == MapSettingsButtonState.hudId || id == SearchButtonState.hudId
+    }
+    
+    private func topOfRightWidgets() -> CGFloat? {
+        guard let panel = rightWidgetsPanel, !panel.isHidden, panel.alpha > 0.01 else { return nil }
+        guard let host = panel.superview else { return nil }
+        // The panel's frame stays at the xib size until the first on-screen layout, so a bounds check
+        // falls through to the grid and the buttons jump once the real frame arrives. The height
+        // constraint is already the measured widget size by then, and the top edge does not depend on it.
+        guard let height = heightConstant(of: panel), height > 1 else { return nil }
+        if !isUpdatingButtons {
+            containerView.layoutIfNeeded()
+        }
+        let topHeight = topBarPanelContainer.flatMap { heightConstant(of: $0) } ?? 0
+        let topOffset = host.constraints.first(where: { ($0.firstItem as? UIView) === topBarPanelContainer && $0.firstAttribute == .top })?.constant ?? 0
+        let gap = host.constraints.first(where: { ($0.firstItem as? UIView) === panel && $0.firstAttribute == .top })?.constant ?? 0
+        return host.convert(CGPoint.zero, to: containerView).y + topOffset + topHeight + gap
+    }
+
+    private func heightConstant(of view: UIView) -> CGFloat? {
+        view.constraints.first(where: { $0.firstAttribute == .height && $0.secondItem == nil })?.constant
     }
 }
 

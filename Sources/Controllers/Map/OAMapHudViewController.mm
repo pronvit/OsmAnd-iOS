@@ -425,6 +425,14 @@ static const NSTimeInterval kTimeoutToShowButtons = 7.0;
     }
 }
 
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    // Same pass as the widget panel, so the map-settings and search buttons do not appear on the
+    // grid and then jump up to the panel's top edge.
+    [_mapHudLayout updateButtons];
+}
+
 -(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
