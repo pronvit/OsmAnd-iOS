@@ -479,7 +479,7 @@ static const NSInteger kOrderCoordinatesRow = 20000;
 - (void)buildNearestRows:(NSMutableArray<OAAmenityInfoRow *> *)rows
 {
     [self buildNearestWikiRow:rows];
-    [self buildNearestPoiRow:rows];
+//    [self buildNearestPoiRow:rows];
     [self buildRouteRows:rows];
 }
 
