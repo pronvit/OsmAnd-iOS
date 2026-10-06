@@ -11,10 +11,8 @@ import Foundation
 @objcMembers
 final class TripRecordingDistanceWidget: BaseRecordingWidget {
     private let savingTrackHelper = OASavingTrackHelper.sharedInstance()
-    private let blinkDelay: TimeInterval = 0.5
     
     private var widgetState: TripRecordingDistanceWidgetState?
-    private var cachedLastUpdateTime: Int64 = 0
     
     init(customId: String?, appMode: OAApplicationMode, widgetParams: [String: Any]? = nil) {
         super.init(type: .tripRecordingDistance)
@@ -22,8 +20,9 @@ final class TripRecordingDistanceWidget: BaseRecordingWidget {
         configurePrefs(withId: customId, appMode: appMode, widgetParams: widgetParams)
         updateInfo()
         onClickFunction = { [weak self] _ in
-            guard let self, let plugin = self.getMonitoringPlugin() else { return }
-            plugin.showTripRecordingDialog()
+            guard let self, let gpxFile = self.savingTrackHelper?.currentTrack else { return }
+            let trackItem = TrackItem(gpxFile: gpxFile)
+            OARootViewController.instance().mapPanel.openTargetView(withGPX: trackItem, selectedTab: .segmentsTab, selectedStatisticsTab: .overviewTab, openedFromMap: true)
         }
     }
     
@@ -37,40 +36,17 @@ final class TripRecordingDistanceWidget: BaseRecordingWidget {
     
     @discardableResult override func updateInfo() -> Bool {
         super.updateInfo()
-        guard let plugin = getMonitoringPlugin() else { return true }
         guard let savingTrackHelper else { return true }
-        if plugin.saving {
-            setText(localizedString("shared_string_save"), subtext: nil)
-            setIcon("widget_monitoring_rec_big")
+        guard savingTrackHelper.getIsRecording() || hasCurrentTrack() else {
+            setText(nil, subtext: nil)
             return true
         }
         
         let recordingDistanceMode = currentMode()
         if recordingDistanceMode == .totalDistance {
-            var lastUpdateTime = cachedLastUpdateTime
-            let globalRecording = OAAppSettings.sharedManager().mapSettingTrackRecording
-            let recording = savingTrackHelper.getIsRecording()
-            let liveMonitoring = plugin.isLiveMonitoringEnabled()
-            let distance = savingTrackHelper.distance
-            setDistanceText(distance, mode: recordingDistanceMode)
-            setRecordingIcons(globalRecording: globalRecording, liveMonitoring: liveMonitoring, recording: recording)
-            if distance > 0 {
-                lastUpdateTime = Int64(savingTrackHelper.lastTimeUpdated)
-            }
-            
-            if lastUpdateTime != cachedLastUpdateTime && (globalRecording || recording) {
-                cachedLastUpdateTime = lastUpdateTime
-                setRecordingIcons(globalRecording: false, liveMonitoring: liveMonitoring, recording: true)
-                DispatchQueue.main.asyncAfter(deadline: .now() + blinkDelay) { [weak self] in
-                    guard let self else { return }
-                    self.setRecordingIcons(globalRecording: globalRecording,
-                                           liveMonitoring: liveMonitoring,
-                                           recording: !globalRecording)
-                }
-            }
+            setDistanceText(savingTrackHelper.distance)
         } else {
             updateLastSlopeDistance(mode: recordingDistanceMode)
-            setIcon(recordingDistanceMode.iconName)
         }
         
         updateTitleAndIcon()
@@ -116,43 +92,32 @@ final class TripRecordingDistanceWidget: BaseRecordingWidget {
         currentMode().titleKey
     }
     
+    private func hasCurrentTrack() -> Bool {
+        if savingTrackHelper?.hasData() == true {
+            return true
+        }
+        guard let gpx = savingTrackHelper?.currentTrack else { return false }
+        for trackObject in gpx.tracks {
+            guard let track = trackObject as? Track else { continue }
+            for segmentObject in track.segments {
+                guard let segment = segmentObject as? TrkSegment, segment.points.count > 0 else { continue }
+                return true
+            }
+        }
+        return false
+    }
+
     private func updateLastSlopeDistance(mode: TripRecordingDistanceMode) {
         if let lastSlope = getLastSlope(isUphill: mode == .lastUphill) {
-            setDistanceText(Float(lastSlope.distance), mode: mode)
+            setDistanceText(Float(lastSlope.distance))
         } else {
-            setDistanceText(0, mode: mode)
+            setDistanceText(0)
         }
     }
     
-    private func setDistanceText(_ distance: Float, mode: TripRecordingDistanceMode) {
-        guard distance > 0 else {
-            if mode == .totalDistance {
-                setText(localizedString("monitoring_control_start"), subtext: nil)
-            } else {
-                setText("0", subtext: nil)
-            }
-            return
-        }
-        
+    private func setDistanceText(_ distance: Float) {
         let parts = OAOsmAndFormatter.getFormattedDistance(distance).components(separatedBy: " ")
         setText(parts.first, subtext: parts.dropFirst().last)
-    }
-    
-    private func setRecordingIcons(globalRecording: Bool, liveMonitoring: Bool, recording: Bool) {
-        let iconName: String
-        if globalRecording {
-            iconName = liveMonitoring ? "widget_live_monitoring_rec_big" : "widget_monitoring_rec_big"
-        } else if recording {
-            iconName = liveMonitoring ? "widget_live_monitoring_rec_small" : "widget_monitoring_rec_small"
-        } else {
-            iconName = "widget_monitoring_rec_inactive"
-        }
-        
-        setIcon(iconName)
-    }
-    
-    private func getMonitoringPlugin() -> OAMonitoringPlugin? {
-        OAPluginsHelper.getPlugin(OAMonitoringPlugin.self) as? OAMonitoringPlugin
     }
     
     private func updateTitleAndIcon() {
@@ -162,9 +127,7 @@ final class TripRecordingDistanceWidget: BaseRecordingWidget {
         let format = localizedString("ltr_or_rtl_combine_via_colon")
         let fullTitle = String(format: format, baseTitle, modeTitle)
         setContentTitle(fullTitle)
-        if mode != .totalDistance {
-            setIcon(mode.iconName)
-        }
+        setIcon(mode == .totalDistance ? "widget_trip_recording" : mode.iconName)
         
         configureSimpleLayout()
     }
