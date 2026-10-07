@@ -1137,6 +1137,7 @@
         }
         else
         {
+            [[OASelectedGPXHelper instance] replaceWaypointsOnGeometryForPath:weakSelf.doc.path fromFile:weakSelf.doc];
             [weakSelf.mapViewController.mapLayers.gpxMapLayer updateCachedGpxItem:weakSelf.doc.path];
             [weakSelf.mapViewController.mapLayers.gpxMapLayer refreshGpxWaypoints];
         }

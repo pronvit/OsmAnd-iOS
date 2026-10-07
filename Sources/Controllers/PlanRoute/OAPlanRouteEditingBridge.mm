@@ -28,6 +28,7 @@
 #import "OAEditWaypointsGroupOptionsViewController.h"
 #import "OANativeUtilities.h"
 #import "OASelectedGPXHelper.h"
+#import "OAGpxTrackGeometry.h"
 #import "OAGPXDatabase.h"
 #import "OADefaultFavorite.h"
 #import "OARouteStatisticsHelper.h"
@@ -143,6 +144,8 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     OASGpxFile *_terrainElevationGpxFile;
     NSUInteger _pointsVersion;
     NSUInteger _terrainElevationVersion;
+    NSUInteger _displayedTrackLineVersion;
+    BOOL _displayedTrackLineOverridden;
     NSTimeInterval _lastRouteInfoRefreshTime;
     OAPlanningPopupBaseViewController *_approximationPopupController;
 }
@@ -199,6 +202,56 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
 {
     _pointsVersion++;
     _terrainElevationGpxFile = nil;
+}
+
+- (void)publishDisplayedTrackLine
+{
+    if (![NSThread isMainThread])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self publishDisplayedTrackLine];
+        });
+        return;
+    }
+
+    OAMeasurementEditingContext *ctx = [self editingContext];
+    OASGpxFile *source = ctx.gpxData.gpxFile;
+    NSString *path = source.path;
+    if (path.length == 0 || ![[OASelectedGPXHelper instance] containsGpxFileWith:path])
+        return;
+
+    OASGpxFile *exported = ctx.getPointsCount > 0 ? [ctx exportGpx:path.lastPathComponent.stringByDeletingPathExtension] : nil;
+    if (exported == nil)
+        exported = [[OASGpxFile alloc] initWithAuthor:nil];
+    [self addPoiGroupsFromGpx:source toGpx:exported];
+    [self addDraftWaypointsToGpx:exported];
+    exported.path = path;
+
+    NSUInteger version = ++_displayedTrackLineVersion;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        OAGpxTrackGeometry *geometry = [OAGpxTrackGeometry geometryFromGpxFile:exported path:path];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (version != self->_displayedTrackLineVersion)
+                return;
+            if (![[OASelectedGPXHelper instance] replaceDisplayedGeometry:geometry forPath:path])
+                return;
+            self->_displayedTrackLineOverridden = YES;
+            [[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
+        });
+    });
+}
+
+- (void)restoreDisplayedTrackLineFromDisk
+{
+    _displayedTrackLineVersion++;
+    if (!_displayedTrackLineOverridden)
+        return;
+    _displayedTrackLineOverridden = NO;
+    NSString *path = [self currentGpxFile].path;
+    if (path.length == 0)
+        return;
+    [[OASelectedGPXHelper instance] markTrackForReload:path];
+    [[OsmAndApp instance].updateGpxTracksOnMapObservable notifyEvent];
 }
 
 - (BOOL)hasPoints
@@ -339,6 +392,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
         [self beginRouteCalculationIfNeededForContext:ctx];
     [ctx.commandManager execute:[[OAAddPointCommand alloc] initWithLayer:layer center:YES]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -366,6 +420,10 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     OAMeasurementEditingContext *ctx = [self editingContext];
     if (ctx != nil && [ctx hasChanges] && _initialPoiStateSnapshot != nil)
         [self restorePoiStateSnapshot:_initialPoiStateSnapshot];
+    if (ctx != nil && [ctx hasChanges])
+        [self restoreDisplayedTrackLineFromDisk];
+    else
+        _displayedTrackLineOverridden = NO;
     
     _initialPoiStateSnapshot = nil;
     _editingPoiStateSnapshot = nil;
@@ -411,6 +469,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     CLLocation *latLon = [[CLLocation alloc] initWithLatitude:coordinate.latitude longitude:coordinate.longitude];
     [ctx.commandManager execute:[[OAAddPointCommand alloc] initWithLayer:layer coordinate:latLon]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1088,6 +1147,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [self invalidateTerrainElevationGpx];
     [ctx.commandManager execute:[[OARemovePointCommand alloc] initWithLayer:layer position:index]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1101,6 +1161,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [self invalidateTerrainElevationGpx];
     [ctx.commandManager execute:[[OAReorderPointCommand alloc] initWithLayer:layer from:from to:to move:YES]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1113,6 +1174,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
         return;
     [self invalidateTerrainElevationGpx];
     [ctx.commandManager execute:[[OAReorderSegmentCommand alloc] initWithLayer:layer from:from to:to]];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1130,6 +1192,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     for (NSNumber *indexNumber in sorted)
         [ctx.commandManager execute:[[OARemovePointCommand alloc] initWithLayer:layer position:indexNumber.integerValue]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1152,6 +1215,8 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [layer updateLayer];
     if (started && self.onNewSegmentStarted)
         self.onNewSegmentStarted();
+    if (started)
+        [self publishDisplayedTrackLine];
     if (started && self.onChange)
         self.onChange();
 }
@@ -1165,6 +1230,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [self invalidateTerrainElevationGpx];
     [ctx.commandManager undo];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1178,6 +1244,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [self invalidateTerrainElevationGpx];
     [ctx.commandManager redo];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1201,6 +1268,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
                                                                         pointIndex:pointIndex
                                                          updatesPendingSegmentMode:updatesPendingSegmentMode]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1224,6 +1292,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
                                                                           appMode:mode
                                                                      pointIndexes:pointIndexes]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1237,6 +1306,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [self invalidateTerrainElevationGpx];
     [ctx recalculateRouteSegmentsWithMode:mode];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1321,6 +1391,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [ctx.commandManager execute:[[OAClearPointsCommand alloc] initWithMeasurementLayer:layer mode:EOAClearPointsModeBefore]];
     ctx.selectedPointPosition = -1;
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1336,6 +1407,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [ctx.commandManager execute:[[OAClearPointsCommand alloc] initWithMeasurementLayer:layer mode:EOAClearPointsModeAfter]];
     ctx.selectedPointPosition = -1;
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1408,6 +1480,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     ctx.addPointMode = EOAAddPointModeUndefined;
     [ctx splitSegments:ctx.getBeforePoints.count + ctx.getAfterPoints.count];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1431,6 +1504,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [self invalidateTerrainElevationGpx];
     [ctx.commandManager execute:[[OAReversePointsCommand alloc] initWithLayer:layer]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1445,6 +1519,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [ctx.commandManager execute:[[OAClearPointsCommand alloc] initWithMeasurementLayer:layer mode:EOAClearPointsModeAll]];
     [ctx cancelSnapToRoad];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -1584,7 +1659,10 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     NSString *path = [OAUtilities absoluteGpxPathForPath:gpxFile.path];
     OASGpxFile *activeGpxFile = [OASelectedGPXHelper.instance activeGpxFileForPath:path fallbackPath:gpxFile.path];
     if (activeGpxFile != nil && activeGpxFile != gpxFile)
+    {
         [self applyPoiStateSnapshot:[[PlanRoutePoiStateSnapshot alloc] initWithGpxFile:gpxFile draftGpxFile:nil] toGpxFile:activeGpxFile draft:NO];
+        [[OASelectedGPXHelper instance] replaceWaypointsOnGeometryForPath:path fromFile:activeGpxFile];
+    }
     
     OAMapViewController *mapViewController = OARootViewController.instance.mapPanel.mapViewController;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1815,6 +1893,13 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
                 BOOL isVisible = gpxFilePath.length > 0 && [settings isGpxVisible:gpxFilePath];
                 if (isVisible || showOnMap)
                 {
+                    if (strongSelf != nil && asCopy && strongSelf->_displayedTrackLineOverridden)
+                        [strongSelf restoreDisplayedTrackLineFromDisk];
+                    else if (strongSelf != nil)
+                    {
+                        strongSelf->_displayedTrackLineVersion++;
+                        strongSelf->_displayedTrackLineOverridden = NO;
+                    }
                     [OASelectedGPXHelper.instance addGpxFile:gpx for:outFile];
                     if (isVisible)
                         [OsmAndApp.instance.updateGpxTracksOnMapObservable notifyEvent];
@@ -1827,6 +1912,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
                     if (activeGpxFile != nil)
                     {
                         [strongSelf applyPoiStateSnapshot:originalPoiStateSnapshot toGpxFile:activeGpxFile draft:NO];
+                        [[OASelectedGPXHelper instance] replaceWaypointsOnGeometryForPath:originalGpxPath fromFile:activeGpxFile];
                         OAMapViewController *mapViewController = OARootViewController.instance.mapPanel.mapViewController;
                         [mapViewController.mapLayers.gpxMapLayer updateCachedGpxItem:originalGpxPath];
                         [mapViewController.mapLayers.gpxMapLayer refreshGpxWaypoints];
@@ -2257,6 +2343,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
         }
     }
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -2292,6 +2379,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     layer.pressPointLocation = [[CLLocation alloc] initWithLatitude:coordinate.latitude longitude:coordinate.longitude];
     [ctx.commandManager execute:[[OAAddPointCommand alloc] initWithLayer:layer center:NO]];
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -2366,6 +2454,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [ctx.commandManager execute:[[OASplitPointsCommand alloc] initWithLayer:layer after:NO]];
     ctx.selectedPointPosition = -1;
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -2383,6 +2472,8 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [layer updateLayer];
     if (split && startsNewSegment && self.onNewSegmentStarted)
         self.onNewSegmentStarted();
+    if (split)
+        [self publishDisplayedTrackLine];
     if (split && self.onChange)
         self.onChange();
 }
@@ -2397,6 +2488,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     [ctx.commandManager execute:[[OAJoinPointsCommand alloc] initWithLayer:layer]];
     ctx.selectedPointPosition = -1;
     [layer updateLayer];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -2725,6 +2817,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
 {
     _isCalculatingRoute = NO;
     _lastRouteInfoRefreshTime = 0;
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -2759,6 +2852,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
         [ctx.commandManager undo];
     [[self layer] updateLayer];
     [self invalidateTerrainElevationGpx];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
 }
@@ -2774,6 +2868,7 @@ static const NSTimeInterval kRouteInfoRefreshInterval = 0.25;
     _approximationPopupController = nil;
     [[self layer] updateLayer];
     [self invalidateTerrainElevationGpx];
+    [self publishDisplayedTrackLine];
     if (self.onChange)
         self.onChange();
     if (self.onApproximationApplied)

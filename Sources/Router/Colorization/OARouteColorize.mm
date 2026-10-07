@@ -59,6 +59,28 @@
     return self;
 }
 
+- (instancetype)initWithLatitudes:(OASKotlinDoubleArray *)latitudes
+                       longitudes:(OASKotlinDoubleArray *)longitudes
+                           values:(OASKotlinDoubleArray *)values
+                         minValue:(double)minValue
+                         maxValue:(double)maxValue
+                          palette:(OASColorPalette *)palette
+                      fixedValues:(BOOL)fixedValues
+{
+    self = [super init];
+    if (self)
+    {
+        _routeColorize = [[OASRouteColorize alloc] initWithLatitudes:latitudes
+                                                          longitudes:longitudes
+                                                              values:values
+                                                            minValue:minValue
+                                                            maxValue:maxValue
+                                                             palette:palette
+                                                         fixedValues:fixedValues];
+    }
+    return self;
+}
+
 - (NSArray<OARouteColorizationPoint *> *)getResult
 {
     NSMutableArray<OARouteColorizationPoint *> *result = [NSMutableArray array];

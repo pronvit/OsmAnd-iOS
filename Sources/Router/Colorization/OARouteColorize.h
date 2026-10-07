@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class OASGpxTrackAnalysis, OASGpxFile, OASColorPalette, OASRouteColorizeColorizationType;
+@class OASGpxTrackAnalysis, OASGpxFile, OASColorPalette, OASRouteColorizeColorizationType, OASKotlinDoubleArray;
 
 @interface OARouteColorizationPoint: NSObject
 
@@ -32,6 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
                         palette:(nullable OASColorPalette *)palette
                 maxProfileSpeed:(float)maxProfileSpeed
                     fixedValues:(BOOL)fixedValues;
+
+- (instancetype)initWithLatitudes:(OASKotlinDoubleArray *)latitudes
+                       longitudes:(OASKotlinDoubleArray *)longitudes
+                           values:(OASKotlinDoubleArray *)values
+                         minValue:(double)minValue
+                         maxValue:(double)maxValue
+                          palette:(nullable OASColorPalette *)palette
+                      fixedValues:(BOOL)fixedValues;
 
 + (OASRouteColorizeColorizationType *)sharedColorizationType:(NSInteger)colorizationType;
 + (NSArray<NSNumber *> *)colorsFromSharedPalette:(nullable OASColorPalette *)palette;

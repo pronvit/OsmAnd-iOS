@@ -22,7 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)buildGpxList;
 - (BOOL)isLoading;
+- (NSDictionary<NSString *, OAGpxTrackGeometry *> *)geometries;
 - (nullable OAGpxTrackGeometry *)geometryForPath:(NSString *)path;
+- (BOOL)replaceDisplayedGeometry:(OAGpxTrackGeometry *)geometry forPath:(NSString *)path;
+- (void)replaceWaypointsOnGeometryForPath:(NSString *)path fromFile:(OASGpxFile *)file;
 - (void)markTrackForReload:(NSString *)filePath;
 - (nullable OASGpxFile *)getSelectedGpx:(OASWptPt *)gpxWpt;
 - (BOOL)isShowingAnyGpxFiles;
