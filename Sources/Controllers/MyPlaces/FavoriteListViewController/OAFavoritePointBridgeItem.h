@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL isVisible;
 
 - (instancetype)initWithFavorite:(OAFavoriteItem *)favorite;
+- (instancetype)initWithFavorite:(OAFavoriteItem *)favorite itemDescription:(NSString *)itemDescription;
 - (UIImage *)icon;
 - (void)updateDistanceAndDirection;
 - (void)updateDistanceAndDirectionFromMapCenter:(CLLocationCoordinate2D)mapCenterCoordinate mapAzimuth:(CLLocationDirection)mapAzimuth;

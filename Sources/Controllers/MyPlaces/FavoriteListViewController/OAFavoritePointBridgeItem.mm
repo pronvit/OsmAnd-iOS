@@ -20,6 +20,11 @@
 
 - (instancetype)initWithFavorite:(OAFavoriteItem *)favorite
 {
+    return [self initWithFavorite:favorite itemDescription:nil];
+}
+
+- (instancetype)initWithFavorite:(OAFavoriteItem *)favorite itemDescription:(NSString *)itemDescription
+{
     self = [super init];
     if (self)
     {
@@ -28,7 +33,7 @@
         _title = [favorite getDisplayName] ?: @"";
         _address = [favorite getAddress];
         _displayGroupName = [favorite getCategoryDisplayName] ?: @"";
-        _itemDescription = [favorite getDescription];
+        _itemDescription = itemDescription;
         _encodedNameForLink = [[favorite getName] escapeUrl] ?: @"";
         _distance = [self.class distanceForFavorite:favorite];
         _direction = [self.class directionForFavorite:favorite];

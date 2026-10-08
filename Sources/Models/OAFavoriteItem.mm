@@ -128,6 +128,8 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
     NSString *_categoryDisplayName;
     NSDate *_timestamp;
     NSDate *_pickupTime;
+    BOOL _descriptionWasSet;
+    BOOL _descriptionLoaded;
 }
 
 - (instancetype)initWithFavorite:(std::shared_ptr<OsmAnd::IFavoriteLocation>)favorite
@@ -317,12 +319,17 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
 
 #pragma mark - Getters and setters
 
++ (NSString *)keyForFavoriteName:(NSString *)name category:(NSString *)category
+{
+    return [NSString stringWithFormat:@"%@%@%@", name ?: @"", kDelimiter, category ?: @""];
+}
+
 - (NSString *) getKey
 {
     if (_key)
         return _key;
     
-    _key = [NSString stringWithFormat:@"%@%@%@", [self getName], kDelimiter, [self getCategory]];
+    _key = [self.class keyForFavoriteName:[self getName] category:[self getCategory]];
     return _key;
 }
 
@@ -344,22 +351,27 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
     _key = nil;
 }
 
+- (BOOL)hasResolvedDescription
+{
+    return _descriptionWasSet || _descriptionLoaded;
+}
+
 - (NSString *) getDescription
 {
-    if (_description)
-        return _description;
-    
-    if (!self.favorite->getDescription().isNull())
-        _description = self.favorite->getDescription().toNSString();
-    else
-        _description = @"";
+    if (_descriptionWasSet || _descriptionLoaded)
+        return _description ?: @"";
+
+    _description = [OAFavoritesHelper storedDescriptionForItem:self] ?: @"";
+    _descriptionLoaded = YES;
     return _description;
 }
 
 - (void) setDescription:(NSString *)description
 {
-    self.favorite->setDescription(QString::fromNSString(description));
-    _description = nil;
+    _description = description ?: @"";
+    _descriptionWasSet = YES;
+    _descriptionLoaded = YES;
+    self.favorite->setDescription(_description.length > 0 ? QString::fromNSString(_description) : QString());
 }
 
 - (NSString *) getAddress
@@ -697,6 +709,16 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
 
 - (OASWptPt *) toWpt
 {
+    NSString *description = nil;
+    if (_descriptionWasSet || _descriptionLoaded)
+        description = _description ?: @"";
+    else
+        description = [OAFavoritesHelper storedDescriptionForItem:self] ?: @"";
+    return [self toWptWithDescription:description];
+}
+
+- (OASWptPt *)toWptWithDescription:(NSString *)storedDescription
+{
     OASWptPt *pt = [[OASWptPt alloc] initWithLat:self.getLatitude lon:self.getLongitude];
     if (self.getAltitude > 0)
         pt.ele = self.getAltitude;
@@ -728,7 +750,7 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
     [pt setAmenity:[self getAmenity]];
 
     pt.name = self.getName;
-    pt.desc = self.getDescription;
+    pt.desc = storedDescription;
     if (self.getCategory.length > 0)
         pt.category = self.getCategory;
 
@@ -750,12 +772,34 @@ static NSArray<OASpecialPointType *> *_values = @[_home, _work, _parking];
                                                     category:categoryName
                                                     altitude:pt.ele
                                                    timestamp:pt.time];
-    [fp setDescription:pt.desc];
     [fp setComment:pt.comment];
     [fp setAmenityOriginName:pt.getAmenityOriginName];
     NSDictionary<NSString *, NSString *> *extensions = [pt getExtensionsToRead];
     if (extensions.count > 0)
-        [fp setExtensions:extensions];
+    {
+        static NSSet<NSString *> *appearanceKeys;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            appearanceKeys = [NSSet setWithObjects:
+                              ICON_NAME_EXTENSION_KEY,
+                              BACKGROUND_TYPE_EXTENSION_KEY,
+                              COLOR_NAME_EXTENSION_KEY,
+                              ADDRESS_EXTENSION_KEY,
+                              EXTENSION_HIDDEN,
+                              CALENDAR_EXTENSION,
+                              CREATION_TIME_EXTENSION,
+                              PICKUP_DATE_EXTENSION,
+                              AMENITY_ORIGIN_EXTENSION_KEY,
+                              nil];
+        });
+        NSMutableDictionary<NSString *, NSString *> *kept = [NSMutableDictionary dictionaryWithCapacity:extensions.count];
+        [extensions enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+            if (![appearanceKeys containsObject:key])
+                kept[key] = value;
+        }];
+        if (kept.count > 0)
+            [fp setExtensions:kept];
+    }
     
     // TODO: sync with Android
 

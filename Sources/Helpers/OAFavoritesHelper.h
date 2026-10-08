@@ -26,6 +26,10 @@
 + (void)loadFileGroups:(NSString *)file
                 groups:(NSMutableDictionary<NSString *, OAFavoriteGroup *> *)groups;
 + (OASGpxFile *)loadGpxFile:(NSString *)file;
++ (NSDictionary<NSString *, NSString *> *)storedDescriptionsByKeyForGroupName:(NSString *)groupName;
++ (NSString *)storedDescriptionForItem:(OAFavoriteItem *)item;
++ (void)enumerateWaypointsForFavorites:(NSArray<OAFavoriteItem *> *)favorites
+                                 block:(void (^)(OASWptPt *waypoint))block;
 + (void)importFavoritesFromGpx:(OASGpxFile *)gpxFile;
 
 + (OAFavoriteItem *) getSpecialPoint:(OASpecialPointType *)specialType;

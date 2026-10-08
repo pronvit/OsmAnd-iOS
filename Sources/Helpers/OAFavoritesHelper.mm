@@ -192,6 +192,60 @@ static NSOperationQueue *_favQueue;
     return [OASGpxUtilities.shared loadGpxFileFile:favoriteGPXFile];
 }
 
++ (NSDictionary<NSString *, NSString *> *)storedDescriptionsByKeyForGroupName:(NSString *)groupName
+{
+    NSString *path = [OsmAndApp.instance favoritesStorageFilename:groupName ?: @""];
+    if (path.length == 0 || ![[NSFileManager defaultManager] fileExistsAtPath:path])
+        return @{};
+
+    OASGpxFile *gpx = [self loadGpxFile:path];
+    if (!gpx)
+        return @{};
+
+    NSMutableDictionary<NSString *, NSString *> *descriptions = [NSMutableDictionary dictionary];
+    [gpx.pointsGroups enumerateKeysAndObjectsUsingBlock:^(NSString *key, OASGpxUtilitiesPointsGroup *pointsGroup, BOOL *stop) {
+        for (OASWptPt *point in pointsGroup.points)
+        {
+            if (point.desc.length == 0)
+                continue;
+            NSString *favoriteKey = [OAFavoriteItem keyForFavoriteName:point.name ?: @"" category:point.category ?: @""];
+            descriptions[favoriteKey] = point.desc;
+        }
+    }];
+    return descriptions;
+}
+
++ (NSString *)storedDescriptionForItem:(OAFavoriteItem *)item
+{
+    if (!item)
+        return nil;
+    return [self storedDescriptionsByKeyForGroupName:[item getCategory]][[item getKey]];
+}
+
++ (void)enumerateWaypointsForFavorites:(NSArray<OAFavoriteItem *> *)favorites
+                                 block:(void (^)(OASWptPt *waypoint))block
+{
+    if (!block || favorites.count == 0)
+        return;
+
+    NSMutableDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *descriptionsByGroup = [NSMutableDictionary dictionary];
+    for (OAFavoriteItem *favorite in favorites)
+    {
+        NSString *storedDescription = nil;
+        if ([favorite hasResolvedDescription])
+            storedDescription = [favorite getDescription];
+        else
+        {
+            NSString *groupName = [favorite getCategory] ?: @"";
+            NSDictionary<NSString *, NSString *> *stored = descriptionsByGroup[groupName];
+            if (!stored)
+                descriptionsByGroup[groupName] = stored = [self storedDescriptionsByKeyForGroupName:groupName] ?: @{};
+            storedDescription = stored[[favorite getKey]];
+        }
+        block([favorite toWptWithDescription:storedDescription ?: @""]);
+    }
+}
+
 + (void)importFavoritesFromGpx:(OASGpxFile *)gpxFile
 {
     NSString *defCategory = @"";
@@ -1637,11 +1691,22 @@ static NSOperationQueue *_favQueue;
     OASBoolean *pinned = [OASBoolean numberWithBool:_isPinned];
     OASGpxUtilitiesPointsGroup *pointsGroup = [[OASGpxUtilitiesPointsGroup alloc] initWithName:_name iconName:_iconName backgroundType:_backgroundType color:[self color].toARGBNumber hidden:!_isVisible pinned:pinned];
     NSMutableArray<OASWptPt *> *points = [NSMutableArray array];
-    
+    BOOL needsStoredDescriptions = NO;
+    for (OAFavoriteItem *point in _points)
+    {
+        if (![point hasResolvedDescription])
+        {
+            needsStoredDescriptions = YES;
+            break;
+        }
+    }
+    NSDictionary<NSString *, NSString *> *storedDescriptions = needsStoredDescriptions ? [OAFavoritesHelper storedDescriptionsByKeyForGroupName:_name] : nil;
+
     for (OAFavoriteItem *point in _points)
     {
         [point setIcon:[self removePrefix:mxPrefix fromValue:[point getIcon]]];
-        [points addObject:[point toWpt]];
+        NSString *description = [point hasResolvedDescription] ? [point getDescription] : storedDescriptions[[point getKey]];
+        [points addObject:[point toWptWithDescription:description ?: @""]];
     }
     
     pointsGroup.points = points;

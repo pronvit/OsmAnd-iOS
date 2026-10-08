@@ -103,7 +103,10 @@
 
 + (NSString *) toStringDate:(NSDate *)date;
 
+- (BOOL)hasResolvedDescription;
 - (OASWptPt *) toWpt;
+- (OASWptPt *)toWptWithDescription:(NSString *)storedDescription;
++ (NSString *)keyForFavoriteName:(NSString *)name category:(NSString *)category;
 + (OAFavoriteItem *)fromWpt:(OASWptPt *)pt category:(NSString *)category;
 
 - (UIImage *) getCompositeIcon;

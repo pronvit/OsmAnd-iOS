@@ -171,10 +171,12 @@ static NSString * const kFavoritesStorageChangedNotification = @"FavoritesStorag
 
 - (NSArray<OAFavoritePointBridgeItem *> *)favoritePointsForGroupName:(NSString *)groupName
 {
-    NSArray<OAFavoriteItem *> *points = [self sortedFavoritePointsForGroup:[self favoriteGroupWithName:groupName]];
+    OAFavoriteGroup *group = [self favoriteGroupWithName:groupName];
+    NSArray<OAFavoriteItem *> *points = [self sortedFavoritePointsForGroup:group];
+    NSDictionary<NSString *, NSString *> *descriptions = [OAFavoritesHelper storedDescriptionsByKeyForGroupName:group.name ?: groupName];
     NSMutableArray<OAFavoritePointBridgeItem *> *items = [NSMutableArray arrayWithCapacity:points.count];
     for (OAFavoriteItem *point in points)
-        [items addObject:[[OAFavoritePointBridgeItem alloc] initWithFavorite:point]];
+        [items addObject:[[OAFavoritePointBridgeItem alloc] initWithFavorite:point itemDescription:descriptions[[point getKey]]]];
 
     return items.copy;
 }
@@ -777,8 +779,9 @@ static NSString * const kFavoritesStorageChangedNotification = @"FavoritesStorag
     if (gpxFileName.length == 0)
     {
         OASavingTrackHelper *savingTrackHelper = OASavingTrackHelper.sharedInstance;
-        for (OAFavoriteItem *favorite in points)
-            [savingTrackHelper addWpt:[favorite toWpt]];
+        [OAFavoritesHelper enumerateWaypointsForFavorites:points block:^(OASWptPt *waypoint) {
+            [savingTrackHelper addWpt:waypoint];
+        }];
 
         if (![OAAppSettings.sharedManager.mapSettingShowRecordingTrack get])
             [OAAppSettings.sharedManager.mapSettingShowRecordingTrack set:YES];
@@ -796,8 +799,9 @@ static NSString * const kFavoritesStorageChangedNotification = @"FavoritesStorag
     if (!gpxFile)
         return;
 
-    for (OAFavoriteItem *favorite in points)
-        [gpxFile addPointPoint:[favorite toWpt]];
+    [OAFavoritesHelper enumerateWaypointsForFavorites:points block:^(OASWptPt *waypoint) {
+        [gpxFile addPointPoint:waypoint];
+    }];
 
     [OASGpxUtilities.shared writeGpxFileFile:dataItem.file gpxFile:gpxFile];
     [gpxDatabase updateDataItem:dataItem];
@@ -829,8 +833,9 @@ static NSString * const kFavoritesStorageChangedNotification = @"FavoritesStorag
     if (gpxFileName.length == 0)
     {
         OASavingTrackHelper *savingTrackHelper = [OASavingTrackHelper sharedInstance];
-        for (OAFavoriteItem *favorite in itemsToAdd)
-            [savingTrackHelper addWpt:[favorite toWpt]];
+        [OAFavoritesHelper enumerateWaypointsForFavorites:itemsToAdd block:^(OASWptPt *waypoint) {
+            [savingTrackHelper addWpt:waypoint];
+        }];
 
         if (![OAAppSettings.sharedManager.mapSettingShowRecordingTrack get])
             [OAAppSettings.sharedManager.mapSettingShowRecordingTrack set:YES];
@@ -848,8 +853,9 @@ static NSString * const kFavoritesStorageChangedNotification = @"FavoritesStorag
     if (!gpxFile)
         return;
 
-    for (OAFavoriteItem *favorite in itemsToAdd)
-        [gpxFile addPointPoint:[favorite toWpt]];
+    [OAFavoritesHelper enumerateWaypointsForFavorites:itemsToAdd block:^(OASWptPt *waypoint) {
+        [gpxFile addPointPoint:waypoint];
+    }];
 
     [OASGpxUtilities.shared writeGpxFileFile:dataItem.file gpxFile:gpxFile];
     [gpxDatabase updateDataItem:dataItem];
