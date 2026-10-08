@@ -975,6 +975,16 @@ static NSInteger const kMap3DModeButtonTag = -990;
         shadowView.hidden = !show;
 }
 
+- (void) setShadowMaskedCorners:(CACornerMask)maskedCorners
+{
+    OAShadowTransporentTouchesPassView *shadowView = [self viewWithTag:kShadowViewTag];
+    if (!shadowView)
+        return;
+
+    shadowView.layer.maskedCorners = maskedCorners;
+    [shadowView setNeedsLayout];
+}
+
 - (UIImage *)toUIImage {
     // Ensure the view has a valid layout
     [self layoutIfNeeded];

@@ -22,15 +22,36 @@ class ShadowTransporentView: UIView {
         guard !bounds.isEmpty else {
             return
         }
+        let corners = roundingCorners
         let path = UIBezierPath(
             roundedRect: bounds.insetBy(dx: 0, dy: 0),
-            cornerRadius: 4)
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: 4, height: 4))
         let hole = UIBezierPath(
             roundedRect: bounds.insetBy(dx: 1, dy: 1),
-            cornerRadius: 4)
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: 4, height: 4))
             .reversing()
         path.append(hole)
         layer.shadowPath = path.cgPath
+    }
+
+    private var roundingCorners: UIRectCorner {
+        let mask = layer.maskedCorners
+        var corners: UIRectCorner = []
+        if mask.contains(.layerMinXMinYCorner) {
+            corners.insert(.topLeft)
+        }
+        if mask.contains(.layerMaxXMinYCorner) {
+            corners.insert(.topRight)
+        }
+        if mask.contains(.layerMinXMaxYCorner) {
+            corners.insert(.bottomLeft)
+        }
+        if mask.contains(.layerMaxXMaxYCorner) {
+            corners.insert(.bottomRight)
+        }
+        return corners.isEmpty ? .allCorners : corners
     }
 }
 

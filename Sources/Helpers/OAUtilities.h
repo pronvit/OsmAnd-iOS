@@ -187,6 +187,7 @@ static inline double normalizeDouble(double v)
 - (void) removeSpinner;
 - (void) addShadow;
 - (void) showShadow:(BOOL)show;
+- (void) setShadowMaskedCorners:(CACornerMask)maskedCorners;
 - (UIImage *) toUIImage;
 
 @end

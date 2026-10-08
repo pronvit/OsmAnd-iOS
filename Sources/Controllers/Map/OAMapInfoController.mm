@@ -353,73 +353,55 @@
     }
 }
 
-- (void)configureLayerWidgets:(BOOL)hasTopWidgets
+- (void)configureSidePanel:(OAWidgetPanelViewController *)panel
+               widgetsView:(UIView *)widgetsView
+                      mask:(CACornerMask)mask
+               screenEdge:(CACornerMask)screenEdge
 {
-    if (hasTopWidgets) {
-        CACornerMask maskedCorners = kCALayerMinXMaxYCorner | kCALayerMaxXMaxYCorner;
-        [_rightPanelController.view.layer addWidgetLayerDecoratorWithMask:maskedCorners isNighTheme:_settings.isAppMapNightMode];
-        [_leftPanelController.view.layer addWidgetLayerDecoratorWithMask:maskedCorners isNighTheme:_settings.isAppMapNightMode];
-        if (_rightPanelController.pages.count > 1)
-        {
-            [self configureCornerRadiusForView:_rightPanelController.pageControl mask:kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner];
-            _rightPanelController.pageContainerView.layer.cornerRadius = 0;
-        }
+    // The edge against the screen stays square.
+    CACornerMask panelMask = mask & ~screenEdge;
+    [panel.view.layer addWidgetLayerDecoratorWithMask:panelMask isNighTheme:_settings.isAppMapNightMode];
+    [widgetsView setShadowMaskedCorners:panelMask];
+    if (panel.pages.count > 1)
+    {
+        [self configureCornerRadiusForView:panel.pageControl mask:(kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner) & ~screenEdge];
+        if ((mask & (kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner)) != 0)
+            [self configureCornerRadiusForView:panel.pageContainerView mask:(kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner) & ~screenEdge];
         else
-            [self configureCornerRadiusForView:_rightPanelController.pageContainerView mask:kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner];
-
-        if (_leftPanelController.pages.count > 1)
-        {
-            [self configureCornerRadiusForView:_leftPanelController.pageControl mask:kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner];
-            _leftPanelController.pageContainerView.layer.cornerRadius = 0;
-        }
-        else
-            [self configureCornerRadiusForView:_leftPanelController.pageContainerView mask:kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner];
-
+            panel.pageContainerView.layer.cornerRadius = 0;
     }
     else
+        [self configureCornerRadiusForView:panel.pageContainerView mask:panelMask];
+}
+
+- (void)configureLayerWidgets:(BOOL)hasTopWidgets
+{
+    CACornerMask maskedCorners;
+    if (hasTopWidgets)
+        maskedCorners = kCALayerMinXMaxYCorner | kCALayerMaxXMaxYCorner;
+    else if ([OAUtilities isLandscapeIpadAware])
+        maskedCorners = kCALayerMaxXMaxYCorner | kCALayerMaxXMinYCorner | kCALayerMinXMaxYCorner | kCALayerMinXMinYCorner;
+    else
     {
-        if ([OAUtilities isLandscapeIpadAware])
-        {
-            CACornerMask maskedCorners = kCALayerMaxXMaxYCorner | kCALayerMaxXMinYCorner | kCALayerMinXMaxYCorner | kCALayerMinXMinYCorner;
-            [_rightPanelController.view.layer addWidgetLayerDecoratorWithMask:maskedCorners isNighTheme:_settings.isAppMapNightMode];
-            [_leftPanelController.view.layer addWidgetLayerDecoratorWithMask:maskedCorners isNighTheme:_settings.isAppMapNightMode];
-            if (_rightPanelController.pages.count > 1)
-            {
-                [self configureCornerRadiusForView:_rightPanelController.pageControl mask:kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner];
-                [self configureCornerRadiusForView:_rightPanelController.pageContainerView mask:kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner];
-            }
-            else
-                [self configureCornerRadiusForView:_rightPanelController.pageContainerView mask:maskedCorners];
-  
-            if (_leftPanelController.pages.count > 1)
-            {
-                [self configureCornerRadiusForView:_leftPanelController.pageControl mask:kCALayerMaxXMaxYCorner | kCALayerMinXMaxYCorner];
-                [self configureCornerRadiusForView:_leftPanelController.pageContainerView mask:kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner];
-            }
-            else
-                [self configureCornerRadiusForView:_leftPanelController.pageContainerView mask:maskedCorners];
-        }
-        else
-        {
-            [_rightPanelController.view.layer addWidgetLayerDecoratorWithMask:kCALayerMinXMaxYCorner | kCALayerMinXMinYCorner isNighTheme:_settings.isAppMapNightMode];
-            if (_rightPanelController.pages.count > 1)
-            {
-                [self configureCornerRadiusForView:_rightPanelController.pageControl mask:kCALayerMinXMaxYCorner];
-                [self configureCornerRadiusForView:_rightPanelController.pageContainerView mask:kCALayerMinXMinYCorner];
-            }
-            else
-                [self configureCornerRadiusForView:_rightPanelController.pageContainerView mask:kCALayerMinXMaxYCorner | kCALayerMinXMinYCorner];
-            
-            [_leftPanelController.view.layer addWidgetLayerDecoratorWithMask:kCALayerMaxXMaxYCorner | kCALayerMaxXMinYCorner isNighTheme:_settings.isAppMapNightMode];
-            if (_leftPanelController.pages.count > 1)
-            {
-                [self configureCornerRadiusForView:_leftPanelController.pageControl mask:kCALayerMaxXMaxYCorner];
-                [self configureCornerRadiusForView:_leftPanelController.pageContainerView mask:kCALayerMaxXMinYCorner];
-            }
-            else
-                [self configureCornerRadiusForView:_leftPanelController.pageContainerView mask:kCALayerMaxXMaxYCorner | kCALayerMaxXMinYCorner];
-        }
+        [self configureSidePanel:_rightPanelController
+                     widgetsView:_mapHudViewController.rightWidgetsView
+                            mask:kCALayerMinXMaxYCorner | kCALayerMinXMinYCorner
+                      screenEdge:kCALayerMaxXMinYCorner | kCALayerMaxXMaxYCorner];
+        [self configureSidePanel:_leftPanelController
+                     widgetsView:_mapHudViewController.leftWidgetsView
+                            mask:kCALayerMaxXMaxYCorner | kCALayerMaxXMinYCorner
+                      screenEdge:kCALayerMinXMinYCorner | kCALayerMinXMaxYCorner];
+        return;
     }
+
+    [self configureSidePanel:_rightPanelController
+                 widgetsView:_mapHudViewController.rightWidgetsView
+                        mask:maskedCorners
+                  screenEdge:kCALayerMaxXMinYCorner | kCALayerMaxXMaxYCorner];
+    [self configureSidePanel:_leftPanelController
+                 widgetsView:_mapHudViewController.leftWidgetsView
+                        mask:maskedCorners
+                  screenEdge:kCALayerMinXMinYCorner | kCALayerMinXMaxYCorner];
 }
 
 - (void)configureCornerRadiusForView:(UIView *)view
