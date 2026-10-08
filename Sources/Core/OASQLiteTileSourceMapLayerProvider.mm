@@ -64,6 +64,12 @@ std::shared_ptr<OsmAnd::TileSqliteDatabase> OASQLiteTileSourceMapLayerProvider::
     return _ts ? _ts : [OAMapCreatorDbHelper.sharedInstance getTileSqliteDatabase:_fileName.toNSString()];
 }
 
+bool OASQLiteTileSourceMapLayerProvider::retainsOverviewZoom() const
+{
+    const auto& db = getDatabase();
+    return db && db->open() && db->isOnlineTileSource();
+}
+
 bool OASQLiteTileSourceMapLayerProvider::isEllipsoid()
 {
     const auto& db = getDatabase();

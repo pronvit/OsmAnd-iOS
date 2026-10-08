@@ -78,4 +78,5 @@ public:
     
     virtual OsmAnd::ZoomLevel getMinZoom() const;
     virtual OsmAnd::ZoomLevel getMaxZoom() const;
+    virtual bool retainsOverviewZoom() const;
 };
