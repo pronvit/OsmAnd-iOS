@@ -98,6 +98,8 @@
             {
                 for (OARemoteFile *file in remoteFiles)
                 {
+                    if ([OABackupHelper isCatalogMapFileName:file.name])
+                        continue;
                     OAExportSettingsType *exportType = [OAExportSettingsType findByRemoteFile:file];
                     if ([_types containsObject:exportType])
                         [filesToDelete addObject:file];
@@ -105,7 +107,11 @@
             }
             else
             {
-                [filesToDelete addObjectsFromArray:remoteFiles];
+                for (OARemoteFile *file in remoteFiles)
+                {
+                    if (![OABackupHelper isCatalogMapFileName:file.name])
+                        [filesToDelete addObject:file];
+                }
             }
             [self publishProgress:filesToDelete];
             if (filesToDelete.count > 0)

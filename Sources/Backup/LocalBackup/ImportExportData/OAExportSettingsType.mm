@@ -77,7 +77,7 @@ static NSArray<OAExportSettingsType *> *allValues;
         return [self findBySettingsItem:remoteFile.item];
 
     if ([[OASettingsItemType typeName:EOASettingsItemTypeFile] isEqualToString:remoteFile.type])
-        return [self findByFileSubtype:((OAFileSettingsItem *) remoteFile.item).subtype];
+        return [self findByFileSubtype:[OAFileSettingsItemFileSubtype getSubtypeByFileName:remoteFile.name]];
 
     for (OAExportSettingsType *exportType in self.getAllValues)
     {
@@ -99,6 +99,12 @@ static NSArray<OAExportSettingsType *> *allValues;
         return TRACKS;
     else if (subtype == EOAFileSettingsItemFileSubtypeColorPalette)
         return COLOR_PALETTE;
+    else if (subtype == EOAFileSettingsItemFileSubtypeWikiMap || subtype == EOAFileSettingsItemFileSubtypeTravel)
+        return self.WIKI_AND_TRAVEL;
+    else if (subtype == EOAFileSettingsItemFileSubtypeNauticalDepth)
+        return self.DEPTH_DATA;
+    else if (subtype == EOAFileSettingsItemFileSubtypeSrtmMap || subtype == EOAFileSettingsItemFileSubtypeTerrainMap)
+        return self.TERRAIN_DATA;
     else if ([OAFileSettingsItemFileSubtype isMap:subtype])
         return STANDARD_MAPS;
     else if (subtype == EOAFileSettingsItemFileSubtypeVoiceTTS)
