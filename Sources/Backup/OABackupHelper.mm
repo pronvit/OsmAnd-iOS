@@ -497,12 +497,40 @@ static NSCharacterSet* URL_PATH_CHARACTER_SET;
                 remoteFile:(OARemoteFile *)remoteFile
                   listener:(id<OAOnDownloadFileListener>)listener
 {
+    return [self downloadFile:filePath
+                         type:remoteFile.type
+                         name:remoteFile.name
+                 updatetimems:remoteFile.updatetimems
+             approximateSize:[self calculateFileSize:remoteFile]
+                     listener:listener];
+}
+
+- (NSString *)downloadFile:(NSString *)filePath
+                      type:(NSString *)type
+                      name:(NSString *)name
+              updatetimems:(long)updatetimems
+                  listener:(id<OAOnDownloadFileListener>)listener
+{
+    return [self downloadFile:filePath
+                         type:type
+                         name:name
+                 updatetimems:updatetimems
+             approximateSize:1
+                     listener:listener];
+}
+
+- (NSString *)downloadFile:(NSString *)filePath
+                      type:(NSString *)type
+                      name:(NSString *)name
+              updatetimems:(long)updatetimems
+           approximateSize:(NSInteger)approximateSize
+                  listener:(id<OAOnDownloadFileListener>)listener
+{
     [self checkRegistered];
     
     OAOperationLog *operationLog = [[OAOperationLog alloc] initWithOperationName:@"downloadFile" debug:BACKUP_DEBUG_LOGS];
     NSString *error;
-    NSString *type = remoteFile.type;
-    NSString *fileName = remoteFile.name;
+    NSString *fileName = name;
     
     NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionary];
     NSString *deviceId = [self getDeviceId];
@@ -511,7 +539,7 @@ static NSCharacterSet* URL_PATH_CHARACTER_SET;
     params[@"accessToken"] = [self getAccessToken];
     params[@"name"] = fileName;
     params[@"type"] = type;
-    params[@"updatetime"] = @(remoteFile.updatetimems).stringValue;
+    params[@"updatetime"] = @(updatetimems).stringValue;
     NSMutableString *builder = [NSMutableString stringWithString:DOWNLOAD_FILE_URL];
     __block BOOL firstParam = YES;
     [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
@@ -521,7 +549,7 @@ static NSCharacterSet* URL_PATH_CHARACTER_SET;
     }];
     
     OAURLSessionProgress *progress = [[OAURLSessionProgress alloc] init];
-    NSInteger sz = [self calculateFileSize:remoteFile];
+    NSInteger sz = MAX(approximateSize, 1);
     __block int64_t work = 0;
     [progress setOnProgress:^(int progress, int64_t deltaWork) {
         work += deltaWork;
@@ -539,6 +567,33 @@ static NSCharacterSet* URL_PATH_CHARACTER_SET;
         [listener onFileDownloadDone:type fileName:fileName estSize:sz error:error];
     [operationLog finishOperation];
     return error;
+}
+
+- (OARemoteFile *)latestRemoteFileWithName:(NSString *)name type:(NSString *)type
+{
+    if (name.length == 0 || type.length == 0)
+        return nil;
+    [self checkRegistered];
+
+    NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionary];
+    params[@"deviceid"] = self.getDeviceId;
+    params[@"accessToken"] = self.getAccessToken;
+    params[@"allVersions"] = @"true";
+    params[@"name"] = name;
+    params[@"type"] = type;
+    __block OARemoteFile *latest = nil;
+    [OANetworkUtilities sendRequestWithUrl:LIST_FILES_URL params:params post:NO async:NO onComplete:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (((NSHTTPURLResponse *) response).statusCode != 200 || data.length == 0)
+            return;
+        NSDictionary *resultJson = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        NSArray *allFiles = resultJson[@"allFiles"];
+        if (![allFiles isKindOfClass:NSArray.class] || allFiles.count == 0)
+            return;
+        id first = allFiles.firstObject;
+        if ([first isKindOfClass:NSDictionary.class])
+            latest = [[OARemoteFile alloc] initWithJson:first];
+    }];
+    return latest;
 }
 
 - (void) generateBackupInfo:(NSDictionary<NSString *, OALocalFile *> *)localFiles

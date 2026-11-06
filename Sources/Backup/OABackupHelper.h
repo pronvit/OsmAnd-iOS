@@ -91,6 +91,13 @@ static inline BOOL backupDebugLogs()
 - (NSString *)downloadFile:(NSString *)filePath
                 remoteFile:(OARemoteFile *)remoteFile
                   listener:(id<OAOnDownloadFileListener>)listener;
+- (NSString *)downloadFile:(NSString *)filePath
+                      type:(NSString *)type
+                      name:(NSString *)name
+              updatetimems:(long)updatetimems
+                  listener:(id<OAOnDownloadFileListener>)listener;
+/// Newest stored row for one file, including a deletion row. Nil when the list request fails.
+- (OARemoteFile *)latestRemoteFileWithName:(NSString *)name type:(NSString *)type;
 - (void) generateBackupInfo:(NSDictionary<NSString *, OALocalFile *> *)localFiles
           uniqueRemoteFiles:(NSDictionary<NSString *, OARemoteFile *> *)uniqueRemoteFiles
          deletedRemoteFiles:(NSDictionary<NSString *, OARemoteFile *> *)deletedRemoteFiles

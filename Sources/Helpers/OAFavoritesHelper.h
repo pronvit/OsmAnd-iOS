@@ -119,6 +119,11 @@
 + (NSArray<NSString *> *) getFlatBackgroundContourIconNamesList;
 
 + (OASGpxFile *)asGpxFile:(NSArray<OAFavoriteGroup *> *)favoriteGroups;
++ (void)applyTombstonesFromGpx:(OASGpxFile *)gpxFile
+                      toGroups:(NSDictionary<NSString *, OAFavoriteGroup *> *)groups;
++ (OAFavoriteGroup *)favoriteGroupFromGpxFile:(OASGpxFile *)gpxFile
+                                 fallbackName:(NSString *)fallbackName;
++ (void)replaceGroup:(OAFavoriteGroup *)group withMergedGroup:(OAFavoriteGroup *)merged;
 
 + (void) addParkingReminderToCalendar;
 + (void) removeParkingReminderFromCalendar;
@@ -143,6 +148,9 @@
 @property (nonatomic) NSString *iconName;
 @property (nonatomic) NSString *backgroundType;
 @property (nonatomic) NSMutableArray<OAFavoriteItem*> *points;
+/// Point keys removed from this folder, mapped to the deletion time in milliseconds.
+/// Written into the folder GPX so another device can merge the deletion.
+@property (nonatomic) NSMutableDictionary<NSString *, NSNumber *> *deletedPointTimes;
 
 - (instancetype)initWithPoint:(OAFavoriteItem *)point;
 - (instancetype) initWithName:(NSString *)name isVisible:(BOOL)isVisible color:(UIColor *)color;

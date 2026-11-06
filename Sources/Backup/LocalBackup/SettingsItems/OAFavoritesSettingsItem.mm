@@ -326,6 +326,15 @@
             }
             [group.points addObject:point];
         }
+        [gpxFile.pointsGroups enumerateKeysAndObjectsUsingBlock:^(NSString *key, OASGpxUtilitiesPointsGroup *pointsGroup, BOOL *stop) {
+            if (flatGroups[key])
+                return;
+            OAFavoriteGroup *group = [OAFavoriteGroup fromPointsGroup:pointsGroup];
+            group.isVisible = ![pointsGroup isHidden];
+            flatGroups[key] = group;
+            [self.item.items addObject:group];
+        }];
+        [OAFavoritesHelper applyTombstonesFromGpx:gpxFile toGroups:flatGroups];
     }
 
     self.item.read = YES;

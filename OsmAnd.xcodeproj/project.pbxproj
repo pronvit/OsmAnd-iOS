@@ -3207,6 +3207,8 @@
 		DA98A0322109FC7D00BB32D0 /* zh_tts.js in Resources */ = {isa = PBXBuildFile; fileRef = DA98A0312109FC7D00BB32D0 /* zh_tts.js */; };
 		DA98A035210A039500BB32D0 /* hu_tts.js in Resources */ = {isa = PBXBuildFile; fileRef = DA98A034210A039400BB32D0 /* hu_tts.js */; };
 		DA9901B32918F14700A3C732 /* OASyncBackupTask.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA9901B22918F14700A3C732 /* OASyncBackupTask.mm */; };
+		A1FA00032F00000100FA0003 /* OAFavoritesFolderMerger.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1FA00022F00000100FA0002 /* OAFavoritesFolderMerger.mm */; };
+		A1FA00052F00000100FA0005 /* OAFavoritesFolderMergerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1FA00042F00000100FA0004 /* OAFavoritesFolderMergerTests.mm */; };
 		DA9A2C2826FB587400BEC681 /* map_direction_arrow@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DA9A2C2626FB587400BEC681 /* map_direction_arrow@3x.png */; };
 		DA9A2C2926FB587400BEC681 /* map_direction_arrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DA9A2C2726FB587400BEC681 /* map_direction_arrow@2x.png */; };
 		DA9A2C2C26FCB50600BEC681 /* map_direction_arrow_small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DA9A2C2A26FCB50500BEC681 /* map_direction_arrow_small@2x.png */; };
@@ -8203,6 +8205,9 @@
 		DA98A034210A039400BB32D0 /* hu_tts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = hu_tts.js; path = ../resources/voice/hu/hu_tts.js; sourceTree = "<group>"; };
 		DA9901B12918F14700A3C732 /* OASyncBackupTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OASyncBackupTask.h; sourceTree = "<group>"; };
 		DA9901B22918F14700A3C732 /* OASyncBackupTask.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OASyncBackupTask.mm; sourceTree = "<group>"; };
+		A1FA00012F00000100FA0001 /* OAFavoritesFolderMerger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OAFavoritesFolderMerger.h; sourceTree = "<group>"; };
+		A1FA00022F00000100FA0002 /* OAFavoritesFolderMerger.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OAFavoritesFolderMerger.mm; sourceTree = "<group>"; };
+		A1FA00042F00000100FA0004 /* OAFavoritesFolderMergerTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OAFavoritesFolderMergerTests.mm; sourceTree = "<group>"; };
 		DA9A2C2626FB587400BEC681 /* map_direction_arrow@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map_direction_arrow@3x.png"; path = "Resources/Icons/map_direction_arrow@3x.png"; sourceTree = "<group>"; };
 		DA9A2C2726FB587400BEC681 /* map_direction_arrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map_direction_arrow@2x.png"; path = "Resources/Icons/map_direction_arrow@2x.png"; sourceTree = "<group>"; };
 		DA9A2C2A26FCB50500BEC681 /* map_direction_arrow_small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map_direction_arrow_small@2x.png"; path = "Resources/Icons/map_direction_arrow_small@2x.png"; sourceTree = "<group>"; };
@@ -14844,6 +14849,7 @@
 				FAB6243D2E0953580048965E /* Managers */,
 				D1C571200000000000000006 /* Panels */,
 				D1C573500000000000000003 /* PlanRoute */,
+				A1FA00062F00000100FA0006 /* Backup */,
 				DA80DAA8251E0C0C008E6267 /* Router */,
 				8A1CF862250D145C003D3829 /* test-resources */,
 				DA72AB932508F44900851313 /* Search */,
@@ -14851,6 +14857,14 @@
 				7600F13F2F8010AC00DC552B /* Util */,
 			);
 			path = "OsmAnd MapsTests";
+			sourceTree = "<group>";
+		};
+		A1FA00062F00000100FA0006 /* Backup */ = {
+			isa = PBXGroup;
+			children = (
+				A1FA00042F00000100FA0004 /* OAFavoritesFolderMergerTests.mm */,
+			);
+			path = Backup;
 			sourceTree = "<group>";
 		};
 		DA72AB932508F44900851313 /* Search */ = {
@@ -15096,6 +15110,8 @@
 				DA0C2BDC27EF4B3800B7CC4F /* OAPrepareBackupTask.m */,
 				DA775B8527E5F30E0081B9C1 /* OARemoteFile.h */,
 				DA775B8627E5F30E0081B9C1 /* OARemoteFile.m */,
+				A1FA00012F00000100FA0001 /* OAFavoritesFolderMerger.h */,
+				A1FA00022F00000100FA0002 /* OAFavoritesFolderMerger.mm */,
 				DA9901B12918F14700A3C732 /* OASyncBackupTask.h */,
 				DA9901B22918F14700A3C732 /* OASyncBackupTask.mm */,
 				465749112B681E620006046B /* TrashGroup.swift */,
@@ -19555,6 +19571,7 @@
 				B0D61511780C648362077F37 /* OATrackMenuAppearanceHudViewController.mm in Sources */,
 				B0D6195E900EF69E053A5465 /* OABaseTrackMenuHudViewController.mm in Sources */,
 				DA9901B32918F14700A3C732 /* OASyncBackupTask.mm in Sources */,
+				A1FA00032F00000100FA0003 /* OAFavoritesFolderMerger.mm in Sources */,
 				B0D6159DC886AF2419676731 /* OATitleSwitchRoundCell.mm in Sources */,
 				B0D610BD70EF0179933FD55C /* OAAddWaypointViewController.mm in Sources */,
 				C57E26F32D3D663F00A8A3D5 /* AttachRoadsBannerCell.swift in Sources */,
@@ -19688,6 +19705,7 @@
 				D1C586500000000000000001 /* Helpers/UtilitiesUrlQueryTests.swift in Sources */,
 				D1C585900000000000000001 /* Helpers/OAReverseGeocoderStopTests.mm in Sources */,
 				DA80DAAA251E0C37008E6267 /* OARouteResultPreparationTest.mm in Sources */,
+				A1FA00052F00000100FA0005 /* OAFavoritesFolderMergerTests.mm in Sources */,
 				FAB624412E0954F90048965E /* SelectionManager.swift in Sources */,
 				D1A0B0122F50001100A0B001 /* StringExtensions.swift in Sources */,
 				DA72AB952508F44900851313 /* SearchUICoreTest.mm in Sources */,

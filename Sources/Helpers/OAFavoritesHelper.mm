@@ -28,6 +28,9 @@
 #import "OsmAndSharedWrapper.h"
 
 #import <EventKit/EventKit.h>
+
+NSString * const OAFavoriteDeletedPointsExtension = @"osmand_fav_deleted";
+static const long long kFavoriteTombstoneMaxAgeMs = 90LL * 24 * 60 * 60 * 1000;
 #import "OsmAnd_Maps-Swift.h"
 
 #include <OsmAndCore.h>
@@ -184,6 +187,7 @@ static NSOperationQueue *_favQueue;
         NSString *groupKey = !legacy ? key : [key stringByAppendingString:@"-old"];
         favoriteGroups[groupKey] = favoriteGroup;
     }];
+    [self applyTombstonesFromGpx:gpxFile toGroups:favoriteGroups];
 }
 
 + (OASGpxFile *)loadGpxFile:(NSString *)file
@@ -729,6 +733,7 @@ static NSOperationQueue *_favQueue;
 {
     NSString *oldGroup = [item getCategory];
 
+    [self touchEditTime:item];
     [item setName:newName];
     [item setCategory:group];
     [item setDescription:descr];
@@ -763,6 +768,7 @@ static NSOperationQueue *_favQueue;
 
 + (BOOL) editFavorite:(OAFavoriteItem *)item lat:(double)lat lon:(double)lon description:(NSString *)description
 {
+    [self touchEditTime:item];
     _favoritesCollection->removeFavoriteLocation(item.favorite);
     [item setLat:lat lon:lon];
     _favoritesCollection->addFavoriteLocation(item.favorite);
@@ -827,7 +833,10 @@ static NSOperationQueue *_favQueue;
 {
     if (updatePoints)
         for (OAFavoriteItem *point in group.points)
+        {
+            [self touchEditTime:point];
             [point setIcon:iconName];
+        }
 
     if (updateGroupIcon)
         group.iconName = iconName;
@@ -843,7 +852,10 @@ static NSOperationQueue *_favQueue;
 {
     if (updatePoints)
         for (OAFavoriteItem *point in group.points)
+        {
+            [self touchEditTime:point];
             [point setColor:color];
+        }
 
     if (updateGroupColor)
         group.color = color;
@@ -859,7 +871,10 @@ static NSOperationQueue *_favQueue;
 {
     if (updatePoints)
         for (OAFavoriteItem *point in group.points)
+        {
+            [self touchEditTime:point];
             [point setBackgroundIcon:backgroundIconName];
+        }
 
     if (updateGroupShape)
         group.backgroundType = backgroundIconName;
@@ -872,7 +887,10 @@ static NSOperationQueue *_favQueue;
     saveImmediately:(BOOL)saveImmediately
 {
     for (OAFavoriteItem *point in group.points)
+    {
+        [self touchEditTime:point];
         [point setVisible:visible];
+    }
 
     group.isVisible = visible;
     if (saveImmediately)
@@ -932,6 +950,9 @@ static NSOperationQueue *_favQueue;
         // Hold only deleted groups in map
         for (OAFavoriteGroup *group in favoriteGroups)
             [deletedGroups removeObjectForKey:group.name];
+
+        [self noteDeletedFavorites:deletedPoints inGroups:favoriteGroups];
+        [self noteDeletedFavorites:deletedPoints inGroups:_favoriteGroups];
 
         // Save groups to internal file
         // [self saveFile:_favoriteGroups file:internalFile];
@@ -1369,8 +1390,184 @@ static NSOperationQueue *_favQueue;
     OASGpxFile *gpx = [[OASGpxFile alloc] initWithAuthor:[OAAppVersion getFullVersionWithAppName]];
     for (OAFavoriteGroup *group in favoriteGroups)
         [gpx addPointsGroupGroup:[group toPointsGroup]];
+    [self writeDeletedPoints:favoriteGroups toGpx:gpx];
 
     return gpx;
+}
+
++ (void)touchEditTime:(OAFavoriteItem *)item
+{
+    if (item)
+        [item setTimestamp:[NSDate date]];
+}
+
++ (void)noteDeletedFavorites:(NSDictionary<NSString *, OAFavoriteItem *> *)deleted
+                    inGroups:(NSArray<OAFavoriteGroup *> *)groups
+{
+    long long now = (long long) ([NSDate date].timeIntervalSince1970 * 1000.0);
+    for (OAFavoriteItem *point in deleted.allValues)
+    {
+        NSString *key = [point getKey];
+        if (key.length == 0)
+            continue;
+        NSString *category = [point getCategory] ?: @"";
+        for (OAFavoriteGroup *group in groups)
+        {
+            if (![(group.name ?: @"") isEqualToString:category])
+                continue;
+            if (!group.deletedPointTimes)
+                group.deletedPointTimes = [NSMutableDictionary dictionary];
+            NSNumber *existing = group.deletedPointTimes[key];
+            if (!existing || existing.longLongValue < now)
+                group.deletedPointTimes[key] = @(now);
+            break;
+        }
+    }
+    for (OAFavoriteGroup *group in groups)
+        [self pruneDeletedPointTimes:group now:now];
+}
+
++ (void)pruneDeletedPointTimes:(OAFavoriteGroup *)group now:(long long)now
+{
+    if (group.deletedPointTimes.count == 0)
+        return;
+    NSMutableSet<NSString *> *liveKeys = [NSMutableSet set];
+    for (OAFavoriteItem *point in group.points)
+    {
+        NSString *key = [point getKey];
+        if (key.length > 0)
+            [liveKeys addObject:key];
+    }
+    NSMutableArray<NSString *> *remove = [NSMutableArray array];
+    [group.deletedPointTimes enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *time, BOOL *stop) {
+        if (now - time.longLongValue > kFavoriteTombstoneMaxAgeMs)
+        {
+            [remove addObject:key];
+            return;
+        }
+        if ([liveKeys containsObject:key])
+        {
+            OAFavoriteItem *point = nil;
+            for (OAFavoriteItem *candidate in group.points)
+            {
+                if ([[candidate getKey] isEqualToString:key])
+                {
+                    point = candidate;
+                    break;
+                }
+            }
+            NSDate *timestamp = [point getTimestamp];
+            long long pointTime = timestamp ? (long long) (timestamp.timeIntervalSince1970 * 1000.0) : 0;
+            if (pointTime >= time.longLongValue)
+                [remove addObject:key];
+        }
+    }];
+    [group.deletedPointTimes removeObjectsForKeys:remove];
+}
+
++ (void)writeDeletedPoints:(NSArray<OAFavoriteGroup *> *)groups toGpx:(OASGpxFile *)gpx
+{
+    long long now = (long long) ([NSDate date].timeIntervalSince1970 * 1000.0);
+    NSMutableArray<NSDictionary *> *entries = [NSMutableArray array];
+    for (OAFavoriteGroup *group in groups)
+    {
+        [group.deletedPointTimes enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *time, BOOL *stop) {
+            if (key.length == 0 || now - time.longLongValue > kFavoriteTombstoneMaxAgeMs)
+                return;
+            [entries addObject:@{
+                @"k": key,
+                @"g": group.name ?: @"",
+                @"t": time
+            }];
+        }];
+    }
+    if (entries.count == 0)
+        return;
+
+    NSData *data = [NSJSONSerialization dataWithJSONObject:entries options:0 error:nil];
+    if (!data)
+        return;
+    NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (json.length == 0)
+        return;
+    if (!gpx.metadata)
+        gpx.metadata = [[OASMetadata alloc] init];
+    [gpx.metadata getExtensionsToWrite][OAFavoriteDeletedPointsExtension] = json;
+}
+
++ (void)applyTombstonesFromGpx:(OASGpxFile *)gpxFile
+                      toGroups:(NSDictionary<NSString *, OAFavoriteGroup *> *)groups
+{
+    if (!gpxFile.metadata || groups.count == 0)
+        return;
+    NSString *raw = [gpxFile.metadata getExtensionsToRead][OAFavoriteDeletedPointsExtension];
+    if (raw.length == 0)
+        return;
+    NSData *data = [raw dataUsingEncoding:NSUTF8StringEncoding];
+    id json = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    if (![json isKindOfClass:NSArray.class])
+        return;
+
+    for (id entry in (NSArray *) json)
+    {
+        if (![entry isKindOfClass:NSDictionary.class])
+            continue;
+        NSString *key = ((NSDictionary *) entry)[@"k"];
+        NSString *groupName = ((NSDictionary *) entry)[@"g"];
+        NSNumber *time = ((NSDictionary *) entry)[@"t"];
+        if (![key isKindOfClass:NSString.class] || key.length == 0 || ![time isKindOfClass:NSNumber.class])
+            continue;
+        OAFavoriteGroup *group = [groupName isKindOfClass:NSString.class] ? groups[groupName] : nil;
+        if (!group && groups.count == 1)
+            group = groups.allValues.firstObject;
+        if (!group)
+            continue;
+        if (!group.deletedPointTimes)
+            group.deletedPointTimes = [NSMutableDictionary dictionary];
+        NSNumber *existing = group.deletedPointTimes[key];
+        if (!existing || existing.longLongValue < time.longLongValue)
+            group.deletedPointTimes[key] = time;
+    }
+}
+
++ (OAFavoriteGroup *)favoriteGroupFromGpxFile:(OASGpxFile *)gpxFile
+                                 fallbackName:(NSString *)fallbackName
+{
+    if (!gpxFile || gpxFile.error)
+        return nil;
+    NSMutableDictionary<NSString *, OAFavoriteGroup *> *groups = [NSMutableDictionary dictionary];
+    [self collectFavoriteGroups:gpxFile favoriteGroups:groups legacy:NO];
+    [gpxFile.pointsGroups enumerateKeysAndObjectsUsingBlock:^(NSString *key, OASGpxUtilitiesPointsGroup *pointsGroup, BOOL *stop) {
+        OAFavoriteGroup *group = groups[key];
+        if (group)
+            group.isVisible = ![pointsGroup isHidden];
+    }];
+    if (fallbackName.length > 0 && groups[fallbackName])
+        return groups[fallbackName];
+    if (groups.count > 0)
+        return groups.allValues.firstObject;
+
+    OAFavoriteGroup *empty = [[OAFavoriteGroup alloc] initWithName:fallbackName ?: @"" isVisible:YES color:nil];
+    groups[empty.name ?: @""] = empty;
+    [self applyTombstonesFromGpx:gpxFile toGroups:groups];
+    return empty;
+}
+
++ (void)replaceGroup:(OAFavoriteGroup *)group withMergedGroup:(OAFavoriteGroup *)merged
+{
+    if (!group || !merged)
+        return;
+    group.color = merged.color;
+    group.iconName = merged.iconName;
+    group.backgroundType = merged.backgroundType;
+    group.isVisible = merged.isVisible;
+    group.isPinned = merged.isPinned;
+    [group.points removeAllObjects];
+    [group.points addObjectsFromArray:merged.points];
+    group.deletedPointTimes = [merged.deletedPointTimes mutableCopy] ?: [NSMutableDictionary dictionary];
+    [self recalculateCachedFavPoints];
+    [self notifyFavoritesStorageChanged];
+    [self saveCurrentPointsIntoFile:NO];
 }
 
 + (void) addParkingReminderToCalendar
@@ -1540,6 +1737,7 @@ static NSOperationQueue *_favQueue;
     if (self)
     {
         _points = [NSMutableArray array];
+        _deletedPointTimes = [NSMutableDictionary dictionary];
         _isVisible = YES;
     }
     return self;
@@ -1561,7 +1759,8 @@ static NSOperationQueue *_favQueue;
             self.isPinned == otherGroup.isPinned &&
             [self.iconName isEqualToString:otherGroup.iconName] &&
             [self.backgroundType isEqualToString:otherGroup.backgroundType] &&
-            [self.points isEqualToArray:otherGroup.points]);
+            [self.points isEqualToArray:otherGroup.points] &&
+            [self.deletedPointTimes ?: @{} isEqualToDictionary:otherGroup.deletedPointTimes ?: @{}]);
 }
 
 
@@ -1747,6 +1946,7 @@ static NSOperationQueue *_favQueue;
     clone.isPinned = _isPinned;
     clone.iconName = _iconName;
     clone.backgroundType = _backgroundType;
+    clone.deletedPointTimes = [_deletedPointTimes mutableCopy] ?: [NSMutableDictionary dictionary];
     return clone;
 }
 

@@ -502,6 +502,7 @@ static NSString * const kFavoritesStorageChangedNotification = @"FavoritesStorag
         if ([changedPointKeys containsObject:pointKey])
             continue;
 
+        [favorite setTimestamp:[NSDate date]];
         [favorite setColor:color];
         [changedPointKeys addObject:pointKey];
         changed = YES;
