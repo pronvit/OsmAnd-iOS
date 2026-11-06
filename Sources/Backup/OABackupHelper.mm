@@ -37,6 +37,8 @@
 #import "OAURLSessionProgress.h"
 #import "OsmAnd_Maps-Swift.h"
 
+#include <QUrlQuery>
+
 #define kUpdateIdOperation @"Update order id"
 
 static NSString *INFO_EXT = @"info";
@@ -474,6 +476,66 @@ static NSCharacterSet* URL_PATH_CHARACTER_SET;
 {
     [self checkRegistered];
     [_executor addOperation:[[OASendCodeCommand alloc] initWith:email action:action]];
+}
+
++ (NSString *)catalogLookupName:(NSString *)name
+{
+    NSString *base = name.lastPathComponent;
+    if ([base.lowercaseString hasSuffix:@"obf"])
+    {
+        NSRange dot = [base rangeOfString:@"."];
+        if (dot.location != NSNotFound)
+            base = [[base substringToIndex:dot.location] stringByAppendingString:[@"_2" stringByAppendingString:[base substringFromIndex:dot.location]]];
+    }
+    else
+    {
+        base = [base stringByReplacingOccurrencesOfString:@" " withString:@"_"];
+    }
+    return base.lowercaseString;
+}
+
++ (NSSet<NSString *> *)catalogDownloadNames
+{
+    static NSSet<NSString *> *names;
+    static NSUInteger count = NSUIntegerMax;
+    static dispatch_queue_t lockQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        lockQueue = dispatch_queue_create("osmand.catalog-map-names", DISPATCH_QUEUE_SERIAL);
+    });
+
+    __block NSSet<NSString *> *result = nil;
+    dispatch_sync(lockQueue, ^{
+        const auto resources = [OsmAndApp instance].resourcesManager->getResourcesInRepository();
+        if (names && count == (NSUInteger) resources.size())
+        {
+            result = names;
+            return;
+        }
+        NSMutableSet<NSString *> *built = [NSMutableSet setWithCapacity:resources.size()];
+        for (auto it = resources.cbegin(); it != resources.cend(); ++it)
+        {
+            const QString file = QUrlQuery(it.value()->url).queryItemValue(QStringLiteral("file"), QUrl::FullyDecoded);
+            if (!file.isEmpty())
+                [built addObject:file.toNSString().lowercaseString];
+        }
+        names = [built copy];
+        count = (NSUInteger) resources.size();
+        result = names;
+    });
+    return result;
+}
+
++ (BOOL)isCatalogMapFileName:(NSString *)name
+{
+    if (name.length == 0)
+        return NO;
+    NSString *lower = name.lastPathComponent.lowercaseString;
+    if (![lower hasSuffix:@".obf"] && ![lower hasSuffix:@".sqlitedb"] && ![lower hasSuffix:@".tif"])
+        return NO;
+    NSString *lookup = [self catalogLookupName:name];
+    NSSet<NSString *> *catalog = [self catalogDownloadNames];
+    return [catalog containsObject:lookup] || [catalog containsObject:[lookup stringByAppendingString:@".zip"]];
 }
 
 - (NSInteger)calculateFileSize:(OARemoteFile *)remoteFile

@@ -172,6 +172,9 @@
                 filePath:(NSString *)filePath
             lastModified:(long)lastModifiedTime
 {
+    if ([OABackupHelper isCatalogMapFileName:fileName])
+        return;
+
     OALocalFile *localFile = [[OALocalFile alloc] init];
     localFile.filePath = filePath;
     localFile.item = item;

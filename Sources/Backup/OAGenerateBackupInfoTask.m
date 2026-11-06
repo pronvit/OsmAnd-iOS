@@ -107,6 +107,8 @@
         OAExportSettingsType *exportType = [OAExportSettingsType findByRemoteFile:remoteFile];
         if (exportType == nil || ![OAExportSettingsType isTypeEnabled:exportType] || remoteFile.isRecordedVoiceFile)
             continue;
+        if ([OABackupHelper isCatalogMapFileName:remoteFile.name])
+            continue;
         NSString* decomposedRemoteName = remoteFile.getTypeNamePath.decomposedStringWithCanonicalMapping;
         OALocalFile *localFile = _localFilesWithDecomposedNames[decomposedRemoteName];
         if (localFile != nil)
@@ -153,6 +155,8 @@
             ? [OAExportSettingsType findBySettingsItem:localFile.item]
             : nil;
         if (exportType == nil || ![OAExportSettingsType isTypeEnabled:exportType])
+            continue;
+        if ([OABackupHelper isCatalogMapFileName:localFile.fileName])
             continue;
         NSString *localKeyNfd = localFile.getTypeFileName.decomposedStringWithCanonicalMapping;
         BOOL hasRemoteFile = _uniqueRemoteFilesWithDecomposedNames[localKeyNfd] != nil;

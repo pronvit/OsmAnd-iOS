@@ -125,4 +125,7 @@ static inline BOOL backupDebugLogs()
 
 - (NSInteger) calculateFileSize:(OARemoteFile *)remoteFile;
 
+// A map the download index can serve again. Cloud sync skips these and leaves any existing cloud row in place.
++ (BOOL) isCatalogMapFileName:(NSString *)name;
+
 @end

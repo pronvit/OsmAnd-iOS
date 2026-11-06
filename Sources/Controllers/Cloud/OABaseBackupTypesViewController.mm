@@ -325,6 +325,8 @@
         NSMutableArray<OARemoteFile *> *filesByType = [NSMutableArray array];
         for (OARemoteFile *remoteFile in remoteFiles.allValues)
         {
+            if ([OABackupHelper isCatalogMapFileName:remoteFile.name])
+                continue;
             if ([OAExportSettingsType findByRemoteFile:remoteFile] == type)
                 [filesByType addObject:remoteFile];
         }
@@ -353,7 +355,11 @@
         else if ([item isKindOfClass:OALocalFile.class])
             itemsSize += [[[NSFileManager defaultManager] attributesOfItemAtPath:((OALocalFile *) item).filePath error:nil] fileSize];
         else if ([item isKindOfClass:OARemoteFile.class])
-            itemsSize += ((OARemoteFile *) item).zipSize;
+        {
+            OARemoteFile *remoteFile = (OARemoteFile *) item;
+            if (![OABackupHelper isCatalogMapFileName:remoteFile.name])
+                itemsSize += remoteFile.zipSize;
+        }
     }
     return itemsSize;
 }
