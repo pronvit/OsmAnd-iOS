@@ -317,21 +317,17 @@ NSInteger const kSettingsHelperErrorCodeEmptyJson = 5;
         for (NSString *file in files)
         {
             if ([file.pathExtension isEqualToString:@"txt"]) {
+                NSString *filePath = [colorPaletteFolder stringByAppendingPathComponent:file];
                 NSString *key = [COLOR_PALETTE_DIR stringByAppendingPathComponent:file];
-                NSDictionary *assetsMap = BundledAssets.shared.assets; // Access the assets map
-                BundledAsset *asset = assetsMap[key];
-                if(asset) {
-                    NSString *filePath = [colorPaletteFolder stringByAppendingPathComponent:file];
-                    NSDictionary *attributes = [fileManager attributesOfItemAtPath:filePath error:nil];
-                    NSDate *lastModifiedDate = attributes[NSFileModificationDate];
-                    if (lastModifiedDate) {
-                        NSTimeInterval lastModifiedTimestamp = [lastModifiedDate timeIntervalSince1970];
-                        if (lastModifiedTimestamp <= asset.version.doubleValue) {
-                            continue;
-                        }
-                    }
+                // A bundled palette stays out of sync while its bytes match the original.
+                // A newer modification date is not an edit. Duplicates are not in the asset list.
+                if (BundledAssets.shared.assets[key]) {
+                    NSString *bundledDir = [NSBundle.mainBundle pathForResource:COLOR_PALETTE_DIR ofType:nil];
+                    NSString *bundledPath = [bundledDir stringByAppendingPathComponent:file];
+                    if (bundledPath && [fileManager contentsEqualAtPath:filePath andPath:bundledPath])
+                        continue;
                 }
-                [items addObject:[colorPaletteFolder stringByAppendingPathComponent:file]];
+                [items addObject:filePath];
             }
         }
         
